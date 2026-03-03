@@ -1,0 +1,552 @@
+/* ═══════════════════════════════════════════════════════
+   S2ID COMMAND CENTER — Design System
+   "Google Earth married Palantir and had a child"
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  /* Skyvidya Baseline Colors */
+  --bg-primary: #0B0F14;
+  --bg-panel: #161B22;
+  --bg-card: #161B22;
+  --bg-elevated: #1F242C;
+
+  --border-primary: rgba(255, 255, 255, 0.08);
+  /* Crisp subtle border */
+  --border-active: rgba(255, 255, 255, 0.15);
+
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --text-muted: #4a5a70;
+
+  --primary: #FF5E3A;
+  /* Skyvidya Orange */
+  --primary-glow: rgba(255, 94, 58, 0.2);
+
+  --cyan: #00D4FF;
+  --cyan-glow: rgba(0, 212, 255, 0.2);
+
+  --green: #10B981;
+  --green-dim: #059669;
+  --green-glow: rgba(16, 185, 129, 0.15);
+
+  --blue: #00D4FF;
+  /* Retaining blue alias for backward compat */
+  --blue-dim: #0099cc;
+  --blue-glow: rgba(0, 212, 255, 0.15);
+
+  --red: #EF4444;
+  --red-dim: #DC2626;
+  --red-glow: rgba(239, 68, 68, 0.15);
+
+  --amber: #F59E0B;
+  --amber-dim: #D97706;
+  --amber-glow: rgba(245, 158, 11, 0.15);
+
+  --purple: #8B5CF6;
+  --purple-glow: rgba(139, 92, 246, 0.15);
+
+  --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'DM Sans', 'Inter', sans-serif;
+}
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-active);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Utility Classes ── */
+
+/* Fonts */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: rgba(22, 27, 34, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-dark {
+  background: rgba(11, 15, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Skyvidya HUD Border */
+.hud-border {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 12, 16, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+.hud-border::before,
+.hud-border::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-style: solid;
+}
+
+.hud-border::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+
+.hud-border::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+/* Glow Effects */
+.glow-green {
+  box-shadow: 0 0 20px var(--green-glow), inset 0 0 20px rgba(0, 255, 65, 0.03);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px var(--blue-glow), inset 0 0 20px rgba(0, 212, 255, 0.03);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px var(--amber-glow);
+}
+
+.border-glow-green {
+  border-color: var(--green);
+  box-shadow: 0 0 12px var(--green-glow);
+}
+
+.border-glow-blue {
+  border-color: var(--blue);
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+.border-glow-red {
+  border-color: var(--red);
+  box-shadow: 0 0 12px var(--red-glow);
+}
+
+/* Text Glow */
+.text-glow-green {
+  text-shadow: 0 0 8px var(--green-glow);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 8px var(--blue-glow);
+}
+
+/* Corner Accents (used on tactical panels) */
+.tactical-corners::before,
+.tactical-corners::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--green);
+}
+
+.tactical-corners::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.tactical-corners::after {
+  top: 0;
+  right: 0;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Severity Badges */
+.severity-s1 {
+  background: #1a3a1a;
+  color: #4ade80;
+  border: 1px solid #166534;
+}
+
+.severity-s2 {
+  background: #1a2e3a;
+  color: var(--blue);
+  border: 1px solid #0e4a6a;
+}
+
+.severity-s3 {
+  background: #2a2a1a;
+  color: var(--amber);
+  border: 1px solid #6a5a0e;
+}
+
+.severity-s4 {
+  background: #3a1a1a;
+  color: #f87171;
+  border: 1px solid #6a1a1a;
+}
+
+.severity-s5 {
+  background: #3a0a0a;
+  color: var(--red);
+  border: 1px solid #7f1d1d;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(255, 58, 58, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 12px rgba(255, 58, 58, 0.6);
+  }
+}
+
+/* Animations */
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-slide-left {
+  animation: slide-in-left 0.3s ease-out forwards;
+}
+
+.animate-slide-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+/* Scan Line Overlay */
+.scanline-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.015) 2px,
+      rgba(0, 255, 65, 0.015) 4px);
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Grid Background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(30, 42, 58, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 42, 58, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Sidebar transition */
+.sidebar-transition {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
+}
+
+/* Tab active indicator */
+.tab-active {
+  position: relative;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green-glow);
+}
+
+/* Event card hover */
+.event-card {
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.event-card:hover {
+  background: rgba(22, 27, 40, 0.8);
+  border-left-color: var(--blue);
+}
+
+.event-card.active {
+  background: rgba(0, 255, 65, 0.05);
+  border-left-color: var(--green);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.03);
+}
+
+/* Stat card shimmer */
+.stat-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+
+/* News validation card */
+.news-card {
+  border-left: 2px solid var(--blue);
+  background: rgba(0, 212, 255, 0.03);
+  transition: all 0.2s ease;
+}
+
+.news-card:hover {
+  background: rgba(0, 212, 255, 0.08);
+  border-left-color: var(--green);
+}
+
+/* Filter chip */
+.filter-chip {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-chip:hover {
+  border-color: var(--blue-dim);
+  color: var(--blue);
+}
+
+.filter-chip.active {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(0, 255, 65, 0.08);
+  box-shadow: 0 0 8px var(--green-glow);
+}
+
+/* Donation button */
+.donate-btn {
+  background: linear-gradient(135deg, #ff6b35, #ff3a3a);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 600;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+}
+
+.donate-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 58, 58, 0.3);
+}
+
+/* Input styling */
+.tactical-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.tactical-input:focus {
+  border-color: var(--green-dim);
+  box-shadow: 0 0 8px var(--green-glow);
+}
+
+.tactical-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Button base */
+.btn-tactical {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-tactical:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+
+.btn-tactical.primary {
+  border-color: var(--green-dim);
+  color: var(--green);
+}
+
+.btn-tactical.primary:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: 0 0 8px var(--green-glow);
+}

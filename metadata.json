@@ -1,0 +1,5 @@
+{
+  "name": "S2ID Disaster Monitor",
+  "description": "A dashboard to visualize and analyze natural disaster decrees in Brazil, simulating an S2ID scraper using AI to generate and structure insights.",
+  "requestFramePermissions": []
+}
