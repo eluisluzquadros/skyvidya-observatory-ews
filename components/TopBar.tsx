@@ -12,6 +12,7 @@ interface TopBarProps {
     onDonateClick: () => void;
     loading: boolean;
     eventCount: number;
+    maxDataDate?: string;
     analyticsAvailable?: boolean;
     onRefreshAnalytics?: () => void;
     analyticsRefreshing?: boolean;
@@ -37,11 +38,12 @@ const todayISO = () => new Date().toISOString().split('T')[0];
 const TopBar: React.FC<TopBarProps> = ({
     disasterFilter, onFilterChange, searchQuery, onSearchChange,
     onImportClick, onRefresh, onDonateClick, loading, eventCount,
-    analyticsAvailable, onRefreshAnalytics, analyticsRefreshing,
+    maxDataDate, analyticsAvailable, onRefreshAnalytics, analyticsRefreshing,
 }) => {
+    const dataMax = maxDataDate ?? '2025-12-31';
     const [customMode, setCustomMode] = useState(disasterFilter.preset === 'custom');
     const [tempStart, setTempStart] = useState(disasterFilter.startDate ?? '');
-    const [tempEnd, setTempEnd] = useState(disasterFilter.endDate ?? todayISO());
+    const [tempEnd, setTempEnd] = useState(disasterFilter.endDate ?? dataMax);
 
     const handlePreset = (p: typeof PRESETS[number]) => {
         setCustomMode(false);
@@ -51,7 +53,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
     const handleOpenCustom = () => {
         setTempStart(disasterFilter.startDate ?? '');
-        setTempEnd(disasterFilter.endDate ?? todayISO());
+        setTempEnd(disasterFilter.endDate ?? dataMax);
         setCustomMode(true);
     };
 
@@ -106,7 +108,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
                 {/* ── Date Range Filter ── */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                    <Calendar style={{ width: 12, height: 12, color: 'var(--text-muted)', marginRight: 2, flexShrink: 0 }} />
+                    <Calendar style={{ width: 12, height: 12, color: 'var(--text-muted)', marginRight: 2, flexShrink: 0 }} title={`Dados disponíveis: 1991 – ${dataMax.slice(0,7)}`} />
 
                     {!customMode ? (
                         <>
@@ -152,7 +154,7 @@ const TopBar: React.FC<TopBarProps> = ({
                                 type="date"
                                 value={tempStart}
                                 onChange={e => setTempStart(e.target.value)}
-                                max={tempEnd || todayISO()}
+                                max={tempEnd || dataMax}
                                 className="tactical-input"
                                 style={{ width: 132, fontSize: '0.65rem', colorScheme: 'dark', padding: '3px 8px' }}
                             />
@@ -163,7 +165,7 @@ const TopBar: React.FC<TopBarProps> = ({
                                 value={tempEnd}
                                 onChange={e => setTempEnd(e.target.value)}
                                 min={tempStart || undefined}
-                                max={todayISO()}
+                                max={dataMax}
                                 className="tactical-input"
                                 style={{ width: 132, fontSize: '0.65rem', colorScheme: 'dark', padding: '3px 8px' }}
                             />

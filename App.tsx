@@ -41,6 +41,7 @@ const App: React.FC = () => {
     // ── Filters ──
     const [disasterFilter, setDisasterFilter] = useState<DisasterFilter>({ startDate: null, endDate: null, preset: 'all' });
     const [searchQuery, setSearchQuery] = useState('');
+    const [maxDataDate, setMaxDataDate] = useState<string>('2025-12-31');
 
     // ── Selection ──
     const [selectedEvent, setSelectedEvent] = useState<DisasterDecree | null>(null);
@@ -81,6 +82,11 @@ const App: React.FC = () => {
                 endDate: f.endDate,
             });
             setData(result);
+            // Track the latest available data date for the custom date picker
+            if (result.length > 0) {
+                const latest = result.reduce((max, d) => d.date > max ? d.date : max, result[0].date);
+                setMaxDataDate(prev => latest > prev ? latest : prev);
+            }
             const intel = await generateInsight(result);
             setInsight(intel);
         } catch (e) {
@@ -210,6 +216,7 @@ const App: React.FC = () => {
                 onDonateClick={() => setShowDonate(true)}
                 loading={loading}
                 eventCount={filteredData.length}
+                maxDataDate={maxDataDate}
                 analyticsAvailable={analyticsLoaded}
                 onRefreshAnalytics={handleRefreshAnalytics}
                 analyticsRefreshing={analyticsRefreshing}
@@ -269,6 +276,27 @@ const App: React.FC = () => {
                                 {loading ? (
                                     <div className="font-mono" style={{ padding: 20, textAlign: 'center', fontSize: '0.75rem', color: 'var(--cyan)' }}>
                                         CARREGANDO DADOS...
+                                    </div>
+                                ) : filteredData.length === 0 ? (
+                                    /* Empty state — no events for the selected period */
+                                    <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+                                        <div className="font-mono" style={{ fontSize: '1.5rem', marginBottom: 8, opacity: 0.3 }}>⊘</div>
+                                        <p className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: 4 }}>
+                                            NENHUM EVENTO ENCONTRADO
+                                        </p>
+                                        <p className="font-body" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+                                            {disasterFilter.preset === 'custom'
+                                                ? `Período ${disasterFilter.startDate?.slice(0,7) ?? '?'} → ${disasterFilter.endDate?.slice(0,7) ?? '?'} sem registros. Dados disponíveis até ${maxDataDate.slice(0, 7)}.`
+                                                : `Período selecionado sem registros. Dados disponíveis de 1991 a ${maxDataDate.slice(0, 7)}.`
+                                            }
+                                        </p>
+                                        <button
+                                            onClick={() => setDisasterFilter({ preset: 'all', startDate: null, endDate: null })}
+                                            className="btn-tactical"
+                                            style={{ color: 'var(--cyan)', borderColor: 'var(--cyan)', margin: '0 auto' }}
+                                        >
+                                            Ver Todos (HIST)
+                                        </button>
                                     </div>
                                 ) : (
                                     filteredData.map((event, idx) => (
