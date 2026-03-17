@@ -145,6 +145,10 @@ EXPRESS_BACKEND_URL = "http://localhost:3001"
 # === UF Filter (None = all states) ===
 UFS_TO_FILTER = None  # Set to ["RS"] to filter to Rio Grande do Sul only
 
+# === LLM Generated Reports ===
+LLM_REPORTS_DIR = ANALYTICS_OUTPUT_DIR / "generated_reports"
+LLM_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # === Reporting Assets Configuration ===
 REPORTING_CONFIG = {
     "OUTPUT_DIR": ANALYTICS_OUTPUT_DIR / "report_assets",

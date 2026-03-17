@@ -23,6 +23,7 @@ from config import (
     FASTAPI_HOST,
     FASTAPI_PORT,
     UFS_TO_FILTER,
+    LLM_REPORTS_DIR,
 )
 
 # Configure logging
@@ -64,6 +65,11 @@ class PipelineRequest(BaseModel):
 
 class GeoRAGQuery(BaseModel):
     query: str
+
+
+class LLMReportRequest(BaseModel):
+    cd_mun: str | None = None   # Single municipality (7-digit IBGE code)
+    uf: str | None = None       # State (e.g. "RS"); None = national report
 
 
 def run_pipeline_sync(ufs: list[str] | None = None, lisa_variables: list[str] | None = None):
@@ -203,6 +209,70 @@ async def georag_query(request: GeoRAGQuery):
             status_code=500,
             detail=f"GeoRAG query failed: {str(e)}",
         )
+
+
+@app.post("/llm/generate-report")
+async def llm_generate_report(request: LLMReportRequest):
+    """
+    Generate an AI narrative report for a municipality, state, or Brazil.
+    Reads from risk_analysis.json and calls Gemini AI.
+    Saves the report to server/data/analytics/generated_reports/{scope}_report.json.
+    """
+    risk_file = ANALYTICS_OUTPUT_DIR / "risk_analysis.json"
+    if not risk_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="risk_analysis.json not found. Run the analytics pipeline first.",
+        )
+
+    try:
+        import json
+        risk_data = json.loads(risk_file.read_text(encoding="utf-8"))
+
+        from llm_generation import LLMContentGenerator, load_saved_report
+
+        gen = LLMContentGenerator()
+        report = gen.generate_full_report(
+            risk_data,
+            cd_mun=request.cd_mun,
+            uf=request.uf,
+        )
+
+        # Persist to disk
+        scope_key = request.cd_mun or request.uf or "BR"
+        out_path = LLM_REPORTS_DIR / f"{scope_key}_report.json"
+        out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info(f"Saved LLM report: {out_path}")
+
+        return {"success": True, "data": report}
+
+    except EnvironmentError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"LLM report generation failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}")
+
+
+@app.get("/llm/report/{scope}")
+async def llm_get_report(scope: str):
+    """
+    Retrieve a previously generated LLM report.
+    scope: UF code (e.g. 'RS'), municipality cd_mun, or 'BR' for national.
+    """
+    report_path = LLM_REPORTS_DIR / f"{scope}_report.json"
+    if not report_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No saved report for scope '{scope}'. Call POST /llm/generate-report first.",
+        )
+    try:
+        import json
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        return {"success": True, "data": report}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read report: {str(e)}")
 
 
 @app.get("/health")

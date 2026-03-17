@@ -13,6 +13,7 @@ import type {
     GeoRAGResponse,
     PipelineStatus,
     ReportAsset,
+    LLMReport,
 } from '../analyticsTypes';
 
 const API_BASE = 'http://localhost:3001/api/analytics';
@@ -147,6 +148,31 @@ export async function triggerAnalyticsPipeline(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ufs }),
     });
+}
+
+// === LLM Reports ===
+
+export async function generateLLMReport(params: { cd_mun?: string; uf?: string }): Promise<LLMReport> {
+    const result = await fetchJson<{ success: boolean; data: LLMReport }>(
+        `${API_BASE}/llm/generate`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params),
+        }
+    );
+    return result.data;
+}
+
+export async function fetchSavedLLMReport(scope: string): Promise<LLMReport | null> {
+    try {
+        const result = await fetchJson<{ success: boolean; data: LLMReport }>(
+            `${API_BASE}/llm/report/${encodeURIComponent(scope)}`
+        );
+        return result.data;
+    } catch {
+        return null;
+    }
 }
 
 // === Report Assets ===

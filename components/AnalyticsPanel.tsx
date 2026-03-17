@@ -6,10 +6,11 @@ import type {
   AnalyticsDistributions,
   ChoroplethColorBy,
   ReportAsset,
+  LLMReport,
 } from '../analyticsTypes';
 import { RISK_CATEGORY_COLORS, TREND_COLORS } from '../analyticsTypes';
 import { generateRiskReport } from '../services/geminiService';
-import { fetchReportAssets } from '../services/analyticsService';
+import { fetchReportAssets, generateLLMReport } from '../services/analyticsService';
 
 interface AnalyticsPanelProps {
   riskData: MunicipalityRisk[];
@@ -42,10 +43,32 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   const [reportLoading, setReportLoading] = useState(false);
   const [reportAssets, setReportAssets] = useState<ReportAsset[]>([]);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [llmReport, setLlmReport] = useState<LLMReport | null>(null);
+  const [llmLoading, setLlmLoading] = useState(false);
+  const [llmError, setLlmError] = useState<string | null>(null);
+  const [selectedUF, setSelectedUF] = useState<string>('');
+  const [llmExpanded, setLlmExpanded] = useState(false);
 
   useEffect(() => {
     fetchReportAssets().then(setReportAssets).catch(() => {});
   }, []);
+
+  const handleGenerateLLMReport = async () => {
+    setLlmLoading(true);
+    setLlmError(null);
+    setLlmReport(null);
+    setLlmExpanded(true);
+    try {
+      const params = selectedUF ? { uf: selectedUF } : {};
+      const report = await generateLLMReport(params);
+      setLlmReport(report);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Falha na geração do relatório IA.';
+      setLlmError(msg.includes('unavailable') ? 'Serviço Python offline. Inicie com npm run dev:all.' : msg);
+    } finally {
+      setLlmLoading(false);
+    }
+  };
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
@@ -300,6 +323,109 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
             style={{ maxHeight: 300, whiteSpace: 'pre-wrap' }}
           >
             {reportContent}
+          </div>
+        )}
+      </div>
+
+      {/* ── Relatório IA (FASE B) ── */}
+      <div style={{ padding: '0 12px 12px' }}>
+        <div className="font-mono" style={{
+          fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em',
+          textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <FileText size={10} style={{ color: 'var(--purple)' }} />
+          Relatório IA por Escopo
+        </div>
+
+        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+          <select
+            value={selectedUF}
+            onChange={e => setSelectedUF(e.target.value)}
+            className="tactical-input font-mono"
+            style={{ flex: 1, fontSize: '0.65rem', padding: '4px 8px' }}
+          >
+            <option value="">Brasil (Nacional)</option>
+            {['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
+              'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']
+              .map(uf => <option key={uf} value={uf}>{uf}</option>)}
+          </select>
+          <button
+            onClick={handleGenerateLLMReport}
+            disabled={llmLoading}
+            className="btn-tactical"
+            style={{
+              background: llmLoading ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.15)',
+              borderColor: 'rgba(168,85,247,0.4)',
+              color: 'rgb(192,132,252)',
+              padding: '4px 10px',
+              fontSize: '0.6rem',
+              flexShrink: 0,
+            }}
+          >
+            {llmLoading
+              ? <Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} />
+              : <><FileText size={11} /> Gerar</>
+            }
+          </button>
+        </div>
+
+        {llmError && (
+          <p className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--red)', marginBottom: 6 }}>
+            {'>'} ERRO: {llmError}
+          </p>
+        )}
+
+        {llmReport && (
+          <div style={{ border: '1px solid rgba(168,85,247,0.25)', background: 'rgba(168,85,247,0.04)', padding: 10 }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span className="font-mono" style={{ fontSize: '0.6rem', color: 'rgb(192,132,252)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                {llmReport.scope} — {new Date(llmReport.generatedAt).toLocaleDateString('pt-BR')}
+              </span>
+              <button
+                onClick={() => setLlmExpanded(v => !v)}
+                className="btn-tactical"
+                style={{ fontSize: '0.55rem', padding: '2px 6px' }}
+              >
+                {llmExpanded ? '▲' : '▼'}
+              </button>
+            </div>
+
+            {/* KPI badges */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: llmExpanded ? 8 : 0 }}>
+              {[
+                { label: 'Alto Risco', value: `${llmReport.kpis.high_risk_pct}%`, color: 'var(--primary)' },
+                { label: 'Tendência', value: llmReport.kpis.dominant_trend, color: llmReport.kpis.dominant_trend === 'Crescente' ? 'var(--red)' : llmReport.kpis.dominant_trend === 'Decrescente' ? 'var(--green)' : 'var(--amber)' },
+                { label: 'Principal', value: llmReport.kpis.principal_threat, color: 'var(--cyan)' },
+              ].map(b => (
+                <span key={b.label} className="font-mono" style={{ fontSize: '0.55rem', color: b.color, background: 'rgba(0,0,0,0.3)', padding: '2px 6px', border: `1px solid ${b.color}40` }}>
+                  {b.label}: {b.value}
+                </span>
+              ))}
+            </div>
+
+            {llmExpanded && (
+              <div className="font-body" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                {/* Summary */}
+                <p style={{ marginBottom: 8, color: 'var(--text-primary)' }}>{llmReport.summary}</p>
+
+                {/* Risk Narrative */}
+                <div className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--purple)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Análise de Risco</div>
+                <p style={{ marginBottom: 8 }}>{llmReport.riskNarrative}</p>
+
+                {/* Recommendations */}
+                <div className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Recomendações</div>
+                <ol style={{ margin: '0 0 8px 16px', padding: 0 }}>
+                  {llmReport.recommendations.map((rec, i) => (
+                    <li key={i} style={{ marginBottom: 3 }}>{rec}</li>
+                  ))}
+                </ol>
+
+                {/* Impact Projection */}
+                <div className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Projeção de Impacto</div>
+                <p>{llmReport.impactProjection}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

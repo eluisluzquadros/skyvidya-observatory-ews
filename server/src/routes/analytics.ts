@@ -282,6 +282,60 @@ router.get('/report-assets/:file', (req: Request, res: Response) => {
     }
 });
 
+// POST /api/analytics/llm/generate - Generate AI narrative report (proxy to Python)
+router.post('/llm/generate', async (req: Request, res: Response) => {
+    try {
+        const { cd_mun, uf } = req.body;
+
+        const response = await fetch(`${config.pythonServiceUrl}/llm/generate-report`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cd_mun, uf }),
+        });
+
+        const data = await response.json() as Record<string, unknown>;
+        if (!response.ok) {
+            return res.status(response.status).json({
+                success: false,
+                error: (data as any).detail || 'LLM report generation failed',
+            });
+        }
+
+        res.json(data);
+    } catch (error) {
+        logger.error('Error generating LLM report:', error);
+        res.status(503).json({
+            success: false,
+            error: 'Python analytics service unavailable. Is it running on port 8000?',
+        });
+    }
+});
+
+// GET /api/analytics/llm/report/:scope - Retrieve saved LLM report (proxy to Python)
+router.get('/llm/report/:scope', async (req: Request, res: Response) => {
+    try {
+        const { scope } = req.params;
+
+        const response = await fetch(`${config.pythonServiceUrl}/llm/report/${encodeURIComponent(scope)}`);
+        const data = await response.json() as Record<string, unknown>;
+
+        if (!response.ok) {
+            return res.status(response.status).json({
+                success: false,
+                error: (data as any).detail || 'Report not found',
+            });
+        }
+
+        res.json(data);
+    } catch (error) {
+        logger.error('Error fetching LLM report:', error);
+        res.status(503).json({
+            success: false,
+            error: 'Python analytics service unavailable.',
+        });
+    }
+});
+
 // POST /api/analytics/georag/query - Proxy GeoRAG query to Python
 router.post('/georag/query', async (req: Request, res: Response) => {
     try {

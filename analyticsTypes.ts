@@ -165,6 +165,39 @@ export const LISA_CLUSTER_COLORS: Record<string, string> = {
     'N/A': '#4b5563',               // gray
 };
 
+// === LLM Reports ===
+
+export interface LLMReportKPIs {
+    scope: string;
+    scope_type: 'municipality' | 'state' | 'national';
+    total_municipalities: number;
+    total_population: number;
+    risk_distribution: Record<string, number>;
+    high_risk_count: number;
+    high_risk_pct: number;
+    trend_distribution: Record<string, number>;
+    dominant_trend: string;
+    crescente_pct: number;
+    top_threats: { name: string; count: number }[];
+    principal_threat: string;
+    historic_events: number;
+    last10yr_events: number;
+    last5yr_events: number;
+    last2yr_events: number;
+    top_high_risk_municipalities: { name: string; uf: string; riskCategory: string; riskScore: number }[];
+}
+
+export interface LLMReport {
+    scope: string;
+    scopeType: 'municipality' | 'state' | 'national';
+    generatedAt: string;
+    kpis: LLMReportKPIs;
+    summary: string;
+    riskNarrative: string;
+    recommendations: string[];
+    impactProjection: string;
+}
+
 // === Report Assets ===
 
 export interface ReportAsset {
