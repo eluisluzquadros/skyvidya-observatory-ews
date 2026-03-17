@@ -15,12 +15,20 @@ export interface SchedulerStatus {
         nextRun: string | null;
         enabled: boolean;
     };
+    analyticsPipeline: {
+        lastRun: string | null;
+        lastStatus: 'idle' | 'running' | 'completed' | 'error';
+        autoTrigger: boolean;
+    };
 }
 
 class SchedulerService {
     private atlasJob: cron.ScheduledTask | null = null;
     private s2idJob: cron.ScheduledTask | null = null;
     private isRunning = false;
+    private pipelineStatus: 'idle' | 'running' | 'completed' | 'error' = 'idle';
+    private pipelineLastRun: string | null = null;
+    private autoTriggerPipeline = true;
 
     // Start all scheduled jobs
     start(): void {
@@ -36,6 +44,14 @@ class SchedulerService {
             logger.info('Running scheduled Atlas collection...');
             try {
                 await collectAtlasData();
+
+                // Auto-trigger analytics pipeline after Atlas collection
+                if (this.autoTriggerPipeline) {
+                    logger.info('Auto-triggering analytics pipeline after Atlas collection...');
+                    this.triggerAnalyticsPipeline().catch(err => {
+                        logger.error('Auto-triggered analytics pipeline failed:', err);
+                    });
+                }
             } catch (error) {
                 logger.error('Scheduled Atlas collection failed:', error);
             }
@@ -89,6 +105,11 @@ class SchedulerService {
                 schedule: config.schedule.s2idDaily,
                 nextRun: this.getNextRunTime(config.schedule.s2idDaily),
                 enabled: this.s2idJob !== null,
+            },
+            analyticsPipeline: {
+                lastRun: this.pipelineLastRun,
+                lastStatus: this.pipelineStatus,
+                autoTrigger: this.autoTriggerPipeline,
             },
         };
     }
@@ -149,6 +170,41 @@ class SchedulerService {
         const s2id = await this.triggerS2IDCollection();
 
         return { atlas, s2id };
+    }
+
+    // Trigger analytics Python pipeline
+    async triggerAnalyticsPipeline(ufs?: string[]): Promise<void> {
+        if (this.pipelineStatus === 'running') {
+            logger.warn('Analytics pipeline already running, skipping trigger');
+            return;
+        }
+
+        this.pipelineStatus = 'running';
+        this.pipelineLastRun = new Date().toISOString();
+        logger.info('Triggering analytics pipeline...');
+
+        try {
+            const response = await fetch(`${config.pythonServiceUrl}/pipeline/run`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ufs }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Pipeline HTTP ${response.status}`);
+            }
+
+            this.pipelineStatus = 'completed';
+            logger.info('Analytics pipeline triggered successfully');
+        } catch (error) {
+            this.pipelineStatus = 'error';
+            logger.error('Analytics pipeline trigger failed:', error);
+            throw error;
+        }
+    }
+
+    getPipelineStatus(): { status: string; lastRun: string | null } {
+        return { status: this.pipelineStatus, lastRun: this.pipelineLastRun };
     }
 }
 

@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { DisasterDecree, NewsArticle, EconomicIndicator, ComexData } from "../types";
+import { DisasterDecree, TimeRange, NewsArticle, EconomicIndicator, ComexData } from "../types";
+import type { MunicipalityRisk, AnalyticsDistributions } from "../analyticsTypes";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -30,10 +31,12 @@ export const STATE_COORDS: Record<string, [number, number]> = {
 };
 
 // ── Simulated Data ──
+const currentYear = new Date().getFullYear();
+
 const MOCK_PROMPT = `
   Generate a realistic dataset of 20 to 30 natural disaster decrees (Situação de Emergência or Estado de Calamidade Pública) 
   from the Brazilian S2ID system.
-  Focus on RECENT events (2024-2025).
+  Focus on RECENT events (${currentYear - 1}-${currentYear}), with the majority from ${currentYear}.
   Include a realistic mix of:
   - "Estiagem" (Drought) in Northeast/South regions.
   - "Enxurrada" (Flash Flood) or "Inundação" (Flood) in South/Southeast.
@@ -84,6 +87,46 @@ export const fetchSimulatedData = async (): Promise<DisasterDecree[]> => {
     console.error("Failed to fetch simulated data:", error);
     throw error;
   }
+};
+
+const DISASTERS_API = 'http://localhost:3001/api/disasters';
+
+// ── Fetch Real Disasters from Backend API ──
+export const fetchRealDisasters = async (options: {
+  startDate?: string | null;
+  endDate?: string | null;
+  uf?: string | null;
+  limit?: number;
+} = {}): Promise<DisasterDecree[]> => {
+  try {
+    const params = new URLSearchParams({ limit: String(options.limit ?? 2000) });
+    if (options.startDate) params.set('startDate', options.startDate);
+    if (options.endDate)   params.set('endDate', options.endDate);
+    if (options.uf)        params.set('uf', options.uf);
+
+    const res = await fetch(`${DISASTERS_API}?${params}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const records: DisasterDecree[] = json.data || [];
+
+    return records.map(d => ({
+      ...d,
+      severity: calculateSeverity(d),
+      lat: STATE_COORDS[d.uf]?.[1] ?? -15.79,
+      lng: STATE_COORDS[d.uf]?.[0] ?? -47.88,
+    }));
+  } catch (error) {
+    console.warn('Backend API unavailable, falling back to simulated data:', error);
+    return fetchSimulatedData();
+  }
+};
+
+// ── Format ISO date YYYY-MM-DD → DD/MM/YYYY ──
+export const formatEventDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  return dateStr; // already DD/MM/YYYY or unknown
 };
 
 // ── Parse Real S2ID Data ──
@@ -155,22 +198,59 @@ export const parseS2IDData = async (rawInput: string): Promise<DisasterDecree[]>
   }
 };
 
+// ── Helper: Build MCDA context summary for prompts ──
+function buildMCDAContext(riskData?: MunicipalityRisk[], distributions?: AnalyticsDistributions): string {
+  if (!riskData || riskData.length === 0) return '';
+
+  const highRisk = riskData.filter(m => m.riskCategory === 'Muito Alto' || m.riskCategory === 'Alto');
+  const growing = riskData.filter(m => m.trend === 'Crescente');
+  const top5 = [...riskData].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5);
+
+  let context = `\n\nDADOS MCDA (Multi-Criteria Decision Analysis) - ${riskData.length} municípios analisados:`;
+  context += `\n• ${highRisk.length} municípios em risco Alto/Muito Alto (${(highRisk.length / riskData.length * 100).toFixed(1)}%)`;
+  context += `\n• ${growing.length} municípios com tendência Crescente de desastres`;
+
+  if (top5.length > 0) {
+    context += `\n• Top 5 municípios por score de risco MCDA:`;
+    for (const m of top5) {
+      context += `\n  - ${m.name} (${m.uf}): score=${m.riskScore.toFixed(3)}, cat=${m.riskCategory}, tendência=${m.trend}, ameaça principal=${m.principalThreat}`;
+    }
+  }
+
+  if (distributions?.riskCategories) {
+    context += `\n• Distribuição de risco: ${distributions.riskCategories.map(c => `${c.category}=${c.count}`).join(', ')}`;
+  }
+  if (distributions?.threats) {
+    const topThreats = distributions.threats.slice(0, 5);
+    context += `\n• Ameaças dominantes: ${topThreats.map(t => `${t.threat}(${t.count})`).join(', ')}`;
+  }
+
+  return context;
+}
+
 // ── Intelligence Briefing ──
-export const generateInsight = async (data: DisasterDecree[]): Promise<string> => {
+export const generateInsight = async (
+  data: DisasterDecree[],
+  riskData?: MunicipalityRisk[],
+  distributions?: AnalyticsDistributions,
+): Promise<string> => {
   try {
     const dataSummary = JSON.stringify(data.slice(0, 30));
+    const mcdaContext = buildMCDAContext(riskData, distributions);
     const prompt = `
       Analyze this JSON data of Brazilian disaster decrees.
       Provide a concise, 3-paragraph SITREP (Situation Report) in Portuguese (pt-BR).
-      
+
       Structure:
       1. PANORAMA GERAL: Overview of the current disaster situation.
       2. ZONA QUENTE: Identify the most critical region/state with highest severity.
       3. ANOMALIAS: Flag unusual patterns (huge populations, uncommon disaster types, clustering events).
-      
+      ${mcdaContext ? `\n4. ANÁLISE MCDA: Reference the risk scoring data below to enrich your analysis with municipality-level risk categories, trends, and principal threats.` : ''}
+
       Use professional military/civil defense intelligence terminology.
       Include bullet points for key quantitative metrics.
       Data: ${dataSummary}
+      ${mcdaContext}
     `;
 
     const response = await ai.models.generateContent({
@@ -350,28 +430,41 @@ export const fetchEconomicImpact = async (event: DisasterDecree): Promise<{
 };
 
 // ── AI Chat (Tactical Oracle) ──
-export const chatWithAI = async (message: string, context: DisasterDecree[]): Promise<string> => {
+export interface OracleAnalyticsContext {
+  riskData?: MunicipalityRisk[];
+  distributions?: AnalyticsDistributions;
+}
+
+export const chatWithAI = async (
+  message: string,
+  context: DisasterDecree[],
+  analyticsContext?: OracleAnalyticsContext,
+): Promise<string> => {
   try {
     const dataSummary = JSON.stringify(context.slice(0, 20));
+    const mcdaContext = buildMCDAContext(analyticsContext?.riskData, analyticsContext?.distributions);
     const prompt = `
       You are the "S2ID COMMAND ORACLE" — an advanced AI system for Brazilian disaster intelligence.
-      
+
       CAPABILITIES:
       - Analyze disaster patterns, severity, and geographic clustering
       - Correlate disasters with economic impacts (agriculture, infrastructure, supply chains)
-      - Provide risk assessments and predictions
+      - Provide risk assessments and predictions using MCDA (Multi-Criteria Decision Analysis) scores
       - Generate SITREP (Situation Reports) on demand
-      
-      CURRENT MISSION DATA: ${dataSummary}
-      
+      - Reference municipality-level risk categories (Muito Baixo → Muito Alto), trends (Crescente/Estável/Decrescente), and principal threats
+
+      CURRENT MISSION DATA (recent decrees): ${dataSummary}
+      ${mcdaContext}
+
       USER QUERY: "${message}"
-      
+
       Guidelines:
       1. Respond in Portuguese (pt-BR)
       2. Use professional intelligence/military terminology
-      3. Include quantitative data and metrics when relevant
+      3. Include quantitative data and metrics when relevant — especially MCDA scores and risk categories when available
       4. Format with clear sections and bullet points
       5. Keep responses focused and actionable
+      6. When referencing risk levels, use the MCDA categories: Muito Baixo, Baixo, Médio, Alto, Muito Alto
     `;
 
     const response = await ai.models.generateContent({
@@ -383,5 +476,71 @@ export const chatWithAI = async (message: string, context: DisasterDecree[]): Pr
   } catch (error) {
     console.error("AI Chat Error:", error);
     return "> ERRO DE CONEXÃO COM O NÚCLEO DE INTELIGÊNCIA.";
+  }
+};
+
+// ── Risk Report Generator (MCDA-powered) ──
+export const generateRiskReport = async (
+  riskData: MunicipalityRisk[],
+  distributions?: AnalyticsDistributions,
+  uf?: string,
+): Promise<string> => {
+  try {
+    const filtered = uf ? riskData.filter(m => m.uf === uf) : riskData;
+    const top20 = [...filtered].sort((a, b) => b.riskScore - a.riskScore).slice(0, 20);
+    const dataSummary = JSON.stringify(top20.map(m => ({
+      name: m.name, uf: m.uf, score: m.riskScore, cat: m.riskCategory,
+      trend: m.trend, threat: m.principalThreat, pop: m.population,
+      historic: m.historicCount, last10yr: m.last10yrCount, last5yr: m.last5yrCount, last2yr: m.last2yrCount,
+    })));
+
+    const distSummary = distributions ? JSON.stringify(distributions) : 'N/A';
+    const scope = uf ? `Estado: ${uf}` : 'Brasil (todos os estados)';
+
+    const prompt = `
+      Gere um RELATÓRIO DE RISCO MCDA profissional e detalhado em Português (pt-BR).
+
+      ESCOPO: ${scope}
+      TOTAL MUNICÍPIOS ANALISADOS: ${filtered.length}
+      TOP 20 MUNICÍPIOS POR SCORE DE RISCO: ${dataSummary}
+      DISTRIBUIÇÕES GERAIS: ${distSummary}
+
+      ESTRUTURA DO RELATÓRIO:
+
+      ## 1. SUMÁRIO EXECUTIVO
+      - Visão geral da situação de risco na área de análise
+      - KPIs principais: total municípios, % alto risco, tendência dominante
+
+      ## 2. MUNICÍPIOS CRÍTICOS
+      - Lista dos 10 municípios com maior score MCDA
+      - Para cada um: score, categoria, tendência, ameaça principal, população
+      - Análise do padrão geográfico (concentração regional)
+
+      ## 3. ANÁLISE DE TENDÊNCIAS
+      - Proporção Crescente/Estável/Decrescente
+      - Implicações das tendências para planejamento de defesa civil
+
+      ## 4. AMEAÇAS PREDOMINANTES
+      - Ranking dos tipos de desastre mais frequentes
+      - Correlação entre tipo de ameaça e região geográfica
+
+      ## 5. RECOMENDAÇÕES OPERACIONAIS
+      - 3-5 ações prioritárias baseadas nos dados
+      - Alocação de recursos sugerida
+
+      Use terminologia profissional de defesa civil e gestão de riscos.
+      Inclua dados quantitativos em todas as seções.
+      Formato: Markdown com headers, bullet points e negrito para destaques.
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    return response.text || "> FALHA NA GERAÇÃO DO RELATÓRIO DE RISCO.";
+  } catch (error) {
+    console.error("Risk report generation error:", error);
+    return "> ERRO CRÍTICO: FALHA NA GERAÇÃO DO RELATÓRIO MCDA.";
   }
 };

@@ -43,11 +43,22 @@ async function startServer() {
       const browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
 
-      await page.goto('https://s2id.mi.gov.br/paginas/atlas/', { waitUntil: 'networkidle2' });
-      await page.waitForSelector('.tabela-dados', { timeout: 15000 });
+      await page.goto('https://s2id.mi.gov.br/paginas/relatorios/', { waitUntil: 'networkidle2', timeout: 60000 });
+      // Wait for the reports page accordion headers to load
+      await page.waitForSelector('h3', { timeout: 30000 });
 
       const data = await page.evaluate(() => {
-        const rows = document.querySelectorAll('.tabela-dados tr');
+        // Try multiple table selectors used by the S2ID reports page
+        const selectors = ['.tabela-dados tr', '.ui-datatable-data tr', 'table tbody tr', '.ui-datatable tr'];
+        let rows: NodeListOf<Element> | null = null;
+        for (const sel of selectors) {
+          const found = document.querySelectorAll(sel);
+          if (found.length > 0) {
+            rows = found;
+            break;
+          }
+        }
+        if (!rows) return [];
         return Array.from(rows).map(row => {
           const cells = row.querySelectorAll('td');
           return Array.from(cells).map(c => c.textContent?.trim());
@@ -81,8 +92,9 @@ async function startServer() {
       const states = ['SP', 'SC', 'RS', 'AM', 'RJ', 'MG', 'BA', 'PE', 'CE', 'PA'];
 
       // Generate 30 years of historical data (approx 200 high-impact events for demo performance)
+      const currentYear = todayDate.getFullYear();
       for (let i = 0; i < 200; i++) {
-        const year = 1994 + Math.floor(Math.random() * 30);
+        const year = currentYear - Math.floor(Math.random() * 30);
         const month = Math.floor(Math.random() * 12);
         const day = Math.floor(Math.random() * 28) + 1;
         const eventDate = new Date(year, month, day).toISOString().split('T')[0];

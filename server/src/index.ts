@@ -8,7 +8,9 @@ import config from './config';
 import logger from './services/logger';
 import scheduler from './services/scheduler';
 import apiRoutes from './routes/api';
+import analyticsRoutes from './routes/analytics';
 import storage from './services/storage';
+import analyticsData from './services/analyticsData';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +38,7 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api', apiRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -49,6 +52,15 @@ app.get('/', (req, res) => {
             status: '/api/status',
             refresh: '/api/refresh (POST)',
             health: '/api/health',
+            analytics: {
+                risk: '/api/analytics/risk',
+                lisa: '/api/analytics/lisa',
+                rankings: '/api/analytics/rankings',
+                distributions: '/api/analytics/distributions',
+                geojson: '/api/analytics/geojson',
+                pipeline: '/api/analytics/pipeline/status',
+                georag: '/api/analytics/georag/query (POST)',
+            },
         },
     });
 });
@@ -118,6 +130,9 @@ httpServer.listen(PORT, () => {
     logger.info(`  GET  http://localhost:${PORT}/api/status`);
     logger.info(`  POST http://localhost:${PORT}/api/refresh`);
     logger.info(`  GET  http://localhost:${PORT}/api/health`);
+    logger.info(`  GET  http://localhost:${PORT}/api/analytics/risk`);
+    logger.info(`  GET  http://localhost:${PORT}/api/analytics/rankings`);
+    logger.info(`  GET  http://localhost:${PORT}/api/analytics/geojson`);
 });
 
 // Graceful shutdown
@@ -125,6 +140,7 @@ process.on('SIGTERM', () => {
     logger.info('SIGTERM received, shutting down gracefully...');
     scheduler.stop();
     storage.close();
+    analyticsData.close();
     httpServer.close(() => {
         logger.info('Server closed');
         process.exit(0);
@@ -135,6 +151,7 @@ process.on('SIGINT', () => {
     logger.info('SIGINT received, shutting down gracefully...');
     scheduler.stop();
     storage.close();
+    analyticsData.close();
     httpServer.close(() => {
         logger.info('Server closed');
         process.exit(0);

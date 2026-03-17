@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { DisasterDecree } from '../types';
-import { chatWithAI } from '../services/geminiService';
+import { chatWithAI, OracleAnalyticsContext } from '../services/geminiService';
 
 interface TacticalAIProps {
   data: DisasterDecree[];
+  analyticsContext?: OracleAnalyticsContext;
 }
 
 interface Message {
@@ -13,7 +14,7 @@ interface Message {
   timestamp: Date;
 }
 
-const TacticalAI: React.FC<TacticalAIProps> = ({ data }) => {
+const TacticalAI: React.FC<TacticalAIProps> = ({ data, analyticsContext }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -38,7 +39,7 @@ const TacticalAI: React.FC<TacticalAIProps> = ({ data }) => {
     setIsLoading(true);
 
     try {
-      const response = await chatWithAI(input, data);
+      const response = await chatWithAI(input, data, analyticsContext);
       setMessages(prev => [...prev, { role: 'assistant', content: response, timestamp: new Date() }]);
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: '> ERRO: Falha na conexão com o núcleo de inteligência.', timestamp: new Date() }]);

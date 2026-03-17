@@ -58,6 +58,10 @@ export const config = {
         },
     ],
 
+    // Analytics pipeline
+    analyticsDataDir: path.join(__dirname, '..', 'data', 'analytics'),
+    pythonServiceUrl: process.env.PYTHON_SERVICE_URL || 'http://localhost:8000',
+
     // Brazilian states
     states: [
         'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',

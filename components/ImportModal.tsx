@@ -16,7 +16,7 @@ const puppeteer = require('puppeteer');
   const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
   
-  await page.goto('https://s2id.mi.gov.br/paginas/atlas/');
+  await page.goto('https://s2id.mi.gov.br/paginas/relatorios/');
   await page.waitForSelector('.tabela-dados', { timeout: 30000 });
   
   const data = await page.evaluate(() => {

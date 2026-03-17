@@ -21,6 +21,15 @@ export interface FilterState {
 
 export type TimeRange = '1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '7d' | 'all';
 
+export type FilterPreset = '1y' | '2y' | '5y' | '10y' | '20y' | 'all' | 'custom';
+
+export interface DisasterFilter {
+  startDate: string | null;  // YYYY-MM-DD
+  endDate: string | null;    // YYYY-MM-DD
+  preset: FilterPreset;
+  uf?: string;
+}
+
 export type DisasterStats = {
   totalDecrees: number;
   totalAffected: number;

@@ -5,8 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
+    "dev:frontend": "vite",
+    "dev:backend": "tsx watch server/src/index.ts",
+    "dev:analytics": "cd analytics && uvicorn main:app --reload --port 8000",
+    "dev:all": "concurrently -n FE,BE,PY -c cyan,green,yellow \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:analytics\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pipeline": "cd analytics && python scripts/run_pipeline.py",
+    "pipeline:download": "cd analytics && python scripts/download_ibge.py"
   },
   "dependencies": {
     "@google/genai": "^1.32.0",
@@ -23,9 +29,12 @@
     "tsx": "^4.21.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
     "@types/d3": "^7.4.3",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.1",
+    "tailwindcss": "^4.2.1",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
