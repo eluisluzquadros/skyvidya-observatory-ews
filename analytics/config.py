@@ -144,3 +144,12 @@ EXPRESS_BACKEND_URL = "http://localhost:3001"
 
 # === UF Filter (None = all states) ===
 UFS_TO_FILTER = None  # Set to ["RS"] to filter to Rio Grande do Sul only
+
+# === Reporting Assets Configuration ===
+REPORTING_CONFIG = {
+    "OUTPUT_DIR": ANALYTICS_OUTPUT_DIR / "report_assets",
+    "TOP_N_MUNICIPALITIES": 10,
+    "STATES_TO_GENERATE": None,  # None = only national; list like ["RS", "SC"] for per-state
+    "DPI": 150,
+    "LISA_VARIABLES": None,      # None = first 2 available; or ["HISTORIC_COUNT", "LAST10_YEARS_COUNT"]
+}

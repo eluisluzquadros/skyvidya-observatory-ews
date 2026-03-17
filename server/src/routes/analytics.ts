@@ -6,6 +6,8 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { existsSync, readdirSync, statSync } from 'fs';
+import { extname, join } from 'path';
 import analyticsData from '../services/analyticsData';
 import logger from '../services/logger';
 import config from '../config';
@@ -216,6 +218,67 @@ router.post('/pipeline/trigger', async (req: Request, res: Response) => {
             success: false,
             error: 'Python analytics service unavailable. Is it running on port 8000?',
         });
+    }
+});
+
+// GET /api/analytics/report-assets - List available report assets
+router.get('/report-assets', (req: Request, res: Response) => {
+    try {
+        const assetsDir = join(config.analyticsDataDir, 'report_assets');
+        if (!existsSync(assetsDir)) {
+            return res.json({ success: true, data: [] });
+        }
+
+        const files = readdirSync(assetsDir)
+            .filter(f => ['.png', '.csv'].includes(extname(f).toLowerCase()))
+            .map(filename => {
+                const stat = statSync(join(assetsDir, filename));
+                return {
+                    filename,
+                    type: extname(filename).toLowerCase().replace('.', '') as 'png' | 'csv',
+                    size: stat.size,
+                    updatedAt: stat.mtime.toISOString(),
+                    url: `/api/analytics/report-assets/${filename}`,
+                };
+            })
+            .sort((a, b) => a.filename.localeCompare(b.filename));
+
+        res.json({ success: true, count: files.length, data: files });
+    } catch (error) {
+        logger.error('Error listing report assets:', error);
+        res.status(500).json({ success: false, error: 'Failed to list report assets' });
+    }
+});
+
+// GET /api/analytics/report-assets/:file - Serve individual asset (PNG or CSV)
+router.get('/report-assets/:file', (req: Request, res: Response) => {
+    try {
+        const { file } = req.params;
+        // Prevent path traversal
+        if (file.includes('..') || file.includes('/') || file.includes('\\')) {
+            return res.status(400).json({ success: false, error: 'Invalid filename' });
+        }
+
+        const ext = extname(file).toLowerCase();
+        if (!['.png', '.csv'].includes(ext)) {
+            return res.status(400).json({ success: false, error: 'Unsupported file type' });
+        }
+
+        const filePath = join(config.analyticsDataDir, 'report_assets', file);
+        if (!existsSync(filePath)) {
+            return res.status(404).json({ success: false, error: 'Asset not found' });
+        }
+
+        const contentType = ext === '.png' ? 'image/png' : 'text/csv; charset=utf-8';
+        res.set('Content-Type', contentType);
+        res.set('Cache-Control', 'public, max-age=3600');
+        if (ext === '.csv') {
+            res.set('Content-Disposition', `attachment; filename="${file}"`);
+        }
+        res.sendFile(filePath);
+    } catch (error) {
+        logger.error('Error serving report asset:', error);
+        res.status(500).json({ success: false, error: 'Failed to serve asset' });
     }
 });
 

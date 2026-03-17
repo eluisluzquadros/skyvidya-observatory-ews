@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { BarChart3, TrendingUp, TrendingDown, Minus, FileText, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, TrendingDown, Minus, FileText, Loader2, Image, Download, X as XIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type {
   MunicipalityRisk,
   AnalyticsDistributions,
   ChoroplethColorBy,
+  ReportAsset,
 } from '../analyticsTypes';
 import { RISK_CATEGORY_COLORS, TREND_COLORS } from '../analyticsTypes';
 import { generateRiskReport } from '../services/geminiService';
+import { fetchReportAssets } from '../services/analyticsService';
 
 interface AnalyticsPanelProps {
   riskData: MunicipalityRisk[];
@@ -38,6 +40,12 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
 }) => {
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [reportAssets, setReportAssets] = useState<ReportAsset[]>([]);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchReportAssets().then(setReportAssets).catch(() => {});
+  }, []);
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
@@ -295,6 +303,87 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
           </div>
         )}
       </div>
+
+      {/* ── Relatório Visual ── */}
+      {reportAssets.length > 0 && (
+        <div style={{ padding: '0 12px 12px' }}>
+          <div className="font-mono" style={{
+            fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em',
+            textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Image size={10} />
+            Relatório Visual
+          </div>
+
+          {/* PNG thumbnails grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 8 }}>
+            {reportAssets.filter(a => a.type === 'png').map(asset => (
+              <button
+                key={asset.filename}
+                onClick={() => setLightboxSrc(asset.url)}
+                title={asset.filename.replace(/_/g, ' ').replace('.png', '')}
+                style={{
+                  padding: 0, border: '1px solid var(--border-primary)',
+                  background: 'var(--bg-primary)', cursor: 'pointer',
+                  overflow: 'hidden', aspectRatio: '4/3',
+                  transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-primary)')}
+              >
+                <img
+                  src={asset.url}
+                  alt={asset.filename}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* CSV downloads */}
+          {reportAssets.filter(a => a.type === 'csv').map(asset => (
+            <a
+              key={asset.filename}
+              href={asset.url}
+              download={asset.filename}
+              className="btn-tactical"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, textDecoration: 'none', fontSize: '0.6rem' }}
+            >
+              <Download size={10} />
+              <span className="font-mono">{asset.filename.replace(/_/g, ' ').replace('.csv', '').toUpperCase()}</span>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* ── Lightbox ── */}
+      {lightboxSrc && (
+        <div
+          onClick={() => setLightboxSrc(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.9)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <button
+            onClick={() => setLightboxSrc(null)}
+            style={{
+              position: 'absolute', top: 16, right: 16,
+              background: 'none', border: 'none', cursor: 'pointer', color: 'white',
+            }}
+          >
+            <XIcon size={24} />
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Report asset"
+            style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain' }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };

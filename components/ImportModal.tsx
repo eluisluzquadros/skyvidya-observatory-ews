@@ -7,6 +7,7 @@ interface ImportModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImport: (data: DisasterDecree[]) => void;
+  onRefresh?: () => void;
 }
 
 const PUPPETEER_SCRIPT = `// Script para extração automática do S2ID
@@ -31,7 +32,7 @@ const puppeteer = require('puppeteer');
   await browser.close();
 })();`;
 
-const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport }) => {
+const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport, onRefresh }) => {
   const [rawData, setRawData] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -181,17 +182,20 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose, onImport }) 
                   setError('');
                   setSuccess(false);
                   try {
-                    const res = await fetch('/api/scrape');
+                    const res = await fetch('/api/refresh', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ source: 's2id' }),
+                    });
                     const json = await res.json();
                     if (!res.ok) throw new Error(json.error || 'Erro ao conectar ao scraper.');
-
-                    if (json.data && json.data.length > 0) {
-                      const parsed = await parseS2IDData(JSON.stringify(json.data));
-                      onImport(parsed.length > 0 ? parsed : json.data);
+                    const count = json.data?.s2id ?? 0;
+                    if (onRefresh) onRefresh();
+                    if (count === 0) {
+                      setError('Scraper executado, mas nenhum novo registro encontrado.');
+                    } else {
                       setSuccess(true);
                       setTimeout(() => { onClose(); setSuccess(false); }, 2000);
-                    } else {
-                      setError('Nenhum dado encontrado na página.');
                     }
                   } catch (err: any) {
                     setError(err.message || 'Falha na conexão com servidor.');

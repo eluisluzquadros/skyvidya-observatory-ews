@@ -561,7 +561,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Modals */}
-            <ImportModal isOpen={showImport} onClose={() => setShowImport(false)} onImport={handleImport} />
+            <ImportModal isOpen={showImport} onClose={() => setShowImport(false)} onImport={handleImport} onRefresh={() => loadData(disasterFilter)} />
             <DonationModal isOpen={showDonate} onClose={() => setShowDonate(false)} />
         </div>
     );

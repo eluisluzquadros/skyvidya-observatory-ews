@@ -54,7 +54,8 @@ def main():
         from pipeline.lisa_analysis import run_lisa
         from pipeline.mcda_trend import run_mcda_trend
         from pipeline.report_data import save_analytics_output
-        from config import COLUMNS_FOR_RISK_SCORE_MCDA
+        from pipeline.reporting_charts import run_reporting
+        from config import COLUMNS_FOR_RISK_SCORE_MCDA, REPORTING_CONFIG
 
         # Step 1: Ingestion
         logger.info("=" * 60)
@@ -90,6 +91,24 @@ def main():
         logger.info("STEP 4: SAVING OUTPUT")
         logger.info("=" * 60)
         outputs = save_analytics_output(gdf, global_moran, pipeline_duration=duration)
+
+        # Step 5: Reporting charts & assets
+        logger.info("=" * 60)
+        logger.info("STEP 5: GENERATING REPORT ASSETS")
+        logger.info("=" * 60)
+        try:
+            report_assets = run_reporting(
+                gdf,
+                output_dir=REPORTING_CONFIG["OUTPUT_DIR"],
+                states=REPORTING_CONFIG["STATES_TO_GENERATE"],
+                top_n=REPORTING_CONFIG["TOP_N_MUNICIPALITIES"],
+                dpi=REPORTING_CONFIG["DPI"],
+                lisa_variables=REPORTING_CONFIG["LISA_VARIABLES"],
+            )
+            logger.info(f"Report assets: {len(report_assets)} files in {REPORTING_CONFIG['OUTPUT_DIR']}")
+        except Exception as e:
+            logger.warning(f"Report asset generation failed (non-critical): {e}", exc_info=True)
+            report_assets = {}
 
         logger.info("=" * 60)
         logger.info(f"PIPELINE COMPLETE in {duration:.1f}s")

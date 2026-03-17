@@ -12,6 +12,7 @@ import type {
     GeoJSONCollection,
     GeoRAGResponse,
     PipelineStatus,
+    ReportAsset,
 } from '../analyticsTypes';
 
 const API_BASE = 'http://localhost:3001/api/analytics';
@@ -146,4 +147,13 @@ export async function triggerAnalyticsPipeline(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ufs }),
     });
+}
+
+// === Report Assets ===
+
+export async function fetchReportAssets(): Promise<ReportAsset[]> {
+    const result = await fetchJson<{ success: boolean; count: number; data: ReportAsset[] }>(
+        `${API_BASE}/report-assets`
+    );
+    return result.data;
 }

@@ -164,3 +164,13 @@ export const LISA_CLUSTER_COLORS: Record<string, string> = {
     'LL (Baixo-Baixo)': '#3b82f6',  // blue - cold spot
     'N/A': '#4b5563',               // gray
 };
+
+// === Report Assets ===
+
+export interface ReportAsset {
+    filename: string;
+    type: 'png' | 'csv';
+    size: number;
+    updatedAt: string;
+    url: string;
+}
