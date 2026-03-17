@@ -231,6 +231,7 @@ const TopBar: React.FC<TopBarProps> = ({
                             className="btn-tactical"
                             disabled={analyticsRefreshing}
                             title="Atualizar Analytics Pipeline"
+                            aria-label="Atualizar pipeline analytics"
                         >
                             <RefreshCw style={{
                                 width: 12, height: 12,
@@ -240,16 +241,16 @@ const TopBar: React.FC<TopBarProps> = ({
                         </button>
                     )}
 
-                    <button onClick={onImportClick} className="btn-tactical primary">
+                    <button onClick={onImportClick} className="btn-tactical primary" aria-label="Importar dados">
                         <Terminal style={{ width: 12, height: 12 }} />
                         <span>Import</span>
                     </button>
 
-                    <button onClick={onRefresh} className="btn-tactical" disabled={loading} title="Atualizar dados">
+                    <button onClick={onRefresh} className="btn-tactical" disabled={loading} title="Atualizar dados" aria-label="Atualizar dados">
                         <RefreshCw style={{ width: 12, height: 12, animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                     </button>
 
-                    <button onClick={onDonateClick} className="donate-btn" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button onClick={onDonateClick} className="donate-btn" aria-label="Apoiar o projeto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Heart style={{ width: 12, height: 12 }} />
                         <span>Apoie</span>
                     </button>

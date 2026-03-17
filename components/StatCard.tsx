@@ -11,11 +11,11 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  green: { text: 'var(--green)', border: 'var(--green)', glow: 'var(--green-glow)', bg: 'rgba(0,255,65,0.05)' },
-  blue: { text: 'var(--cyan)', border: 'var(--cyan)', glow: 'var(--cyan-glow)', bg: 'rgba(0,212,255,0.05)' },
-  red: { text: 'var(--red)', border: 'var(--red)', glow: 'var(--red-glow)', bg: 'rgba(255,58,58,0.05)' },
-  amber: { text: 'var(--primary)', border: 'var(--primary)', glow: 'var(--primary-glow)', bg: 'rgba(255,94,58,0.05)' },
-  purple: { text: 'var(--purple)', border: 'var(--purple)', glow: 'var(--purple-glow)', bg: 'rgba(168,85,247,0.05)' },
+  green:  { text: 'var(--green)',  border: 'var(--green)',  glow: 'var(--green-glow)',  bg: 'rgba(16,185,129,0.05)' },
+  blue:   { text: 'var(--cyan)',   border: 'var(--cyan)',   glow: 'var(--cyan-glow)',   bg: 'rgba(0,212,255,0.05)' },
+  red:    { text: 'var(--red)',    border: 'var(--red)',    glow: 'var(--red-glow)',    bg: 'rgba(239,68,68,0.05)' },
+  amber:  { text: 'var(--amber)',  border: 'var(--amber)',  glow: 'var(--amber-glow)',  bg: 'rgba(245,158,11,0.05)' },
+  purple: { text: 'var(--purple)', border: 'var(--purple)', glow: 'var(--purple-glow)', bg: 'rgba(139,92,246,0.05)' },
 };
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, subtext, trend }) => {
@@ -42,17 +42,17 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, su
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div>
-          <p className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2, fontWeight: 600 }}>
+          <p className="font-mono" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2, fontWeight: 600 }}>
             {title}
           </p>
           <h3 className="font-display" style={{ fontSize: '1.4rem', color: c.text, fontWeight: 700, letterSpacing: '0.05em', lineHeight: 1.1 }}>
             {value}
           </h3>
           {subtext && (
-            <p className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--text-secondary)', marginTop: 2 }}>{subtext}</p>
+            <p className="font-mono" style={{ fontSize: '0.625rem', color: 'var(--text-secondary)', marginTop: 2 }}>{subtext}</p>
           )}
           {trend && (
-            <p className="font-mono" style={{ fontSize: '0.55rem', marginTop: 2, color: trend.direction === 'up' ? 'var(--red)' : 'var(--green)' }}>
+            <p className="font-mono" style={{ fontSize: '0.625rem', marginTop: 2, color: trend.direction === 'up' ? 'var(--red)' : 'var(--green)' }}>
               {trend.direction === 'up' ? '▲' : '▼'} {trend.value}%
             </p>
           )}

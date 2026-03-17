@@ -16,8 +16,11 @@
   },
   "dependencies": {
     "@google/genai": "^1.32.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/express": "^5.0.6",
+    "clsx": "^2.1.1",
     "d3": "^7.9.0",
+    "daisyui": "^5.5.19",
     "express": "^5.2.1",
     "lucide-react": "^0.556.0",
     "puppeteer": "^24.37.5",
@@ -26,6 +29,7 @@
     "recharts": "^3.5.1",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "tailwind-merge": "^3.5.0",
     "tsx": "^4.21.0"
   },
   "devDependencies": {

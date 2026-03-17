@@ -7,9 +7,9 @@ interface RiskBadgeProps {
 
 const RiskBadge: React.FC<RiskBadgeProps> = ({ severity, size = 'sm' }) => {
     const sizeMap = {
-        sm: { fontSize: '0.55rem', padding: '1px 6px', minWidth: 22 },
-        md: { fontSize: '0.65rem', padding: '2px 8px', minWidth: 28 },
-        lg: { fontSize: '0.75rem', padding: '3px 10px', minWidth: 32 },
+        sm: { fontSize: '0.625rem', padding: '1px 6px', minWidth: 24 },
+        md: { fontSize: '0.7rem',   padding: '2px 8px', minWidth: 28 },
+        lg: { fontSize: '0.8rem',   padding: '3px 10px', minWidth: 32 },
     };
 
     const s = sizeMap[size];

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, Copy, Check, QrCode } from 'lucide-react';
 
 interface DonationModalProps {
@@ -8,7 +8,19 @@ interface DonationModalProps {
 
 const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
     const [copied, setCopied] = useState(false);
+    const closeRef = useRef<HTMLButtonElement>(null);
     const pixKey = 'contato@s2id-command.com.br';
+
+    useEffect(() => {
+        if (isOpen) closeRef.current?.focus();
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [isOpen, onClose]);
 
     const handleCopy = async () => {
         try {
@@ -21,13 +33,19 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Apoie o Projeto"
+            style={{
+                position: 'fixed', inset: 0, zIndex: 100,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+        >
             {/* Backdrop */}
             <div
                 onClick={onClose}
+                aria-hidden="true"
                 style={{
                     position: 'absolute', inset: 0,
                     background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)',
@@ -43,7 +61,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                 overflow: 'hidden',
             }}>
                 {/* Scanline effect */}
-                <div className="scanlines" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.04 }} />
+                <div className="scanlines" aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.04 }} />
 
                 {/* Corner accents */}
                 <div style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 16, borderTop: '2px solid var(--green)', borderLeft: '2px solid var(--green)' }} />
@@ -66,12 +84,17 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                             <h2 className="font-display" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white', letterSpacing: '0.05em' }}>
                                 Apoie o Projeto
                             </h2>
-                            <p className="font-mono" style={{ fontSize: '0.5rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                            <p className="font-mono" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                                 Me pague um café ☕
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                    <button
+                        ref={closeRef}
+                        onClick={onClose}
+                        aria-label="Fechar modal"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                    >
                         <X style={{ width: 16, height: 16, color: 'var(--text-muted)' }} />
                     </button>
                 </div>
@@ -116,7 +139,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                                 }}
                             >
                                 {copied ? <Check style={{ width: 12, height: 12, color: 'var(--green)' }} /> : <Copy style={{ width: 12, height: 12, color: 'var(--blue)' }} />}
-                                <span className="font-mono" style={{ fontSize: '0.5rem', color: copied ? 'var(--green)' : 'var(--blue)' }}>
+                                <span className="font-mono" style={{ fontSize: '0.625rem', color: copied ? 'var(--green)' : 'var(--blue)' }}>
                                     {copied ? 'COPIADO' : 'COPIAR'}
                                 </span>
                             </button>
@@ -137,7 +160,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                                 }}
                             >
                                 <span className="font-display" style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--green)' }}>R${amount}</span>
-                                <span className="font-mono" style={{ fontSize: '0.45rem', color: 'var(--text-muted)' }}>
+                                <span className="font-mono" style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>
                                     {amount === 5 ? 'Café' : amount === 15 ? 'Lanche' : 'Servidor'}
                                 </span>
                             </button>

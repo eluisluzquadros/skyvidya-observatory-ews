@@ -251,7 +251,7 @@ const App: React.FC = () => {
                                             Intel Brief
                                         </span>
                                     </div>
-                                    <p className="font-body" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                                    <p className="prose prose-tactical font-body" style={{ maxWidth: 'none', whiteSpace: 'pre-wrap' }}>
                                         {insight.substring(0, 400)}{insight.length > 400 ? '...' : ''}
                                     </p>
                                 </div>
