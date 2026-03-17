@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Search, MapPin, Loader2 } from 'lucide-react';
-import { queryGeoRAG } from '../services/analyticsService';
+import { Send, Search, MapPin, Loader2, Download } from 'lucide-react';
+import { queryGeoRAG, exportGeoRAGResults } from '../services/analyticsService';
 import type { MunicipalityRisk } from '../analyticsTypes';
 import { RISK_CATEGORY_COLORS } from '../analyticsTypes';
 
@@ -12,6 +12,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   municipalities?: MunicipalityRisk[];
+  queryText?: string;
   timestamp: Date;
 }
 
@@ -26,6 +27,7 @@ const GeoRAGChat: React.FC<GeoRAGChatProps> = ({ onMunicipalityClick }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [exportingIdx, setExportingIdx] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,6 +57,7 @@ const GeoRAGChat: React.FC<GeoRAGChatProps> = ({ onMunicipalityClick }) => {
         role: 'assistant',
         content: result.data?.textResponse || 'Sem resultados para essa consulta.',
         municipalities: result.data?.municipalities || [],
+        queryText: q,
         timestamp: new Date(),
       };
 
@@ -68,6 +71,19 @@ const GeoRAGChat: React.FC<GeoRAGChatProps> = ({ onMunicipalityClick }) => {
       setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExport = async (idx: number, format: 'csv' | 'geojson') => {
+    const msg = messages[idx];
+    if (!msg.queryText) return;
+    setExportingIdx(idx);
+    try {
+      await exportGeoRAGResults(msg.queryText, format);
+    } catch (e) {
+      console.error('Export failed:', e);
+    } finally {
+      setExportingIdx(null);
     }
   };
 
@@ -138,6 +154,28 @@ const GeoRAGChat: React.FC<GeoRAGChatProps> = ({ onMunicipalityClick }) => {
                       </span>
                     </button>
                   ))}
+
+                  {/* Export buttons */}
+                  {msg.queryText && (
+                    <div className="flex gap-1.5 pt-1.5 border-t border-white/5">
+                      <button
+                        onClick={() => handleExport(idx, 'csv')}
+                        disabled={exportingIdx === idx}
+                        className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono text-gray-400 hover:text-green-300 hover:bg-green-500/10 border border-transparent hover:border-green-500/20 transition-colors disabled:opacity-40"
+                      >
+                        {exportingIdx === idx ? <Loader2 size={9} className="animate-spin" /> : <Download size={9} />}
+                        CSV
+                      </button>
+                      <button
+                        onClick={() => handleExport(idx, 'geojson')}
+                        disabled={exportingIdx === idx}
+                        className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono text-gray-400 hover:text-blue-300 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-colors disabled:opacity-40"
+                      >
+                        {exportingIdx === idx ? <Loader2 size={9} className="animate-spin" /> : <Download size={9} />}
+                        GeoJSON
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

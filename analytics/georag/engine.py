@@ -7,9 +7,12 @@ Uses vector embeddings for semantic search, DuckDB for spatial queries,
 and rule-based query parsing for natural language understanding.
 """
 
+import csv
+import io
 import json
 import logging
 import re
+from itertools import islice
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +21,10 @@ import pandas as pd
 from config import ANALYTICS_OUTPUT_DIR, COBRADE_MAP, RISK_CATEGORIES
 
 logger = logging.getLogger(__name__)
+
+# Chromadb/embeddings persisted path
+CHROMA_DIR = Path(__file__).resolve().parent.parent / "data" / "chroma"
+EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
 # Lazy imports for heavy dependencies
 _engine_instance = None
@@ -36,6 +43,7 @@ class GeoRAGEngine:
     def __init__(self):
         self.risk_data: list[dict] = []
         self.conn = None
+        self._chroma_col: Any = None  # Populated by setup_vector_store()
         self._load_data()
         self._setup_duckdb()
 
@@ -74,6 +82,256 @@ class GeoRAGEngine:
 
         self.conn.register("municipios", df)
         logger.info("DuckDB initialized with municipality data")
+
+    # ── C1: Vector Embeddings ─────────────────────────────────────────────────
+
+    def setup_vector_store(self) -> bool:
+        """
+        Build a ChromaDB collection with municipality embeddings.
+        Uses paraphrase-multilingual-MiniLM-L12-v2 (~420MB, multilingual).
+        Persists to analytics/data/chroma/ to avoid re-building on restart.
+        Returns True if newly built, False if loaded from cache.
+        """
+        try:
+            import chromadb
+            from sentence_transformers import SentenceTransformer
+
+            CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+            client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+
+            # If collection already exists with the right count, skip rebuild
+            try:
+                col = client.get_collection("municipios")
+                if col.count() >= len(self.risk_data) * 0.95:
+                    self._chroma_col = col
+                    logger.info(f"ChromaDB: loaded existing collection ({col.count()} docs)")
+                    return False
+            except Exception:
+                pass
+
+            logger.info("ChromaDB: building embeddings (first run may take a few minutes)...")
+            model = SentenceTransformer(EMBED_MODEL)
+
+            # Build document per municipality
+            ids, docs, metas = [], [], []
+            for r in self.risk_data:
+                cd = str(r.get("cd_mun", ""))
+                name = r.get("name", "")
+                uf = r.get("uf", "")
+                cat = r.get("riskCategory", "")
+                trend = r.get("trend", "")
+                threat = r.get("principalThreat", "")
+                score = r.get("riskScore", 0)
+                pop = r.get("population", 0)
+                historic = r.get("historicCount", 0)
+
+                doc = (
+                    f"Município {name} em {uf}. "
+                    f"Risco {cat} (score {score:.3f}). "
+                    f"Tendência {trend}. "
+                    f"Ameaça principal: {threat}. "
+                    f"População: {pop:,}. "
+                    f"Histórico: {historic} desastres."
+                )
+                ids.append(cd)
+                docs.append(doc)
+                metas.append({"cd_mun": cd, "name": name, "uf": uf,
+                               "riskCategory": cat, "trend": trend, "principalThreat": threat})
+
+            # Embed in batches of 512
+            batch_size = 512
+            embeddings: list[list[float]] = []
+            for i in range(0, len(docs), batch_size):
+                batch: list[str] = list(islice(docs, i, i + batch_size))
+                vecs = model.encode(batch, show_progress_bar=False)
+                embeddings.extend(vecs.tolist())
+
+            # (Re)create collection
+            try:
+                client.delete_collection("municipios")
+            except Exception:
+                pass
+            col = client.create_collection("municipios")
+            col.add(ids=ids, documents=docs, embeddings=embeddings, metadatas=metas)
+
+            self._chroma_col = col
+            logger.info(f"ChromaDB: built collection with {len(ids)} documents")
+            return True
+
+        except Exception as e:
+            logger.warning(f"ChromaDB setup failed (semantic search disabled): {e}")
+            self._chroma_col = None
+            return False
+
+    def semantic_search(self, query: str, top_k: int = 20) -> list[dict]:
+        """
+        Semantic similarity search via ChromaDB embeddings.
+        Complements (does not replace) rule-based SQL search.
+        Returns list of municipality dicts sorted by similarity.
+        """
+        if not hasattr(self, "_chroma_col") or self._chroma_col is None:
+            return []
+
+        try:
+            from sentence_transformers import SentenceTransformer
+            model = SentenceTransformer(EMBED_MODEL)
+            vec = model.encode([query])[0].tolist()
+            results = self._chroma_col.query(query_embeddings=[vec], n_results=min(top_k, self._chroma_col.count()))
+            ids = results["ids"][0] if results["ids"] else []
+            # Return risk records matching the found ids
+            id_set = set(ids)
+            return [r for r in self.risk_data if str(r.get("cd_mun", "")) in id_set]
+        except Exception as e:
+            logger.warning(f"Semantic search failed: {e}")
+            return []
+
+    def hybrid_query(self, user_question: str, top_k: int = 20) -> list[dict]:
+        """
+        Combine rule-based SQL results with semantic search results.
+        Re-ranks by riskScore to produce a unified list.
+        """
+        parsed = self.parse_query(user_question)
+        sql_df = self.execute_query(parsed)
+        sql_records = sql_df.to_dict("records") if not sql_df.empty else []
+
+        semantic_records = self.semantic_search(user_question, top_k=top_k)
+
+        # Merge by cd_mun, preferring SQL result order; append semantic-only results
+        seen: set[str] = set()
+        merged = []
+        for r in sql_records:
+            cd = str(r.get("cd_mun", ""))
+            if cd not in seen:
+                seen.add(cd)
+                merged.append(r)
+        for r in semantic_records:
+            cd = str(r.get("cd_mun", ""))
+            if cd not in seen:
+                seen.add(cd)
+                merged.append(r)
+
+        return merged[:parsed["limite"]]
+
+    # ── C2: Kepler.gl Visualization Config ────────────────────────────────────
+
+    def prepare_kepler_config(self, results: list[dict]) -> dict:
+        """
+        Generate a Kepler.gl-compatible configuration for a set of municipality results.
+
+        Returns:
+            {
+                dataset: { fields, rows },
+                config: Kepler.gl config object (dark map, Brazil centered),
+            }
+        """
+        fields = [
+            {"name": "cd_mun",           "type": "string"},
+            {"name": "name",             "type": "string"},
+            {"name": "uf",               "type": "string"},
+            {"name": "lat",              "type": "real"},
+            {"name": "lng",              "type": "real"},
+            {"name": "riskScore",        "type": "real"},
+            {"name": "riskCategory",     "type": "string"},
+            {"name": "trend",            "type": "string"},
+            {"name": "principalThreat",  "type": "string"},
+            {"name": "population",       "type": "integer"},
+            {"name": "historicCount",    "type": "integer"},
+        ]
+
+        rows = []
+        for r in results:
+            rows.append([
+                r.get("cd_mun", ""),
+                r.get("name", ""),
+                r.get("uf", ""),
+                r.get("lat") or 0,
+                r.get("lng") or 0,
+                round(float(r.get("riskScore", 0)), 4),
+                r.get("riskCategory", ""),
+                r.get("trend", ""),
+                r.get("principalThreat", ""),
+                int(r.get("population", 0)),
+                int(r.get("historicCount", 0)),
+            ])
+
+        kepler_config = {
+            "version": "v1",
+            "config": {
+                "visState": {
+                    "layers": [{
+                        "type": "point",
+                        "config": {
+                            "dataId": "s2id_results",
+                            "label": "Municípios",
+                            "columns": {"lat": "lat", "lng": "lng"},
+                            "visConfig": {
+                                "radius": 6,
+                                "colorRange": {
+                                    "colors": ["#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c"]
+                                },
+                                "colorField": {"name": "riskScore", "type": "real"},
+                            },
+                        },
+                    }],
+                    "interactionConfig": {
+                        "tooltip": {
+                            "fieldsToShow": {
+                                "s2id_results": [
+                                    {"name": "name"}, {"name": "uf"}, {"name": "riskCategory"},
+                                    {"name": "trend"}, {"name": "principalThreat"},
+                                ]
+                            },
+                            "enabled": True,
+                        }
+                    },
+                },
+                "mapState": {"latitude": -15.78, "longitude": -47.93, "zoom": 4},
+                "mapStyle": {"styleType": "dark"},
+            },
+        }
+
+        return {
+            "dataset": {"fields": fields, "rows": rows},
+            "config": kepler_config,
+        }
+
+    # ── C3: Data Export ───────────────────────────────────────────────────────
+
+    def export_results_csv(self, results: list[dict]) -> str:
+        """Return CSV string for the given result municipalities."""
+        columns = ["name", "uf", "riskScore", "riskCategory", "trend",
+                   "principalThreat", "population", "historicCount",
+                   "last10yrCount", "last5yrCount", "last2yrCount"]
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=columns, extrasaction="ignore",
+                                lineterminator="\n")
+        writer.writeheader()
+        for r in results:
+            row = {k: r.get(k, "") for k in columns}
+            row["riskScore"] = round(float(row.get("riskScore") or 0), 4)
+            writer.writerow(row)
+        return output.getvalue()
+
+    def export_results_geojson(self, results: list[dict]) -> dict:
+        """Return GeoJSON FeatureCollection for the given result municipalities."""
+        features = []
+        for r in results:
+            lat = r.get("lat")
+            lng = r.get("lng")
+            if lat is None or lng is None:
+                continue
+            props = {k: r.get(k) for k in
+                     ["cd_mun", "name", "uf", "riskScore", "riskCategory",
+                      "trend", "principalThreat", "population", "historicCount"]}
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [lng, lat]},
+                "properties": props,
+            })
+        return {"type": "FeatureCollection", "features": features}
+
+    # ── Query pipeline ────────────────────────────────────────────────────────
 
     def parse_query(self, query: str) -> dict:
         """

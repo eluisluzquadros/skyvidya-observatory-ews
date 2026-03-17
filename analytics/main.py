@@ -16,6 +16,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 from config import (
@@ -65,6 +66,11 @@ class PipelineRequest(BaseModel):
 
 class GeoRAGQuery(BaseModel):
     query: str
+
+
+class GeoRAGExportRequest(BaseModel):
+    query: str
+    format: str = "csv"  # "csv" or "geojson"
 
 
 class LLMReportRequest(BaseModel):
@@ -273,6 +279,66 @@ async def llm_get_report(scope: str):
         return {"success": True, "data": report}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read report: {str(e)}")
+
+
+@app.get("/georag/kepler-config")
+async def georag_kepler_config(query: str):
+    """
+    Return a Kepler.gl config JSON for the results of a GeoRAG query.
+    Used by the frontend to render interactive maps.
+    """
+    try:
+        from georag.engine import GeoRAGEngine
+
+        engine = GeoRAGEngine.get_instance()
+        result = engine.query(query)
+        config = engine.prepare_kepler_config(result["municipalities"])
+
+        return {"success": True, "data": config}
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Kepler config failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/georag/export")
+async def georag_export(request: GeoRAGExportRequest):
+    """
+    Execute a GeoRAG query and return results as CSV or GeoJSON download.
+    """
+    try:
+        from georag.engine import GeoRAGEngine
+
+        engine = GeoRAGEngine.get_instance()
+        result = engine.query(request.query)
+        municipalities = result["municipalities"]
+
+        if request.format == "csv":
+            csv_data = engine.export_results_csv(municipalities)
+            return Response(
+                content=csv_data,
+                media_type="text/csv; charset=utf-8",
+                headers={"Content-Disposition": "attachment; filename=\"georag_results.csv\""},
+            )
+        elif request.format == "geojson":
+            import json as _json
+            geojson = engine.export_results_geojson(municipalities)
+            return Response(
+                content=_json.dumps(geojson, ensure_ascii=False),
+                media_type="application/geo+json",
+                headers={"Content-Disposition": "attachment; filename=\"georag_results.geojson\""},
+            )
+        else:
+            raise HTTPException(status_code=400, detail="format must be 'csv' or 'geojson'")
+
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"GeoRAG export failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")

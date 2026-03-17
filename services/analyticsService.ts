@@ -131,6 +131,29 @@ export async function queryGeoRAG(query: string): Promise<GeoRAGResponse> {
     return result;
 }
 
+export async function exportGeoRAGResults(
+    query: string,
+    format: 'csv' | 'geojson',
+): Promise<void> {
+    const response = await fetch(`${API_BASE}/georag/export`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, format }),
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: response.statusText }));
+        throw new Error(err.error || `HTTP ${response.status}`);
+    }
+    const blob = await response.blob();
+    const filename = format === 'csv' ? 'georag_results.csv' : 'georag_results.geojson';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 // === Pipeline ===
 
 export async function fetchPipelineStatus(): Promise<PipelineStatus> {

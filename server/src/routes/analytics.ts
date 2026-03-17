@@ -372,4 +372,74 @@ router.post('/georag/query', async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/analytics/georag/kepler-config - Kepler.gl config for a query
+router.get('/georag/kepler-config', async (req: Request, res: Response) => {
+    try {
+        const { query } = req.query;
+        if (!query) {
+            return res.status(400).json({ success: false, error: 'query parameter is required' });
+        }
+
+        const response = await fetch(
+            `${config.pythonServiceUrl}/georag/kepler-config?query=${encodeURIComponent(query as string)}`
+        );
+
+        if (!response.ok) {
+            const error = await response.json();
+            return res.status(response.status).json({
+                success: false,
+                error: error.detail || 'Kepler config generation failed',
+            });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        logger.error('Error generating Kepler config:', error);
+        res.status(503).json({
+            success: false,
+            error: 'Python analytics service unavailable.',
+        });
+    }
+});
+
+// POST /api/analytics/georag/export - Export GeoRAG results as CSV or GeoJSON
+router.post('/georag/export', async (req: Request, res: Response) => {
+    try {
+        const { query, format } = req.body;
+        if (!query) {
+            return res.status(400).json({ success: false, error: 'query is required' });
+        }
+
+        const response = await fetch(`${config.pythonServiceUrl}/georag/export`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, format: format || 'csv' }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            return res.status(response.status).json({
+                success: false,
+                error: error.detail || 'Export failed',
+            });
+        }
+
+        // Stream the file response back to the client
+        const contentType = response.headers.get('content-type') || 'application/octet-stream';
+        const disposition = response.headers.get('content-disposition') || '';
+        res.set('Content-Type', contentType);
+        if (disposition) res.set('Content-Disposition', disposition);
+
+        const buffer = await response.arrayBuffer();
+        res.send(Buffer.from(buffer));
+    } catch (error) {
+        logger.error('Error in GeoRAG export:', error);
+        res.status(503).json({
+            success: false,
+            error: 'Python analytics service unavailable.',
+        });
+    }
+});
+
 export default router;
