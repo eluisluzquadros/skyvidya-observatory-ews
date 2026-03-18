@@ -102,7 +102,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                 {/* Body */}
                 <div style={{ padding: '16px 24px 24px' }}>
                     <p className="font-body" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
-                        O S2ID Command é um projeto open-source de inteligência para monitoramento de desastres.
+                        O Skyvidya Observatory EWS é um projeto open-source de inteligência para monitoramento de desastres.
                         Sua contribuição ajuda a manter os servidores e a IA funcionando.
                     </p>
 

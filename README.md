@@ -1,19 +1,21 @@
 <div align="center">
-<img width="800" alt="Skyvidya Observatory" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="800" alt="Skyvidya Observatory EWS" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 
-# Skyvidya Observatory EWS — S2ID Disaster Monitor V2
+# Skyvidya Observatory — Early Warning System (EWS)
+**v2.1 · Monitoramento Inteligente de Desastres Naturais no Brasil**
 </div>
 
-Centro Integrado de Comando para análise e monitoramento de desastres naturais no Brasil. Agrega dados do **S2ID** e **Atlas Digital** com análise espacial avançada (LISA/MCDA), visualização 3D/2D, IA generativa e busca geoespacial semântica.
+Plataforma de comando e análise geoespacial de desastres naturais no Brasil. Agrega dados reais do **S2ID** e **Atlas Digital** com análise espacial avançada (LISA/MCDA), visualização 3D/2D, IA generativa (Gemini), busca geoespacial semântica e design system 2026.
 
 ---
 
 ## Arquitetura
 
 ```
-Frontend (React/Vite :3000)
+Frontend (React 19 / Vite :3000)
   └── Globe 3D (D3.js) | Mapa Coroplético (D3 + GeoJSON)
   └── AnalyticsPanel | GeoRAGChat | TacticalAI (Gemini)
+  └── Design System: Syne + Plus Jakarta Sans + JetBrains Mono
 
 Backend Express.js (:3001)
   └── /api/disasters   — 45.942 registros Atlas (filtros server-side)
@@ -28,16 +30,22 @@ Python FastAPI (:8000)           [analytics microservice]
 
 ## Features
 
+### Interface & UX
+- **Sidebar esquerda colapsável** — feed de eventos com toggle hide/show; ícone `‹` retrai, `›` expande
+- **Sidebar direita colapsável** — painéis de detalhe com toggle; icon rail vertical quando recolhida (clique em qualquer ícone ativa o painel)
+- **Auto-select do evento mais recente** — ao carregar, a sidebar direita já exibe dados e insights do evento mais recente sem necessidade de clique
+- **7 painéis na sidebar direita**: Detalhe · News · Econ · Oracle · Comms · Risco · GeoRAG
+
 ### Visualização
 - **Globe 3D interativo** — pan, zoom, auto-rotação, tooltips em hover (D3.js)
 - **Mapa Coroplético 2D** — 4 modos de cor: risco MCDA, tendência, ameaça principal, clusters LISA
-- **Toggle Globe/Mapa** — alternância fluida entre as duas visualizações
-- **Design Command Center** — tema escuro `#0B0F14`, acentos laranja/ciano, estética Palantir
+- **Toggle Globe/Mapa** — alternância fluida entre visualizações
+- **Design Command Center 2026** — tema escuro `#0B0F14`, Syne bold para branding, acentos laranja/ciano
 
 ### Dados Reais
 - **45.942 eventos** do Atlas Digital (1994–presente) via `database.json`
 - **5.572 municípios** com scores MCDA calculados pelo pipeline Python
-- **Filtros server-side** por período: presets 1A/2A/5A/10A/20A/HIST e calendário customizado
+- **Filtros server-side** por período: presets 1A / 2A / 5A / 10A / 20A / HIST e calendário customizado DE→ATÉ
 - **Datas reais** no formato DD/MM/AAAA — sem dados fictícios gerados por IA
 
 ### Analytics Pipeline (Python)
@@ -45,17 +53,13 @@ Python FastAPI (:8000)           [analytics microservice]
 - **LISA** (Notebook 01): Local Moran's I para 8 variáveis core, clusters HH/HL/LH/LL
 - **MCDA** (Notebook 02): 8 critérios MinMax → score de risco → 5 categorias + tendência
 - **Output**: `risk_analysis.json` (8.5MB), `lisa_clusters.json` (3.4MB), `municipality_geometries.geojson` (10MB)
+- Runtime: ~107s para Brasil completo
 
 ### IA & Análise
 - **Oracle AI** (Gemini 2.5 Flash) — insights enriquecidos com contexto MCDA real
 - **GeoRAG** — queries em linguagem natural sobre perfis de risco municipal (DuckDB)
 - **News Validation** — correlação de eventos com notícias via Gemini
 - **Economic Impact** — análise de impacto econômico por evento
-
-### Filtros de Período
-- Presets rápidos: **1A, 2A, 5A, 10A, 20A, HIST** (histórico ~30 anos)
-- **Calendário customizado**: seletores DE/ATÉ com validação de datas
-- Filtragem **server-side** para escala de 45k registros
 
 ---
 
@@ -96,6 +100,9 @@ npm run dev:python      # :8000
 
 # Pipeline analytics (gera JSONs em server/data/analytics/)
 npm run pipeline
+
+# Download único do GeoParquet IBGE (executar uma vez)
+npm run pipeline:download
 ```
 
 ---
@@ -118,18 +125,21 @@ npm run pipeline
 
 ```
 s2id-disaster-monitor/
-├── App.tsx                          # Root component com estado global
+├── App.tsx                          # Root component — layout 3 colunas, estado global
+├── index.html                       # Entry point — Skyvidya Observatory EWS
+├── index.css                        # Design System 2026 (CSS vars, fontes, tokens)
 ├── types.ts + analyticsTypes.ts     # Tipos TypeScript
 ├── services/
 │   ├── geminiService.ts             # Gemini AI + fetchRealDisasters
 │   └── analyticsService.ts          # Cliente API analytics
 ├── components/
+│   ├── TopBar.tsx                   # NavBar — branding EWS + filtros de período
 │   ├── Globe.tsx                    # Globe 3D D3.js
 │   ├── ChoroplethMap.tsx            # Mapa coroplético D3 + GeoJSON
 │   ├── AnalyticsPanel.tsx           # Dashboard MCDA/LISA
 │   ├── GeoRAGChat.tsx               # Chat de queries geoespaciais
 │   ├── TacticalAI.tsx               # Oracle AI (Gemini)
-│   ├── TopBar.tsx                   # NavBar com filtros de período
+│   ├── ViewToggle.tsx               # Toggle Globe ↔ Mapa Analítico
 │   └── ...
 ├── server/
 │   ├── src/index.ts                 # Express API (:3001)
@@ -146,17 +156,38 @@ s2id-disaster-monitor/
 │   ├── config.py                    # Paths, COBRADE_MAP, configs
 │   └── requirements.txt
 └── docs/
+    ├── PRD.md                       # Product Requirements Document
     └── google_colab/                # Notebooks de referência (00–05)
 ```
 
 ---
 
+## Design System
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--bg-primary` | `#0B0F14` | Background base |
+| `--primary` | `#FF5E3A` | Skyvidya orange |
+| `--cyan` | `#00D4FF` | Acento secundário |
+| `--font-brand` | `Syne` | Nome da plataforma |
+| `--font-body` | `Plus Jakarta Sans` | Conteúdo geral |
+| `--font-mono` | `JetBrains Mono` | Dados, labels, código |
+| `--btn-height-sm` | `28px` | Altura uniforme de botões |
+
+---
+
 ## Roadmap
 
-- [ ] **FASE A** — Reporting Assets: geração de mapas PNG e tabelas CSV via Notebook 03
-- [ ] **FASE B** — AI Content Framework: narrativas textuais por município/estado via Gemini (Notebook 04)
-- [ ] **FASE C1** — GeoRAG Semântico: embeddings ChromaDB + busca vetorial (Notebook 05)
-- [ ] **FASE C2+C3** — Kepler.gl config + exportação CSV/GeoJSON dos resultados GeoRAG
+- [x] **Fase 1–4** — Dados reais, scraper, backend, dashboard inicial
+- [x] **Fase 5** — Globe 3D, UI Command Center V1
+- [x] **Fase 6–7** — Pipeline Analytics Python (LISA + MCDA + GeoRAG)
+- [x] **Fase 8** — Gemini enriquecido com contexto MCDA
+- [x] **Fase 9** — Design System 2026 + rebrand Skyvidya Observatory EWS
+- [x] **Fase 10** — Sidebar hide/show (ambos) + auto-select evento mais recente
+- [ ] **Fase A** — Reporting Assets: mapas PNG + tabelas CSV via Notebook 03
+- [ ] **Fase B** — AI Content Framework: narrativas por município/estado (Notebook 04)
+- [ ] **Fase C1** — GeoRAG Semântico: ChromaDB + embeddings multilíngues
+- [ ] **Fase C2+C3** — Kepler.gl config + exportação CSV/GeoJSON
 
 ---
 
@@ -164,7 +195,8 @@ s2id-disaster-monitor/
 
 | Camada | Stack |
 |---|---|
-| Frontend | React 18, Vite, D3.js v7, Recharts, Tailwind CSS v4, Lucide, Socket.IO client |
+| Frontend | React 19, Vite 6, D3.js v7, Recharts, Tailwind CSS v4, daisyUI v5, Lucide |
+| Fontes | Syne (brand), Plus Jakarta Sans (body), JetBrains Mono (data), Space Grotesk (display) |
 | Backend | Express.js, TypeScript, node-cron, Puppeteer, Socket.IO |
 | Analytics | Python 3.10+, FastAPI, GeoPandas, PySAL (LISA), scikit-learn, DuckDB |
 | IA | Google Gemini 2.5 Flash (`@google/genai`) |

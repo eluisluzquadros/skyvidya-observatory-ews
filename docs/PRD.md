@@ -1,14 +1,17 @@
-# PRD — Skyvidya Observatory EWS v2
-**Produto:** S2ID Disaster Monitor
-**Versão:** 2.0
-**Última atualização:** 2026-03-16
+# PRD — Skyvidya Observatory EWS v2.1
+**Produto:** Skyvidya Observatory: Early Warning System (EWS)
+**Versão:** 2.1
+**Última atualização:** 2026-03-18
 **Status:** Em desenvolvimento ativo
 
 ---
 
 ## Visão do Produto
 
-Centro Integrado de Comando para análise geoespacial de desastres naturais no Brasil. Combina dados históricos reais do Atlas Digital (45.942 eventos, 1994–presente) com análise espacial avançada (LISA/MCDA), visualização interativa 3D/2D e inteligência artificial generativa para suporte à tomada de decisão em defesa civil e gestão de riscos.
+Plataforma de comando e análise geoespacial de desastres naturais no Brasil. Combina dados históricos reais do Atlas Digital (45.942 eventos, 1994–presente) com análise espacial avançada (LISA/MCDA), visualização interativa 3D/2D, inteligência artificial generativa e design system 2026 para suporte à tomada de decisão em defesa civil e gestão de riscos.
+
+**Nome oficial:** Skyvidya Observatory: Early Warning System — EWS
+_(anterior: S2ID Command / Centro Integrado de Comando)_
 
 ---
 
@@ -17,18 +20,18 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 - **Analistas de defesa civil** — monitoramento, triagem de eventos, análise de risco municipal
 - **Pesquisadores de desastres** — exploração de padrões espaciais (clusters LISA, tendências MCDA)
 - **Gestores públicos** — dashboards de alto nível, narrativas automatizadas por estado
-- **Jornalistas/mídia** — validação de eventos via correlação com notícias, dados históricos
+- **Jornalistas/mídia** — validação de eventos via correlação com notícias e dados históricos
 
 ---
 
-## Funcionalidades Implementadas (v2.0)
+## Funcionalidades Implementadas (v2.1)
 
 ### F1 — Dados Reais e Filtros de Período ✅
 - **45.942 eventos** do Atlas Digital servidos via Express.js (`/api/disasters`)
 - Filtros **server-side** por `startDate`/`endDate` (ISO YYYY-MM-DD)
 - Presets rápidos na TopBar: **1A, 2A, 5A, 10A, 20A, HIST**
 - Calendário customizado DE/ATÉ com validação (campo max/min)
-- `DisasterFilter` como tipo central substituindo `TimeRange`
+- `DisasterFilter` como tipo central
 - Datas exibidas em DD/MM/AAAA — zero dados fictícios gerados por IA
 
 ### F2 — Visualização 3D Globe ✅
@@ -74,6 +77,19 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 - Indicador pipeline status na TopBar (MCDA ON/OFF)
 - Botão Refresh Analytics manual
 
+### F9 — Design System 2026 & Rebrand ✅
+- **Nome:** Skyvidya Observatory: Early Warning System — EWS
+- **Fontes:** `Syne` (brand bold), `Plus Jakarta Sans` (body), `JetBrains Mono` (dados), `Space Grotesk` (display)
+- **Tokens CSS:** `--btn-height-sm: 28px`, `--font-brand`, `--font-body`, escala de spacing
+- **Botões uniformes:** `.btn-tactical`, `.filter-chip`, `.donate-btn` todos com `height: var(--btn-height-sm)`
+- **Glow-orange:** classe `.glow-orange` adicionada ao sistema
+- `font-feature-settings` kern + liga ativados; antialiasing global
+
+### F10 — Sidebar UX: Hide/Show & Auto-Select ✅
+- **Sidebar esquerda:** botão `‹` no rodapé para recolher; botão `›` para expandir; transição `cubic-bezier`
+- **Sidebar direita:** botão `›` no header da tab bar para recolher; icon rail vertical quando colapsada (44px); clique em ícone expande e ativa o painel correspondente; tab ativa destacada com borda lateral cyan
+- **Auto-select do evento mais recente:** `useRef` garante disparo único após o primeiro carregamento bem-sucedido; chama `handleEventSelect(filteredData[0])` populando detalhe + news + economic automaticamente
+
 ---
 
 ## Funcionalidades Planejadas (Roadmap)
@@ -114,7 +130,6 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 - ChromaDB persistido em `analytics/data/chroma/`
 - Modelo: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
 - `semantic_search()` + `hybrid_query()` (rule-based + semântico com re-ranking)
-- Queries como "cidades seguras" retornam resultados semanticamente diferentes
 
 **Entregável:** GeoRAG com busca semântica + resultados notavelmente melhores.
 
@@ -125,7 +140,6 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 **Descrição:** Config Kepler.gl para resultados GeoRAG + exportação CSV/GeoJSON
 
 - `prepare_kepler_config()` no engine GeoRAG
-- `export_results_csv()` e `export_results_geojson()`
 - Endpoints: `/api/analytics/georag/kepler-config`, `/api/analytics/georag/export`
 - Frontend: botões "Exportar CSV" e "Exportar GeoJSON" após cada resposta GeoRAG
 
@@ -135,13 +149,16 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 
 | Decisão | Escolha | Razão |
 |---|---|---|
+| Nome da plataforma | Skyvidya Observatory EWS | Identidade de marca Skyvidya; EWS comunica função diretamente |
 | Dados de eventos | Atlas Digital real (45.942) | Elimina alucinações Gemini com datas futuras |
 | Filtragem | Server-side (Express) | Escala de 45k registros inviabiliza client-side |
 | Analytics | Python microservice (:8000) | LISA/PySAL/GeoPandas sem equivalente JS |
 | Padrão analytics | Batch pré-computado + 1 endpoint live | Evita latência de 107s por request |
 | LISA variáveis | 8 core MCDA (não todas 444) | Reduz lisa_clusters.json de 391MB → 3.4MB |
 | CSS framework | Tailwind v4 + CSS variables | Componentes analytics em Tailwind; design system em CSS vars |
-| LLM | Gemini 2.5 Flash | Já integrado no projeto, sem custo adicional |
+| Fontes 2026 | Syne + Plus Jakarta Sans + JetBrains Mono | Syne: brand bold moderno; PJS: corpo geométrico legível; JBM: dados |
+| LLM | Gemini 2.5 Flash | Já integrado; sem custo adicional |
+| Sidebar auto-select | `useRef` one-shot + `handleEventSelect(filteredData[0])` | UX imediata; evita re-seleção em cada mudança de filtro |
 
 ---
 
@@ -153,6 +170,7 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 | Cobertura de municípios MCDA | 0 | 5.572 (100% Brasil) |
 | Pipeline runtime | — | < 120s para Brasil todo |
 | Precisão GeoRAG | Apenas rule-based | Hybrid (rule + semântico) |
+| Cliques para ver dados do evento | 1 clique obrigatório | 0 cliques (auto-select) |
 
 ---
 
@@ -162,3 +180,4 @@ Centro Integrado de Comando para análise geoespacial de desastres naturais no B
 - `database.json` e `storage.ts` são intocados pelo pipeline analytics
 - Globe 3D e todas features existentes são preservadas (zero remoções)
 - Dados fictícios gerados por IA são proibidos no feed de eventos principal
+- "S2ID" como referência ao sistema de dados do governo permanece nos comentários e scraper — apenas o nome da *plataforma* mudou para Skyvidya Observatory EWS

@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
-   S2ID COMMAND CENTER — Design System
-   "Google Earth married Palantir and had a child"
+   SKYVIDYA OBSERVATORY — Early Warning System (EWS)
+   Design System 2026 — Precision · Intelligence · Speed
    ═══════════════════════════════════════════════════════ */
 
 @import "tailwindcss";
@@ -14,7 +14,7 @@
 /* @tailwindcss/typography — for prose content (Intel Brief, AI responses) */
 @plugin "@tailwindcss/typography";
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 /* ── CSS Variables ── */
 :root {
@@ -61,7 +61,23 @@
 
   --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
   --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'DM Sans', 'Inter', sans-serif;
+  --font-brand: 'Syne', 'Space Grotesk', sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  /* Spacing scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+
+  /* Button heights */
+  --btn-height-sm: 28px;
+  --btn-height-md: 32px;
+
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
 }
 
 /* ── Reset & Base ── */
@@ -82,10 +98,13 @@ html {
 
 body {
   font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
   overflow: hidden;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 #root {
@@ -120,6 +139,10 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+.font-brand {
+  font-family: var(--font-brand);
 }
 
 .font-body {
@@ -173,6 +196,10 @@ body {
 }
 
 /* Glow Effects */
+.glow-orange {
+  box-shadow: 0 0 16px var(--primary-glow), inset 0 0 12px rgba(255, 94, 58, 0.05);
+}
+
 .glow-green {
   box-shadow: 0 0 20px var(--green-glow), inset 0 0 20px rgba(0, 255, 65, 0.03);
 }
@@ -465,20 +492,27 @@ body {
 /* Filter chip */
 .filter-chip {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  padding: 4px 10px;
+  font-size: 0.6rem;
+  padding: 0 10px;
+  height: var(--btn-height-sm);
   border: 1px solid var(--border-primary);
-  background: var(--bg-card);
+  background: rgba(22, 27, 34, 0.7);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  font-weight: 500;
 }
 
 .filter-chip:hover {
-  border-color: var(--blue-dim);
-  color: var(--blue);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: var(--cyan);
+  background: rgba(0, 212, 255, 0.05);
 }
 
 .filter-chip.active {
@@ -490,60 +524,107 @@ body {
 
 /* Donation button */
 .donate-btn {
-  background: linear-gradient(135deg, #ff6b35, #ff3a3a);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff3a3a 100%);
   color: white;
   font-family: var(--font-display);
-  font-weight: 600;
-  padding: 6px 14px;
+  font-weight: 700;
+  padding: 0 16px;
+  height: var(--btn-height-sm);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.75rem;
-  letter-spacing: 0.03em;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .donate-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(255, 58, 58, 0.3);
+  box-shadow: 0 4px 18px rgba(255, 58, 58, 0.4);
+  filter: brightness(1.08);
 }
 
 /* Input styling */
 .tactical-input {
-  background: var(--bg-primary);
+  background: rgba(11, 15, 20, 0.8);
   border: 1px solid var(--border-primary);
-  color: var(--green);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 8px 12px;
+  font-size: 0.7rem;
+  height: var(--btn-height-sm);
+  padding: 0 12px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .tactical-input:focus {
-  border-color: var(--green-dim);
-  box-shadow: 0 0 8px var(--green-glow);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 8px var(--cyan-glow);
 }
 
 .tactical-input::placeholder {
   color: var(--text-muted);
 }
 
+/* Logo/Brand area */
+.logo-brand-name {
+  font-family: var(--font-brand);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.logo-brand-name .brand-accent {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.logo-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.logo-ews-badge {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+  border: 1px solid rgba(255, 94, 58, 0.35);
+  padding: 1px 5px;
+  background: rgba(255, 94, 58, 0.08);
+  align-self: center;
+}
+
 /* Button base */
 .btn-tactical {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 6px 12px;
+  padding: 0 12px;
+  height: var(--btn-height-sm);
   border: 1px solid var(--border-primary);
-  background: var(--bg-card);
+  background: rgba(22, 27, 34, 0.7);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 .btn-tactical:hover {
@@ -552,14 +633,21 @@ body {
   color: var(--text-primary);
 }
 
+.btn-tactical:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn-tactical.primary {
-  border-color: var(--green-dim);
-  color: var(--green);
+  border-color: rgba(0, 212, 255, 0.35);
+  color: var(--cyan);
+  background: rgba(0, 212, 255, 0.06);
 }
 
 .btn-tactical.primary:hover {
-  background: rgba(0, 255, 65, 0.1);
-  box-shadow: 0 0 8px var(--green-glow);
+  background: rgba(0, 212, 255, 0.12);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
 }
 
 /* ═══ Analytics Components ═══ */

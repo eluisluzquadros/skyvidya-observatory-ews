@@ -81,33 +81,32 @@ const TopBar: React.FC<TopBarProps> = ({
             zIndex: 50,
             flexShrink: 0,
         }}>
-            <div style={{ padding: '0 16px', display: 'flex', alignItems: 'center', height: 48, justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ padding: '0 16px', display: 'flex', alignItems: 'center', height: 52, justifyContent: 'space-between', gap: 10 }}>
 
                 {/* Logo */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                     <div className="glow-orange" style={{
-                        width: 30, height: 30,
+                        width: 32, height: 32,
                         border: '1px solid var(--primary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: 'var(--bg-primary)',
+                        background: 'rgba(255,94,58,0.06)',
+                        position: 'relative',
                     }}>
-                        <span className="font-display" style={{ color: 'var(--primary)', fontSize: '1rem', fontWeight: 700 }}>⊕</span>
+                        <span className="font-brand" style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: 800, lineHeight: 1 }}>⊕</span>
                     </div>
-                    <div>
-                        <h1 className="font-display" style={{
-                            fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.15em',
-                            color: 'white', textTransform: 'uppercase', lineHeight: 1,
-                        }}>
-                            S2ID <span style={{ color: 'var(--primary)' }}>Command</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <h1 className="logo-brand-name">
+                            Skyvidya <span className="brand-accent">Observatory</span>
                         </h1>
-                        <p className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
-                            CENTRO INTEGRADO DE COMANDO
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <span className="logo-brand-sub">Early Warning System</span>
+                            <span className="logo-ews-badge">EWS</span>
+                        </div>
                     </div>
                 </div>
 
                 {/* ── Date Range Filter ── */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
                     <Calendar style={{ width: 12, height: 12, color: 'var(--text-muted)', marginRight: 2, flexShrink: 0 }} title={`Dados disponíveis: 1991 – ${dataMax.slice(0,7)}`} />
 
                     {!customMode ? (
@@ -156,10 +155,10 @@ const TopBar: React.FC<TopBarProps> = ({
                                 onChange={e => setTempStart(e.target.value)}
                                 max={tempEnd || dataMax}
                                 className="tactical-input"
-                                style={{ width: 132, fontSize: '0.65rem', colorScheme: 'dark', padding: '3px 8px' }}
+                                style={{ width: 128, colorScheme: 'dark' }}
                             />
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>→</span>
-                            <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>ATÉ</span>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.6rem' }}>→</span>
+                            <span className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>ATÉ</span>
                             <input
                                 type="date"
                                 value={tempEnd}
@@ -167,7 +166,7 @@ const TopBar: React.FC<TopBarProps> = ({
                                 min={tempStart || undefined}
                                 max={dataMax}
                                 className="tactical-input"
-                                style={{ width: 132, fontSize: '0.65rem', colorScheme: 'dark', padding: '3px 8px' }}
+                                style={{ width: 128, colorScheme: 'dark' }}
                             />
                             <button
                                 onClick={handleApply}
@@ -191,38 +190,41 @@ const TopBar: React.FC<TopBarProps> = ({
                 </div>
 
                 {/* Search */}
-                <div style={{ position: 'relative', flex: '0 1 220px' }}>
-                    <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: 'var(--text-muted)' }} />
+                <div style={{ position: 'relative', flex: '0 1 200px' }}>
+                    <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, color: 'var(--text-muted)', pointerEvents: 'none' }} />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Município, UF, tipo..."
                         className="tactical-input input-glow"
-                        style={{ width: '100%', paddingLeft: 28, fontSize: '0.7rem' }}
+                        style={{ width: '100%', paddingLeft: 30, height: 'var(--btn-height-sm)' }}
                     />
                 </div>
 
                 {/* Right actions */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                     {/* Event Counter */}
                     <div className="font-mono hud-border" style={{
-                        fontSize: '0.7rem', color: 'var(--text-secondary)',
-                        padding: '4px 10px',
+                        fontSize: '0.65rem', color: 'var(--text-secondary)',
+                        padding: '0 12px', height: 'var(--btn-height-sm)',
+                        display: 'flex', alignItems: 'center', gap: 5,
                     }}>
                         {loading
                             ? <span style={{ color: 'var(--cyan)' }}>...</span>
-                            : <><span style={{ color: 'var(--primary)', fontWeight: 700 }}>{eventCount.toLocaleString('pt-BR')}</span> EVENTOS</>
+                            : <><span style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.7rem' }}>{eventCount.toLocaleString('pt-BR')}</span><span style={{ letterSpacing: '0.06em' }}> EVENTOS</span></>
                         }
                     </div>
 
                     {/* Analytics Pipeline Status */}
                     <div className="font-mono hud-border" style={{
-                        fontSize: '0.65rem', padding: '4px 8px',
+                        fontSize: '0.55rem', padding: '0 8px',
+                        height: 'var(--btn-height-sm)',
                         display: 'flex', alignItems: 'center', gap: 5,
                         color: analyticsAvailable ? 'var(--green)' : 'var(--text-muted)',
+                        letterSpacing: '0.06em',
                     }}>
-                        <Activity style={{ width: 10, height: 10 }} />
+                        <Activity style={{ width: 9, height: 9 }} />
                         <span>{analyticsAvailable ? 'MCDA' : 'MCDA OFF'}</span>
                     </div>
 
@@ -234,9 +236,10 @@ const TopBar: React.FC<TopBarProps> = ({
                             disabled={analyticsRefreshing}
                             title="Atualizar Analytics Pipeline"
                             aria-label="Atualizar pipeline analytics"
+                            style={{ padding: '0 10px' }}
                         >
                             <RefreshCw style={{
-                                width: 12, height: 12,
+                                width: 11, height: 11,
                                 animation: analyticsRefreshing ? 'spin 1s linear infinite' : 'none',
                                 color: 'var(--purple)',
                             }} />
@@ -244,16 +247,16 @@ const TopBar: React.FC<TopBarProps> = ({
                     )}
 
                     <button onClick={onImportClick} className="btn-tactical primary" aria-label="Importar dados">
-                        <Terminal style={{ width: 12, height: 12 }} />
+                        <Terminal style={{ width: 11, height: 11 }} />
                         <span>Import</span>
                     </button>
 
-                    <button onClick={onRefresh} className="btn-tactical" disabled={loading} title="Atualizar dados" aria-label="Atualizar dados">
-                        <RefreshCw style={{ width: 12, height: 12, animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+                    <button onClick={onRefresh} className="btn-tactical" disabled={loading} title="Atualizar dados" aria-label="Atualizar dados" style={{ padding: '0 10px' }}>
+                        <RefreshCw style={{ width: 11, height: 11, animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                     </button>
 
-                    <button onClick={onDonateClick} className="donate-btn" aria-label="Apoiar o projeto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Heart style={{ width: 12, height: 12 }} />
+                    <button onClick={onDonateClick} className="donate-btn" aria-label="Apoiar o projeto">
+                        <Heart style={{ width: 11, height: 11 }} />
                         <span>Apoie</span>
                     </button>
                 </div>

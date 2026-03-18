@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     AlertTriangle, Activity, MapPin, Shield, Skull,
-    ChevronRight, Newspaper, BarChart3, Radio,
+    ChevronRight, ChevronLeft, Newspaper, BarChart3,
     Sparkles, MessageSquare, Target, Search,
 } from 'lucide-react';
 
@@ -49,6 +49,10 @@ const App: React.FC = () => {
     // ── Panels ──
     const [rightPanel, setRightPanel] = useState<RightPanel>('detail');
     const [leftCollapsed, setLeftCollapsed] = useState(false);
+    const [rightCollapsed, setRightCollapsed] = useState(false);
+
+    // ── Auto-select ref (fires once after first successful load) ──
+    const autoSelectedRef = useRef(false);
 
     // ── Modals ──
     const [showImport, setShowImport] = useState(false);
@@ -113,6 +117,14 @@ const App: React.FC = () => {
     };
 
     useEffect(() => { loadData(disasterFilter); }, [disasterFilter]);
+
+    // ── Auto-select most recent event after first successful load ──
+    useEffect(() => {
+        if (!loading && filteredData.length > 0 && !autoSelectedRef.current) {
+            autoSelectedRef.current = true;
+            handleEventSelect(filteredData[0]);
+        }
+    }, [loading]);
 
     // ── Filter Data (client-side: search only; date filtering is server-side) ──
     const filteredData = useMemo(() => {
@@ -224,6 +236,16 @@ const App: React.FC = () => {
         return Object.keys(analyticsLISA.variables);
     }, [analyticsLISA]);
 
+    const RIGHT_TABS: { key: RightPanel; icon: React.ElementType; label: string }[] = [
+        { key: 'detail',    icon: MapPin,        label: 'Detalhe' },
+        { key: 'news',      icon: Newspaper,     label: 'News'    },
+        { key: 'economic',  icon: BarChart3,     label: 'Econ'    },
+        { key: 'ai',        icon: Sparkles,      label: 'Oracle'  },
+        { key: 'chat',      icon: MessageSquare, label: 'Comms'   },
+        { key: 'analytics', icon: Target,        label: 'Risco'   },
+        { key: 'georag',    icon: Search,        label: 'GeoRAG'  },
+    ];
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-primary)', overflow: 'hidden' }}>
             {/* Scanline overlay */}
@@ -254,11 +276,25 @@ const App: React.FC = () => {
                     width: leftCollapsed ? 44 : 320,
                     background: 'var(--bg-panel)',
                     display: 'flex', flexDirection: 'column',
-                    transition: 'width 0.3s ease',
+                    transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
                     overflow: 'hidden',
                     flexShrink: 0,
                 }}>
-                    {!leftCollapsed && (
+                    {leftCollapsed ? (
+                        /* ── Collapsed: just the expand button ── */
+                        <button
+                            onClick={() => setLeftCollapsed(false)}
+                            title="Expandir feed"
+                            style={{
+                                flex: 1, width: '100%', display: 'flex', alignItems: 'flex-start',
+                                justifyContent: 'center', paddingTop: 14,
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: 'var(--text-muted)',
+                            }}
+                        >
+                            <ChevronRight style={{ width: 14, height: 14 }} />
+                        </button>
+                    ) : (
                         <>
                             {/* Stats Grid */}
                             <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-primary)' }}>
@@ -363,24 +399,25 @@ const App: React.FC = () => {
                                     ))
                                 )}
                             </div>
+
+                            {/* Collapse toggle at bottom */}
+                            <button
+                                onClick={() => setLeftCollapsed(true)}
+                                title="Recolher feed"
+                                style={{
+                                    padding: '8px', borderTop: '1px solid var(--border-primary)',
+                                    background: 'none', border: 'none', cursor: 'pointer',
+                                    display: 'flex', justifyContent: 'center',
+                                    color: 'var(--text-muted)',
+                                    transition: 'color 0.15s',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                            >
+                                <ChevronLeft style={{ width: 14, height: 14 }} />
+                            </button>
                         </>
                     )}
-
-                    {/* Collapse toggle */}
-                    <button
-                        onClick={() => setLeftCollapsed(!leftCollapsed)}
-                        style={{
-                            padding: '8px', borderTop: '1px solid var(--border-primary)',
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            display: 'flex', justifyContent: 'center',
-                        }}
-                    >
-                        <ChevronRight style={{
-                            width: 14, height: 14, color: 'var(--text-muted)',
-                            transform: leftCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
-                            transition: 'transform 0.3s',
-                        }} />
-                    </button>
                 </aside>
 
                 {/* ═══ CENTER ═══ Globe / Choropleth Map */}
@@ -434,153 +471,202 @@ const App: React.FC = () => {
 
                 {/* ═══ RIGHT SIDEBAR ═══ Detail/News/Economic/AI/Chat */}
                 <aside className="hud-border" style={{
-                    width: 360,
+                    width: rightCollapsed ? 44 : 360,
                     background: 'var(--bg-panel)',
                     display: 'flex', flexDirection: 'column',
                     flexShrink: 0,
                     overflow: 'hidden',
+                    transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
                 }}>
-                    {/* Panel Tabs */}
-                    <div style={{
-                        display: 'flex', borderBottom: '1px solid var(--border-primary)',
-                        background: 'rgba(0,0,0,0.3)',
-                    }}>
-                        {([
-                            { key: 'detail' as const, icon: MapPin, label: 'Detalhe' },
-                            { key: 'news' as const, icon: Newspaper, label: 'News' },
-                            { key: 'economic' as const, icon: BarChart3, label: 'Econ' },
-                            { key: 'ai' as const, icon: Sparkles, label: 'Oracle' },
-                            { key: 'chat' as const, icon: MessageSquare, label: 'Comms' },
-                            { key: 'analytics' as const, icon: Target, label: 'Risco' },
-                            { key: 'georag' as const, icon: Search, label: 'GeoRAG' },
-                        ]).map(tab => (
+                    {rightCollapsed ? (
+                        /* ── Collapsed: vertical icon rail ── */
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 6, gap: 2, flex: 1 }}>
+                            {/* Expand button */}
                             <button
-                                key={tab.key}
-                                onClick={() => setRightPanel(tab.key)}
-                                className="font-mono"
+                                onClick={() => setRightCollapsed(false)}
+                                title="Expandir painel"
                                 style={{
-                                    flex: 1, padding: '8px 4px',
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-                                    border: 'none', cursor: 'pointer',
-                                    background: rightPanel === tab.key ? 'rgba(0,212,255,0.08)' : 'transparent',
-                                    borderBottom: rightPanel === tab.key ? '2px solid var(--blue)' : '2px solid transparent',
-                                    color: rightPanel === tab.key ? 'var(--blue)' : 'var(--text-muted)',
-                                    fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.06em',
-                                    transition: 'all 0.15s',
+                                    width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: 'none', border: 'none', cursor: 'pointer',
+                                    color: 'var(--text-muted)', marginBottom: 4,
+                                    borderBottom: '1px solid var(--border-primary)', width: '100%',
                                 }}
                             >
-                                <tab.icon style={{ width: 13, height: 13 }} />
-                                {tab.label}
+                                <ChevronLeft style={{ width: 14, height: 14 }} />
                             </button>
-                        ))}
-                    </div>
+                            {RIGHT_TABS.map(tab => (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => { setRightCollapsed(false); setRightPanel(tab.key); }}
+                                    title={tab.label}
+                                    style={{
+                                        width: 36, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        background: rightPanel === tab.key ? 'rgba(0,212,255,0.1)' : 'none',
+                                        border: 'none', cursor: 'pointer',
+                                        color: rightPanel === tab.key ? 'var(--cyan)' : 'var(--text-muted)',
+                                        borderLeft: rightPanel === tab.key ? '2px solid var(--cyan)' : '2px solid transparent',
+                                        transition: 'all 0.15s',
+                                    }}
+                                >
+                                    <tab.icon style={{ width: 13, height: 13 }} />
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <>
+                            {/* Panel Tabs + collapse button */}
+                            <div style={{
+                                display: 'flex', borderBottom: '1px solid var(--border-primary)',
+                                background: 'rgba(0,0,0,0.3)', alignItems: 'stretch',
+                            }}>
+                                {RIGHT_TABS.map(tab => (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setRightPanel(tab.key)}
+                                        className="font-mono"
+                                        style={{
+                                            flex: 1, padding: '8px 4px',
+                                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                                            border: 'none', cursor: 'pointer',
+                                            background: rightPanel === tab.key ? 'rgba(0,212,255,0.08)' : 'transparent',
+                                            borderBottom: rightPanel === tab.key ? '2px solid var(--blue)' : '2px solid transparent',
+                                            color: rightPanel === tab.key ? 'var(--blue)' : 'var(--text-muted)',
+                                            fontSize: '0.55rem', textTransform: 'uppercase', letterSpacing: '0.06em',
+                                            transition: 'all 0.15s',
+                                        }}
+                                    >
+                                        <tab.icon style={{ width: 12, height: 12 }} />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                                {/* Collapse toggle */}
+                                <button
+                                    onClick={() => setRightCollapsed(true)}
+                                    title="Recolher painel"
+                                    style={{
+                                        padding: '0 8px', border: 'none', cursor: 'pointer',
+                                        background: 'transparent', color: 'var(--text-muted)',
+                                        borderLeft: '1px solid var(--border-primary)',
+                                        borderBottom: '2px solid transparent',
+                                        display: 'flex', alignItems: 'center',
+                                        transition: 'color 0.15s',
+                                        flexShrink: 0,
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                                >
+                                    <ChevronRight style={{ width: 13, height: 13 }} />
+                                </button>
+                            </div>
 
-                    {/* Panel Content */}
-                    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                        {rightPanel === 'detail' && (
-                            <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-                                {selectedEvent ? (
-                                    <div className="animate-fade-in">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                                            <div>
-                                                <h2 className="font-display" style={{ fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
-                                                    {selectedEvent.municipality}
-                                                </h2>
-                                                <p className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
-                                                    {selectedEvent.uf} • {selectedEvent.type}
-                                                </p>
-                                            </div>
-                                            <RiskBadge severity={selectedEvent.severity ?? 2} size="lg" />
-                                        </div>
+                            {/* Panel Content */}
+                            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                                {rightPanel === 'detail' && (
+                                    <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+                                        {selectedEvent ? (
+                                            <div className="animate-fade-in">
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                                    <div>
+                                                        <h2 className="font-display" style={{ fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>
+                                                            {selectedEvent.municipality}
+                                                        </h2>
+                                                        <p className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                                            {selectedEvent.uf} • {selectedEvent.type}
+                                                        </p>
+                                                    </div>
+                                                    <RiskBadge severity={selectedEvent.severity ?? 2} size="lg" />
+                                                </div>
 
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-                                            <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
-                                                <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Data</span>
-                                                <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600 }}>{formatEventDate(selectedEvent.date)}</div>
-                                            </div>
-                                            <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
-                                                <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Afetados</span>
-                                                <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}>{selectedEvent.affected?.toLocaleString('pt-BR')}</div>
-                                            </div>
-                                            <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
-                                                <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Status</span>
-                                                <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--cyan)', fontWeight: 600 }}>{selectedEvent.status}</div>
-                                            </div>
-                                            <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
-                                                <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Coordenadas</span>
-                                                <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-                                                    {(selectedEvent.lat ?? 0).toFixed(2)}, {(selectedEvent.lng ?? 0).toFixed(2)}
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+                                                    <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
+                                                        <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Data</span>
+                                                        <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600 }}>{formatEventDate(selectedEvent.date)}</div>
+                                                    </div>
+                                                    <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
+                                                        <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Afetados</span>
+                                                        <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}>{selectedEvent.affected?.toLocaleString('pt-BR')}</div>
+                                                    </div>
+                                                    <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
+                                                        <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Status</span>
+                                                        <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--cyan)', fontWeight: 600 }}>{selectedEvent.status}</div>
+                                                    </div>
+                                                    <div className="hud-border" style={{ padding: '10px 12px', background: 'var(--bg-card)' }}>
+                                                        <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Coordenadas</span>
+                                                        <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                                                            {(selectedEvent.lat ?? 0).toFixed(2)}, {(selectedEvent.lng ?? 0).toFixed(2)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Quick action buttons */}
+                                                <div style={{ display: 'flex', gap: 6 }}>
+                                                    <button onClick={() => setRightPanel('news')} className="btn-tactical" style={{ flex: 1, justifyContent: 'center' }}>
+                                                        <Newspaper style={{ width: 11, height: 11 }} /> Validar
+                                                    </button>
+                                                    <button onClick={() => setRightPanel('economic')} className="btn-tactical" style={{ flex: 1, justifyContent: 'center' }}>
+                                                        <BarChart3 style={{ width: 11, height: 11 }} /> Impacto
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        {/* Quick action buttons */}
-                                        <div style={{ display: 'flex', gap: 6 }}>
-                                            <button onClick={() => setRightPanel('news')} className="btn-tactical" style={{ flex: 1, justifyContent: 'center' }}>
-                                                <Newspaper style={{ width: 12, height: 12 }} /> Validar
-                                            </button>
-                                            <button onClick={() => setRightPanel('economic')} className="btn-tactical" style={{ flex: 1, justifyContent: 'center' }}>
-                                                <BarChart3 style={{ width: 12, height: 12 }} /> Impacto
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="font-mono" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: '0.72rem' }}>
-                                        {'>'} SELECIONE UM EVENTO NO MAPA OU NA LISTA
+                                        ) : (
+                                            <div className="font-mono" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: '0.72rem' }}>
+                                                {'>'} SELECIONE UM EVENTO NO MAPA OU NA LISTA
+                                            </div>
+                                        )}
                                     </div>
                                 )}
+
+                                {rightPanel === 'news' && (
+                                    <ValidationFeed
+                                        articles={newsArticles}
+                                        loading={newsLoading}
+                                        eventName={selectedEvent ? `${selectedEvent.municipality} — ${selectedEvent.type}` : undefined}
+                                    />
+                                )}
+
+                                {rightPanel === 'economic' && (
+                                    <EconomicImpactChart
+                                        indicators={economicData.indicators}
+                                        comex={economicData.comex}
+                                        loading={econLoading}
+                                    />
+                                )}
+
+                                {rightPanel === 'ai' && (
+                                    <TacticalAI
+                                        data={filteredData}
+                                        analyticsContext={analyticsLoaded ? { riskData: analyticsRiskData, distributions: analyticsDistributions || undefined } as OracleAnalyticsContext : undefined}
+                                    />
+                                )}
+                                {rightPanel === 'chat' && <TacticalChat />}
+
+                                {rightPanel === 'analytics' && (
+                                    <AnalyticsPanel
+                                        riskData={analyticsRiskData}
+                                        distributions={analyticsDistributions}
+                                        lisaVariables={lisaVariables}
+                                        selectedLisaVariable={selectedLisaVariable}
+                                        onLisaVariableChange={setSelectedLisaVariable}
+                                        colorBy={choroplethColorBy}
+                                        onColorByChange={(mode: ChoroplethColorBy) => {
+                                            setChoroplethColorBy(mode);
+                                            if (activeView !== 'map') setActiveView('map');
+                                        }}
+                                        onMunicipalityClick={handleMunicipalityClick}
+                                    />
+                                )}
+
+                                {rightPanel === 'georag' && (
+                                    <GeoRAGChat
+                                        onMunicipalityClick={(mun: MunicipalityRisk) => {
+                                            handleMunicipalityClick(mun);
+                                            if (activeView !== 'map') setActiveView('map');
+                                        }}
+                                    />
+                                )}
                             </div>
-                        )}
-
-                        {rightPanel === 'news' && (
-                            <ValidationFeed
-                                articles={newsArticles}
-                                loading={newsLoading}
-                                eventName={selectedEvent ? `${selectedEvent.municipality} — ${selectedEvent.type}` : undefined}
-                            />
-                        )}
-
-                        {rightPanel === 'economic' && (
-                            <EconomicImpactChart
-                                indicators={economicData.indicators}
-                                comex={economicData.comex}
-                                loading={econLoading}
-                            />
-                        )}
-
-                        {rightPanel === 'ai' && (
-                            <TacticalAI
-                                data={filteredData}
-                                analyticsContext={analyticsLoaded ? { riskData: analyticsRiskData, distributions: analyticsDistributions || undefined } as OracleAnalyticsContext : undefined}
-                            />
-                        )}
-                        {rightPanel === 'chat' && <TacticalChat />}
-
-                        {rightPanel === 'analytics' && (
-                            <AnalyticsPanel
-                                riskData={analyticsRiskData}
-                                distributions={analyticsDistributions}
-                                lisaVariables={lisaVariables}
-                                selectedLisaVariable={selectedLisaVariable}
-                                onLisaVariableChange={setSelectedLisaVariable}
-                                colorBy={choroplethColorBy}
-                                onColorByChange={(mode: ChoroplethColorBy) => {
-                                    setChoroplethColorBy(mode);
-                                    if (activeView !== 'map') setActiveView('map');
-                                }}
-                                onMunicipalityClick={handleMunicipalityClick}
-                            />
-                        )}
-
-                        {rightPanel === 'georag' && (
-                            <GeoRAGChat
-                                onMunicipalityClick={(mun: MunicipalityRisk) => {
-                                    handleMunicipalityClick(mun);
-                                    if (activeView !== 'map') setActiveView('map');
-                                }}
-                            />
-                        )}
-                    </div>
+                        </>
+                    )}
                 </aside>
             </div>
 
