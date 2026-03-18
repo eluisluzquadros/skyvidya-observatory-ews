@@ -38,7 +38,10 @@ router.get('/disasters', (req: Request, res: Response) => {
 // GET /api/stats - Get aggregated statistics
 router.get('/stats', (req: Request, res: Response) => {
     try {
-        const stats = storage.getStats();
+        const stats = storage.getStats({
+            startDate: req.query.startDate as string | undefined,
+            endDate: req.query.endDate as string | undefined,
+        });
 
         res.json({
             success: true,

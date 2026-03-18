@@ -72,10 +72,26 @@ const App: React.FC = () => {
     const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
     const [analyticsRefreshing, setAnalyticsRefreshing] = useState(false);
 
+    // ── Server-side Stats (full dataset, respects date filter) ──
+    const [serverStats, setServerStats] = useState<{ total: number; totalAffected: number; totalCritical: number; ufsCount: number } | null>(null);
+
+    const fetchServerStats = async (filter: DisasterFilter) => {
+        try {
+            const params = new URLSearchParams();
+            if (filter.startDate) params.set('startDate', filter.startDate);
+            if (filter.endDate) params.set('endDate', filter.endDate);
+            const res = await fetch(`http://localhost:3001/api/stats?${params}`);
+            if (!res.ok) return;
+            const json = await res.json();
+            if (json.success) setServerStats(json.data);
+        } catch { /* backend unavailable */ }
+    };
+
     // ── Load Data ──
     const loadData = async (filter?: DisasterFilter) => {
         const f = filter ?? disasterFilter;
         setLoading(true);
+        fetchServerStats(f);
         try {
             const result = await fetchRealDisasters({
                 startDate: f.startDate,
@@ -109,14 +125,22 @@ const App: React.FC = () => {
         );
     }, [data, searchQuery]);
 
-    // ── Stats ──
+    // ── Stats (server-side when available, fallback to client subset) ──
     const stats = useMemo(() => {
+        if (serverStats && !searchQuery.trim()) {
+            return {
+                total: serverStats.total,
+                critical: serverStats.totalCritical,
+                totalAffected: serverStats.totalAffected,
+                states: serverStats.ufsCount,
+            };
+        }
         const total = filteredData.length;
         const critical = filteredData.filter(d => (d.severity ?? 0) >= 4).length;
         const totalAffected = filteredData.reduce((sum, d) => sum + (d.affected || 0), 0);
         const statesSet = new Set(filteredData.map(d => d.uf));
         return { total, critical, totalAffected, states: statesSet.size };
-    }, [filteredData]);
+    }, [filteredData, serverStats, searchQuery]);
 
     // ── Event Selection Handler ──
     const handleEventSelect = async (event: DisasterDecree) => {

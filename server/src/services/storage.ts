@@ -132,27 +132,43 @@ class StorageService {
     }
 
     // Get statistics
-    getStats(): {
+    getStats(filters: { startDate?: string; endDate?: string } = {}): {
         total: number;
+        totalAffected: number;
+        totalCritical: number;
+        ufsCount: number;
         bySource: { source: string; count: number }[];
         byUf: { uf: string; count: number }[];
         byType: { type: string; count: number }[];
     } {
-        const disasters = this.db.disasters;
+        let disasters = this.db.disasters;
 
-        // Count by source
+        if (filters.startDate) disasters = disasters.filter(d => d.date >= filters.startDate!);
+        if (filters.endDate)   disasters = disasters.filter(d => d.date <= filters.endDate!);
+
         const sourceCount: Record<string, number> = {};
         const ufCount: Record<string, number> = {};
         const typeCount: Record<string, number> = {};
+        let totalAffected = 0;
+        let totalCritical = 0;
+        const ufsSet = new Set<string>();
 
         for (const d of disasters) {
             sourceCount[d.source] = (sourceCount[d.source] || 0) + 1;
             ufCount[d.uf] = (ufCount[d.uf] || 0) + 1;
             typeCount[d.type] = (typeCount[d.type] || 0) + 1;
+            totalAffected += d.affected || 0;
+            ufsSet.add(d.uf);
+            // severity >= 4: affected > 20000 or high-risk type + affected > 10000
+            const highRisk = ['Inunda', 'Enxurrada', 'Deslizamento'].some(t => d.type.includes(t));
+            if (d.affected > 20000 || (highRisk && d.affected > 10000)) totalCritical++;
         }
 
         return {
             total: disasters.length,
+            totalAffected,
+            totalCritical,
+            ufsCount: ufsSet.size,
             bySource: Object.entries(sourceCount).map(([source, count]) => ({ source, count })),
             byUf: Object.entries(ufCount)
                 .map(([uf, count]) => ({ uf, count }))
