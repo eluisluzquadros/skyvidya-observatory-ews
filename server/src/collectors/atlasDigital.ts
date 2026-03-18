@@ -142,7 +142,7 @@ function calculateAffected(record: AtlasCsvRecord): number {
 // Transform Atlas raw record to DisasterRecord
 function transformRecord(raw: AtlasCsvRecord): DisasterRecord | null {
     const municipality = raw.Nome_Municipio?.trim() || '';
-    const uf = raw.Sigla_UF?.trim() || '';
+    const uf = raw.Sigla_UF?.trim().toUpperCase() || '';
 
     if (!municipality || !uf) {
         return null;
