@@ -33,8 +33,13 @@ interface AtlasCsvRecord {
 
 // Generate unique ID for a record
 function generateId(record: AtlasCsvRecord): string {
-    const base = `${record.Sigla_UF}-${record.Nome_Municipio}-${record.Data_Evento}-${record.Cod_Cobrade || record.Protocolo_S2iD}`;
-    return Buffer.from(base).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 24);
+    // Protocolo_S2iD is unique per event — use it directly to avoid hash collisions
+    if (record.Protocolo_S2iD?.trim()) {
+        return `atlas-${record.Protocolo_S2iD.trim()}`;
+    }
+    // Fallback for records without protocol (should not occur in practice)
+    const base = `${record.Sigla_UF}-${record.Nome_Municipio}-${record.Data_Evento}-${record.Cod_Cobrade}`;
+    return Buffer.from(base).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
 }
 
 // Parse date from Atlas format (DD/MM/YYYY or YYYY-MM-DD)
