@@ -25,6 +25,21 @@ from config import (
 logger = logging.getLogger(__name__)
 
 
+def fix_mojibake(text: str) -> str:
+    """Repair UTF-8 \u2192 Latin-1 double-encoding (mojibake).
+
+    Example: 'Est\u00c3\u00a1vel' \u2192 'Est\u00e1vel', 'Inunda\u00c3\u00a7\u00c3\u00b5es' \u2192 'Inunda\u00e7\u00f5es'.
+    If the string is already correct or cannot be repaired, returns as-is.
+    """
+    if not isinstance(text, str):
+        return str(text)
+    try:
+        repaired = text.encode("latin-1").decode("utf-8")
+        return repaired
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return text
+
+
 class NumpyEncoder(json.JSONEncoder):
     """JSON encoder that handles numpy types."""
 
@@ -67,9 +82,9 @@ def serialize_risk_analysis(gdf: gpd.GeoDataFrame) -> list[dict]:
             "population": int(row.get("CENSO_2020_POP", 0)),
             "area_km2": round(float(row.get("AREA_KM2", 0)), 2),
             "riskScore": round(float(row.get("Risco_Ampliado_MCDA_Score", 0)), 6),
-            "riskCategory": str(row.get("Risco_Ampliado_MCDA_Cat", "Muito Baixo")),
-            "trend": str(row.get("Tendencia_Eventos_Climaticos_Extremos", "Estável")),
-            "principalThreat": str(row.get("principal_ameaca", "Nenhuma Ameaça Dominante")),
+            "riskCategory": fix_mojibake(str(row.get("Risco_Ampliado_MCDA_Cat", "Muito Baixo"))),
+            "trend": fix_mojibake(str(row.get("Tendencia_Eventos_Climaticos_Extremos", "Estável"))),
+            "principalThreat": fix_mojibake(str(row.get("principal_ameaca", "Nenhuma Ameaça Dominante"))),
             "historicCount": int(row.get("HISTORIC_COUNT", 0)),
             "last10yrCount": int(row.get("LAST10_YEARS_COUNT", 0)),
             "last5yrCount": int(row.get("LAST05_YEARS_COUNT", 0)),
@@ -83,6 +98,49 @@ def serialize_risk_analysis(gdf: gpd.GeoDataFrame) -> list[dict]:
             "lat": round(centroid.y, 6) if centroid else None,
             "lng": round(centroid.x, 6) if centroid else None,
         }
+
+        # Add enriched socioeconomic indicators (when available)
+        socio = {}
+        for col, key in [
+            ("pib_per_capita",           "pibPerCapita"),
+            ("pib_total",                "pibTotal"),
+            ("idhm",                     "idhm"),
+            ("densidade_demografica",    "densidadeDemografica"),
+            ("taxa_mortalidade_infantil","taxaMortalidadeInfantil"),
+            ("receitas_brutas",          "receitasBrutas"),
+            ("despesas_brutas",          "despesasBrutas"),
+        ]:
+            if col in gdf.columns and pd.notna(row.get(col)):
+                socio[key] = round(float(row.get(col)), 4)
+        if socio:
+            record["socioeconomico"] = socio
+
+        # Add aggregated damage data from Danos_Informados reports (PEPR/PEPL/DH)
+        danos = {}
+        danos_field_map = [
+            ("danos_peprAgricultura",   "peprAgricultura"),
+            ("danos_peprPecuaria",      "peprPecuaria"),
+            ("danos_peprIndustria",     "peprIndustria"),
+            ("danos_peprComercio",      "peprComercio"),
+            ("danos_peprServicos",      "peprServicos"),
+            ("danos_peplSaude",         "peplSaude"),
+            ("danos_peplEnsino",        "peplEnsino"),
+            ("danos_peplTransportes",   "peplTransportes"),
+            ("danos_peplEnergia",       "peplEnergia"),
+            ("danos_dhMortos",          "dhMortos"),
+            ("danos_dhDesabrigados",    "dhDesabrigados"),
+            ("danos_dhDesalojados",     "dhDesalojados"),
+            ("danos_dhOutrosAfetados",  "dhOutrosAfetados"),
+        ]
+        for col, key in danos_field_map:
+            if col in gdf.columns:
+                raw = row.get(col)  # type: ignore[union-attr]
+                if pd.notna(raw):
+                    fval = float(raw)  # type: ignore[arg-type]
+                    if fval > 0:
+                        danos[key] = int(fval)
+        if danos:
+            record["danos"] = danos
 
         # Add per-COBRADE counts for the last 10 years
         cobrade_counts = {}
@@ -137,7 +195,7 @@ def serialize_lisa_clusters(
                 "cd_mun": str(row.get("CD_MUN", "")),
                 "name": str(row.get("NM_MUN_SEM_ACENTO", "")),
                 "uf": str(row.get("SIGLA_UF", "")),
-                "clusterType": str(row.get(q_col, "N/A")),
+                "clusterType": fix_mojibake(str(row.get(q_col, "N/A"))),
                 "moranI": round(float(row.get(i_col, 0)), 6),
                 "pValue": round(float(row.get(p_col, 1)), 6),
             })
@@ -213,7 +271,7 @@ def serialize_distributions(gdf: gpd.GeoDataFrame) -> dict:
     if "Risco_Ampliado_MCDA_Cat" in gdf.columns:
         risk_dist = gdf["Risco_Ampliado_MCDA_Cat"].value_counts().to_dict()
         distributions["riskCategories"] = [
-            {"category": str(cat), "count": int(count)}
+            {"category": fix_mojibake(str(cat)), "count": int(count)}
             for cat, count in risk_dist.items()
         ]
 
@@ -221,7 +279,7 @@ def serialize_distributions(gdf: gpd.GeoDataFrame) -> dict:
     if "Tendencia_Eventos_Climaticos_Extremos" in gdf.columns:
         trend_dist = gdf["Tendencia_Eventos_Climaticos_Extremos"].value_counts().to_dict()
         distributions["trends"] = [
-            {"trend": str(trend), "count": int(count)}
+            {"trend": fix_mojibake(str(trend)), "count": int(count)}
             for trend, count in trend_dist.items()
         ]
 
@@ -229,7 +287,7 @@ def serialize_distributions(gdf: gpd.GeoDataFrame) -> dict:
     if "principal_ameaca" in gdf.columns:
         threat_dist = gdf["principal_ameaca"].value_counts().to_dict()
         distributions["threats"] = [
-            {"threat": str(threat), "count": int(count)}
+            {"threat": fix_mojibake(str(threat)), "count": int(count)}
             for threat, count in threat_dist.items()
         ]
 
