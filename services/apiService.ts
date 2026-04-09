@@ -5,7 +5,7 @@ const getApiBase = () => {
     if (typeof window !== 'undefined' && (window as any).__S2ID_CONFIG__?.API_URL) {
         return (window as any).__S2ID_CONFIG__.API_URL;
     }
-    return 'http://localhost:3001/api';
+    return '/api';
 };
 
 const API_BASE = getApiBase();
@@ -168,41 +168,42 @@ export function formatLastUpdate(dateString: string | null): string {
     return date.toLocaleDateString('pt-BR');
 }
 
-// WebSocket connection for real-time updates
+// Real-time connection via Socket.IO
+import { io as ioClient, Socket } from 'socket.io-client';
+
+const WS_URL = typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:3001`
+    : 'http://localhost:3001';
+
 export class RealtimeConnection {
-    private socket: WebSocket | null = null;
-    private listeners: Map<string, Function[]> = new Map();
+    private socket: Socket | null = null;
 
     connect(): void {
-        // Note: This is a simplified WebSocket. For full Socket.IO support,
-        // you would need to import socket.io-client
-        console.log('WebSocket connection would be established here');
-        // In a real implementation:
-        // this.socket = io(WS_URL);
+        if (this.socket?.connected) return;
+        this.socket = ioClient(WS_URL, { transports: ['websocket', 'polling'] });
+        this.socket.on('connect', () =>
+            console.log('[realtime] Socket.IO connected:', this.socket?.id)
+        );
+        this.socket.on('disconnect', () =>
+            console.log('[realtime] Socket.IO disconnected')
+        );
     }
 
     disconnect(): void {
-        if (this.socket) {
-            this.socket.close();
-            this.socket = null;
-        }
+        this.socket?.disconnect();
+        this.socket = null;
     }
 
-    on(event: string, callback: Function): void {
-        if (!this.listeners.has(event)) {
-            this.listeners.set(event, []);
-        }
-        this.listeners.get(event)!.push(callback);
+    on(event: string, callback: (...args: any[]) => void): void {
+        this.socket?.on(event, callback);
     }
 
-    off(event: string, callback: Function): void {
-        const callbacks = this.listeners.get(event);
-        if (callbacks) {
-            const index = callbacks.indexOf(callback);
-            if (index > -1) {
-                callbacks.splice(index, 1);
-            }
-        }
+    off(event: string, callback: (...args: any[]) => void): void {
+        this.socket?.off(event, callback);
+    }
+
+    emit(event: string, data?: unknown): void {
+        this.socket?.emit(event, data);
     }
 }
 

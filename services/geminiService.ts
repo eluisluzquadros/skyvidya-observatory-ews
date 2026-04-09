@@ -1,8 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { DisasterDecree, TimeRange, NewsArticle, EconomicIndicator, ComexData } from "../types";
+import { DisasterDecree, TimeRange, NewsArticle, EconomicIndicator, ComexData, AftermathCheckpoint } from "../types";
 import type { MunicipalityRisk, AnalyticsDistributions } from "../analyticsTypes";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // ── Severity Calculator ──
 export const calculateSeverity = (event: DisasterDecree): 1 | 2 | 3 | 4 | 5 => {
@@ -30,72 +30,31 @@ export const STATE_COORDS: Record<string, [number, number]> = {
   'RR': [-60.67, 2.82], 'AP': [-51.07, 0.90], 'DF': [-47.88, -15.79]
 };
 
-// ── Simulated Data ──
-const currentYear = new Date().getFullYear();
-
-const MOCK_PROMPT = `
-  Generate a realistic dataset of 20 to 30 natural disaster decrees (Situação de Emergência or Estado de Calamidade Pública) 
-  from the Brazilian S2ID system.
-  Focus on RECENT events (${currentYear - 1}-${currentYear}), with the majority from ${currentYear}.
-  Include a realistic mix of:
-  - "Estiagem" (Drought) in Northeast/South regions.
-  - "Enxurrada" (Flash Flood) or "Inundação" (Flood) in South/Southeast.
-  - "Incêndio Florestal" (Forest Fire) in Center-West/North.
-  - "Deslizamento" in mountain/hillside areas.
-  - "Vendaval" in coastal or South regions.
-  Use realistic, varied population numbers for "affected".
-  For dates, use realistic DD/MM/YYYY format from recent months.
-`;
-
-export const fetchSimulatedData = async (): Promise<DisasterDecree[]> => {
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: MOCK_PROMPT,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              municipality: { type: Type.STRING },
-              uf: { type: Type.STRING },
-              type: { type: Type.STRING },
-              date: { type: Type.STRING },
-              status: { type: Type.STRING },
-              affected: { type: Type.INTEGER },
-            },
-            required: ["id", "municipality", "uf", "type", "date", "status", "affected"],
-          },
-        },
-      },
-    });
-
-    const jsonText = response.text;
-    if (!jsonText) return [];
-
-    const data = JSON.parse(jsonText) as DisasterDecree[];
-    return data.map(d => ({
-      ...d,
-      severity: calculateSeverity(d),
-      lat: STATE_COORDS[d.uf]?.[1] ?? -15.79,
-      lng: STATE_COORDS[d.uf]?.[0] ?? -47.88,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch simulated data:", error);
-    throw error;
-  }
-};
-
-const DISASTERS_API = 'http://localhost:3001/api/disasters';
+const DISASTERS_API = '/api/disasters';
 
 // ── Fetch Real Disasters from Backend API ──
+const fetchWithRetry = async (url: string, retries = 3, baseDelay = 600): Promise<Response> => {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+      lastError = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < retries - 1) {
+      await new Promise(r => setTimeout(r, baseDelay * (attempt + 1)));
+    }
+  }
+  throw lastError;
+};
+
 export const fetchRealDisasters = async (options: {
   startDate?: string | null;
   endDate?: string | null;
   uf?: string | null;
+  municipality?: string | null;
   limit?: number;
 } = {}): Promise<DisasterDecree[]> => {
   try {
@@ -103,9 +62,9 @@ export const fetchRealDisasters = async (options: {
     if (options.startDate) params.set('startDate', options.startDate);
     if (options.endDate)   params.set('endDate', options.endDate);
     if (options.uf)        params.set('uf', options.uf);
+    if (options.municipality) params.set('municipality', options.municipality);
 
-    const res = await fetch(`${DISASTERS_API}?${params}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetchWithRetry(`${DISASTERS_API}?${params}`);
     const json = await res.json();
     const records: DisasterDecree[] = json.data || [];
 
@@ -116,8 +75,39 @@ export const fetchRealDisasters = async (options: {
       lng: STATE_COORDS[d.uf]?.[0] ?? -47.88,
     }));
   } catch (error) {
-    console.warn('Backend API unavailable, falling back to simulated data:', error);
-    return fetchSimulatedData();
+    console.error('Backend API error (after retries):', error);
+    return [];
+  }
+};
+
+// ── Fetch Status of Data Collections ──
+export const fetchCollectionStatus = async (): Promise<any[]> => {
+  try {
+    const res = await fetch('/api/status');
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.collections || [];
+  } catch {
+    return [];
+  }
+};
+
+// ── Trigger Data Refresh (Sync/Scraper) ──
+export const triggerRefresh = async (source?: string): Promise<{ success: boolean; count?: number; message?: string }> => {
+  try {
+    const res = await fetch('/api/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source }),
+    });
+    const json = await res.json();
+    return { 
+      success: res.ok && json.success, 
+      count: json.count,
+      message: json.message
+    };
+  } catch (error) {
+    return { success: false, message: 'Falha na conexão com o servidor.' };
   }
 };
 
@@ -234,21 +224,28 @@ export const generateInsight = async (
   riskData?: MunicipalityRisk[],
   distributions?: AnalyticsDistributions,
 ): Promise<string> => {
+  if (!data || data.length === 0) {
+    return "> MONITORAMENTO ATIVO: NENHUM EVENTO CRÍTICO REGISTRADO NO PERÍODO SELECIONADO. \n\nO sistema permanece em prontidão tática. Altere o filtro para '48H' ou 'HISTORICO' para analisar dados anteriores.";
+  }
   try {
     const dataSummary = JSON.stringify(data.slice(0, 30));
     const mcdaContext = buildMCDAContext(riskData, distributions);
+
+    // Pre-compute aggregates so the model can focus on interpretation, not arithmetic
+    const total = data.length;
+    const critical = data.filter(d => (d.affected ?? 0) > 20000).length;
+    const totalAffected = data.reduce((s, d) => s + (d.affected ?? 0), 0);
+    const ufs = new Set(data.map(d => d.uf)).size;
+
     const prompt = `
-      Analyze this JSON data of Brazilian disaster decrees.
-      Provide a concise, 3-paragraph SITREP (Situation Report) in Portuguese (pt-BR).
+      You are a civil defense intelligence analyst writing for a Brazilian disaster monitoring platform.
+      The current filter shows: ${total} disaster decrees across ${ufs} states, ${critical} with very high impact, totalling ${totalAffected.toLocaleString('pt-BR')} people affected.
 
-      Structure:
-      1. PANORAMA GERAL: Overview of the current disaster situation.
-      2. ZONA QUENTE: Identify the most critical region/state with highest severity.
-      3. ANOMALIAS: Flag unusual patterns (huge populations, uncommon disaster types, clustering events).
-      ${mcdaContext ? `\n4. ANÁLISE MCDA: Reference the risk scoring data below to enrich your analysis with municipality-level risk categories, trends, and principal threats.` : ''}
-
-      Use professional military/civil defense intelligence terminology.
-      Include bullet points for key quantitative metrics.
+      Write a SHORT qualitative briefing in Portuguese (pt-BR) — 2 sentences maximum, no bullet points, no headers.
+      Sentence 1: Characterize the overall severity and geographic pattern of this period in plain language (accessible to non-experts).
+      Sentence 2: Highlight the single most critical finding (worst event, dominant threat type, or geographic concentration) and what it implies operationally.
+      ${mcdaContext ? 'Use MCDA risk data to enrich the operational implication.' : ''}
+      Do NOT repeat the raw numbers — translate their meaning instead.
       Data: ${dataSummary}
       ${mcdaContext}
     `;
@@ -260,8 +257,9 @@ export const generateInsight = async (
 
     return response.text || "> FALHA AO ESTABELECER CONEXÃO COM MÓDULO DE INTELIGÊNCIA.";
   } catch (error) {
-    console.error("Error generating insight:", error);
-    return "> ERRO CRÍTICO: FALHA NA GERAÇÃO DE ANÁLISE TÁTICA.";
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Error generating insight:", msg);
+    return `> ERRO CRÍTICO: ${msg}`;
   }
 };
 
@@ -348,29 +346,72 @@ export const generateNews = async (event: DisasterDecree): Promise<string[]> => 
 };
 
 // ── Economic Impact Data ──
-export const fetchEconomicImpact = async (event: DisasterDecree): Promise<{
+export const fetchEconomicImpact = async (
+  event: DisasterDecree,
+  socioContext?: {
+    pibPerCapita?: number;
+    pibTotal?: number;
+    idhm?: number;
+    receitasBrutas?: number;
+    despesasBrutas?: number;
+    riskScore?: number;
+    riskCategory?: string;
+    trend?: string;
+  }
+): Promise<{
   indicators: EconomicIndicator[];
   comex: ComexData[];
+  aftermath: AftermathCheckpoint[];
 }> => {
   try {
+    const socioLine = socioContext ? `
+      Municipal socioeconomic profile:
+      - PIB total: R$ ${socioContext.pibTotal ? (socioContext.pibTotal * 1000).toLocaleString('pt-BR') : 'unknown'} thousand
+      - PIB per capita: R$ ${socioContext.pibPerCapita?.toLocaleString('pt-BR') ?? 'unknown'}
+      - IDHM: ${socioContext.idhm?.toFixed(3) ?? 'unknown'}
+      - Municipal revenue: R$ ${socioContext.receitasBrutas ? (socioContext.receitasBrutas * 1000).toLocaleString('pt-BR') : 'unknown'} thousand
+      - Municipal expenses: R$ ${socioContext.despesasBrutas ? (socioContext.despesasBrutas * 1000).toLocaleString('pt-BR') : 'unknown'} thousand
+      - Climate risk score: ${socioContext.riskScore?.toFixed(2) ?? 'unknown'} (${socioContext.riskCategory ?? 'unknown'})
+      - Event trend: ${socioContext.trend ?? 'unknown'}
+    ` : '';
+
     const prompt = `
-      You are a financial analysis AI specialized in correlating natural disasters with economic impacts in Brazil.
-      
+      You are a quantitative economist specializing in natural disaster economic impact analysis in Brazil,
+      using event study methodology aligned with the iCS "Clima na Economia" research agenda.
+
       Disaster Event:
-      Municipality: ${event.municipality}, UF: ${event.uf}
-      Type: ${event.type}, Affected: ${event.affected} people
-      
-      Generate REALISTIC economic impact data:
-      
-      1. "indicators": Array of 4 financial indicators affected by this disaster:
-         - Include IBOVESPA sector index (agriculture, logistics, infrastructure, insurance)
-         - Each with: id, name, value (current), change (absolute R$), changePercent, direction ("up"/"down"/"stable"), timestamp
-      
-      2. "comex": Array of 3 COMEX STAT trade items affected:
-         - Products that ${event.uf} exports/imports that could be disrupted by ${event.type}
-         - Each with: id, product, ncm (realistic NCM code), uf, exportValue (US$), importValue (US$), period, variation (%)
-      
-      Make values REALISTIC for the Brazilian economy. Use proper number magnitudes.
+      - Municipality: ${event.municipality}, UF: ${event.uf}
+      - Type: ${event.type}
+      - Date: ${event.date}
+      - Affected: ${event.affected} people
+      ${socioLine}
+
+      Generate structured economic impact analysis with THREE components:
+
+      1. "indicators": Array of 4 IBOVESPA sector indices most impacted (realistic Brazilian market values):
+         - Sectors relevant to this disaster type and UF's economic base
+         - Fields: id, name, value (points), change, changePercent, direction ("up"/"down"/"stable"), timestamp
+
+      2. "comex": Array of 3 COMEX STAT trade products disrupted:
+         - Products actually exported/imported by ${event.uf} that are disrupted by ${event.type}
+         - Consider ${event.uf}'s known export profile (e.g. SC=furniture/poultry, RS=soybeans, AM=electronics)
+         - Fields: id, product, ncm, uf, exportValue (US$), importValue (US$), period ("${new Date(event.date).toLocaleDateString('pt-BR', {month:'2-digit',year:'numeric'})}"), variation (%)
+
+      3. "aftermath": Array of 4 time-window impact estimates (event study T+X):
+         Each checkpoint: period ("T+1d"/"T+7d"/"T+30d"/"T+90d"), label, marketImpact (% sector index change, negative=loss),
+         comexImpact (% trade volume change, negative=disruption), fiscalImpact (R$ millions of municipal fiscal cost),
+         narrative (1 sentence explaining what happens at this stage based on historical disaster patterns in Brazil).
+
+         Pattern guidance:
+         - T+1d: immediate price shocks, supply chain alerts, emergency spending
+         - T+7d: insurance claims, logistics rerouting, first production losses
+         - T+30d: COMEX data starts showing disruption, GDP revision, reconstruction contracts
+         - T+90d: recovery trajectory, structural economic effects, fiscal stress if municipality has deficit
+
+         Calibrate severity using: affected population=${event.affected}, IDHM=${socioContext?.idhm ?? 'medium'},
+         municipal revenue=${socioContext?.receitasBrutas ? 'R$ ' + (socioContext.receitasBrutas * 1000 / 1e6).toFixed(0) + 'M' : 'unknown'}.
+
+      Make all values REALISTIC and evidence-based for the Brazilian economy.
     `;
 
     const response = await ai.models.generateContent({
@@ -414,18 +455,33 @@ export const fetchEconomicImpact = async (event: DisasterDecree): Promise<{
                 required: ["id", "product", "ncm", "uf", "exportValue", "importValue", "period", "variation"],
               },
             },
+            aftermath: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  period: { type: Type.STRING },
+                  label: { type: Type.STRING },
+                  marketImpact: { type: Type.NUMBER },
+                  comexImpact: { type: Type.NUMBER },
+                  fiscalImpact: { type: Type.NUMBER },
+                  narrative: { type: Type.STRING },
+                },
+                required: ["period", "label", "marketImpact", "comexImpact", "fiscalImpact", "narrative"],
+              },
+            },
           },
-          required: ["indicators", "comex"],
+          required: ["indicators", "comex", "aftermath"],
         },
       },
     });
 
     const jsonText = response.text;
-    if (!jsonText) return { indicators: [], comex: [] };
+    if (!jsonText) return { indicators: [], comex: [], aftermath: [] };
     return JSON.parse(jsonText);
   } catch (error) {
     console.error("Economic data error:", error);
-    return { indicators: [], comex: [] };
+    return { indicators: [], comex: [], aftermath: [] };
   }
 };
 
@@ -444,7 +500,7 @@ export const chatWithAI = async (
     const dataSummary = JSON.stringify(context.slice(0, 20));
     const mcdaContext = buildMCDAContext(analyticsContext?.riskData, analyticsContext?.distributions);
     const prompt = `
-      You are the "S2ID COMMAND ORACLE" — an advanced AI system for Brazilian disaster intelligence.
+      You are the "SKYVIDYA COMMAND ORACLE" — an advanced AI system for Brazilian disaster intelligence.
 
       CAPABILITIES:
       - Analyze disaster patterns, severity, and geographic clustering

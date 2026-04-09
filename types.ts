@@ -21,13 +21,14 @@ export interface FilterState {
 
 export type TimeRange = '1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '7d' | 'all';
 
-export type FilterPreset = '1y' | '2y' | '5y' | '10y' | '20y' | 'all' | 'custom';
+export type FilterPreset = '1h' | '3h' | '6h' | '12h' | '24h' | '48h' | '1y' | '2y' | '5y' | '10y' | '20y' | 'all' | 'custom';
 
 export interface DisasterFilter {
   startDate: string | null;  // YYYY-MM-DD
   endDate: string | null;    // YYYY-MM-DD
   preset: FilterPreset;
   uf?: string;
+  municipality?: string;
 }
 
 export type DisasterStats = {
@@ -67,6 +68,15 @@ export interface ComexData {
   importValue: number;
   period: string;
   variation: number;
+}
+
+export interface AftermathCheckpoint {
+  period: string;           // "T+1d", "T+7d", "T+30d", "T+90d"
+  label: string;            // "24 horas", "7 dias", "30 dias", "90 dias"
+  marketImpact: number;     // % change in sector indices (negative = loss)
+  comexImpact: number;      // % change in trade volume
+  fiscalImpact: number;     // estimated fiscal cost (R$ millions)
+  narrative: string;        // 1-sentence description
 }
 
 export interface ChatMessage {

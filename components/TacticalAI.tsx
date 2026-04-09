@@ -18,7 +18,7 @@ const TacticalAI: React.FC<TacticalAIProps> = ({ data, analyticsContext }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '> ORACLE ONLINE\n\nSistema de inteligência operacional ativo. Pronto para análise tática de desastres, correlação econômica e avaliação de risco.\n\nComandos sugeridos:\n• "SITREP" — Relatório de situação atual\n• "ANÁLISE [UF]" — Análise regional\n• "RISCO [município]" — Avaliação de risco local',
+      content: '> SENTINELA ONLINE\n\nSistema de inteligência operacional ativo. Pronto para análise tática de desastres, correlação econômica e avaliação de risco.\n\nComandos sugeridos:\n• "SITREP" — Relatório de situação atual\n• "ANÁLISE [UF]" — Análise regional\n• "RISCO [município]" — Avaliação de risco local',
       timestamp: new Date(),
     },
   ]);
@@ -66,10 +66,10 @@ const TacticalAI: React.FC<TacticalAIProps> = ({ data, analyticsContext }) => {
         </div>
         <div>
           <h3 className="font-mono" style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--purple)', fontWeight: 700 }}>
-            Command Oracle
+            Sentinela IA
           </h3>
           <span className="font-mono" style={{ fontSize: '0.45rem', color: 'var(--text-muted)' }}>
-            GEMINI 2.5 • TACTICAL INTELLIGENCE
+            GEMINI 2.5 • INTELIGÊNCIA TÁTICA
           </span>
         </div>
       </div>
@@ -103,7 +103,7 @@ const TacticalAI: React.FC<TacticalAIProps> = ({ data, analyticsContext }) => {
                   fontSize: '0.5rem', fontWeight: 600, textTransform: 'uppercase',
                   color: msg.role === 'assistant' ? 'var(--purple)' : 'var(--green)',
                 }}>
-                  {msg.role === 'assistant' ? 'ORACLE' : 'OPERADOR'}
+                  {msg.role === 'assistant' ? 'SENTINELA' : 'OPERADOR'}
                 </span>
                 <span className="font-mono" style={{ fontSize: '0.4rem', color: 'var(--text-muted)' }}>
                   {msg.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}

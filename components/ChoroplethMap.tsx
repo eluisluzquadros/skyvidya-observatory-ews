@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import type {
@@ -12,6 +12,7 @@ import {
   RISK_CATEGORY_COLORS,
   TREND_COLORS,
   LISA_CLUSTER_COLORS,
+  THREAT_COLORS,
 } from '../analyticsTypes';
 
 interface ChoroplethMapProps {
@@ -24,12 +25,7 @@ interface ChoroplethMapProps {
   onMunicipalityClick?: (municipality: MunicipalityRisk) => void;
 }
 
-// Generate distinct colors for threat types
-const THREAT_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6',
-  '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#06b6d4',
-  '#84cc16', '#a855f7', '#d946ef',
-];
+
 
 const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
   riskData,
@@ -50,44 +46,34 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
     population: number;
   } | null>(null);
 
-  // Build lookup maps
-  const riskLookup = useRef(new Map<string, MunicipalityRisk>());
-
-  useEffect(() => {
+  // Build lookup maps as useMemo so D3 effect reacts when data arrives
+  const riskLookup = useMemo(() => {
     const map = new Map<string, MunicipalityRisk>();
-    riskData.forEach(r => map.set(r.cd_mun, r));
-    riskLookup.current = map;
+    riskData.forEach(r => map.set(String(r.cd_mun), r));
+    return map;
   }, [riskData]);
 
-  // Build LISA lookup for current variable
-  const lisaLookup = useRef(new Map<string, string>());
-
-  useEffect(() => {
+  const lisaLookup = useMemo(() => {
     const map = new Map<string, string>();
     if (lisaClusters && lisaVariable) {
       const varData = lisaClusters.variables[lisaVariable];
       if (varData) {
-        varData.municipalities.forEach(m => {
-          map.set(m.cd_mun, m.clusterType);
-        });
+        varData.municipalities.forEach(m => map.set(String(m.cd_mun), m.clusterType));
       }
     }
-    lisaLookup.current = map;
+    return map;
   }, [lisaClusters, lisaVariable]);
 
-  // Build threat color map
-  const threatColorMap = useRef(new Map<string, string>());
-
-  useEffect(() => {
+  const threatColorMap = useMemo(() => {
     const threats = [...new Set(riskData.map(r => r.principalThreat))];
     const map = new Map<string, string>();
-    threats.forEach((t, i) => map.set(t, THREAT_COLORS[i % THREAT_COLORS.length]));
-    threatColorMap.current = map;
+    threats.forEach((t, i) => map.set(String(t), THREAT_COLORS[i % THREAT_COLORS.length]));
+    return map;
   }, [riskData]);
 
   const getColor = useCallback((feature: GeoJSONFeature): string => {
     const cdMun = String(feature.properties.CD_MUN);
-    const risk = riskLookup.current.get(cdMun);
+    const risk = riskLookup.get(cdMun);
 
     switch (colorBy) {
       case 'riskCategory': {
@@ -100,12 +86,11 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
       }
       case 'principalThreat': {
         const threat = risk?.principalThreat || feature.properties.principal_ameaca || '';
-        return threatColorMap.current.get(threat) || '#1e293b';
+        return threatColorMap.get(threat) || '#1e293b';
       }
       case 'lisaCluster': {
-        const cluster = lisaLookup.current.get(cdMun);
+        const cluster = lisaLookup.get(cdMun);
         if (!cluster) return '#1e293b';
-        // Match partial cluster type (e.g., "HH (Alto-Alto)" -> find matching key)
         for (const [key, color] of Object.entries(LISA_CLUSTER_COLORS)) {
           if (cluster.includes(key.split(' ')[0])) return color;
         }
@@ -114,7 +99,7 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
       default:
         return '#1e293b';
     }
-  }, [colorBy]);
+  }, [colorBy, riskLookup, lisaLookup, threatColorMap]);
 
   // Main D3 rendering effect
   useEffect(() => {
@@ -138,11 +123,9 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
 
     const g = svg.append('g');
 
-    // Projection centered on Brazil
+    // Projection auto-fitted to Brazil's GeoJSON extent
     const projection = d3.geoMercator()
-      .center([-54, -15])
-      .scale(width * 1.3)
-      .translate([width / 2, height / 2]);
+      .fitExtent([[16, 16], [width - 16, height - 16]], geojson as any);
 
     const pathGenerator = d3.geoPath().projection(projection);
 
@@ -178,14 +161,14 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
           .attr('stroke-width', 1.5);
 
         const cdMun = String(d.properties?.CD_MUN);
-        const risk = riskLookup.current.get(cdMun);
+        const risk = riskLookup.get(cdMun);
         const rect = container.getBoundingClientRect();
 
         setTooltip({
           x: event.clientX - rect.left,
           y: event.clientY - rect.top,
-          name: d.properties?.NM_MUN_SEM_ACENTO || 'N/A',
-          uf: d.properties?.SIGLA_UF || '',
+          name: d.properties?.NM_MUN_SEM_ACENTO || risk?.name || 'N/A',
+          uf: d.properties?.SIGLA_UF || risk?.uf || '',
           riskCategory: risk?.riskCategory || 'N/A',
           riskScore: risk?.riskScore || 0,
           trend: risk?.trend || 'N/A',
@@ -203,7 +186,7 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
       })
       .on('click', (_, d: any) => {
         const cdMun = String(d.properties?.CD_MUN);
-        const risk = riskLookup.current.get(cdMun);
+        const risk = riskLookup.get(cdMun);
         if (risk && onMunicipalityClick) {
           onMunicipalityClick(risk);
         }
@@ -213,7 +196,7 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
     return () => {
       svg.selectAll('*').remove();
     };
-  }, [geojson, colorBy, selectedMunicipality, getColor, onMunicipalityClick]);
+  }, [geojson, colorBy, selectedMunicipality, getColor, onMunicipalityClick, riskLookup]);
 
   // Get legend items based on colorBy mode
   const getLegendItems = () => {
@@ -226,7 +209,7 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
         return Object.entries(LISA_CLUSTER_COLORS).filter(([k]) => k !== 'N/A');
       case 'principalThreat': {
         const threats = [...new Set(riskData.map(r => r.principalThreat))].slice(0, 8);
-        return threats.map(t => [t, threatColorMap.current.get(t) || '#666'] as [string, string]);
+        return threats.map(t => [t, threatColorMap.get(t) || '#666'] as [string, string]);
       }
       default:
         return [];

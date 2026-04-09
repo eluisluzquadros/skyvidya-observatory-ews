@@ -16,7 +16,7 @@ import type {
     LLMReport,
 } from '../analyticsTypes';
 
-const API_BASE = 'http://localhost:3001/api/analytics';
+const API_BASE = '/api/analytics';
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, options);

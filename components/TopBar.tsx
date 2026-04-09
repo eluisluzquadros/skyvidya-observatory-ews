@@ -7,25 +7,28 @@ interface TopBarProps {
     onFilterChange: (filter: DisasterFilter) => void;
     searchQuery: string;
     onSearchChange: (query: string) => void;
-    onImportClick: () => void;
+    onSettingsClick: () => void;
     onRefresh: () => void;
     onDonateClick: () => void;
     loading: boolean;
     eventCount: number;
     maxDataDate?: string;
     analyticsAvailable?: boolean;
-    onRefreshAnalytics?: () => void;
-    analyticsRefreshing?: boolean;
+    pipelineStatus?: 'idle' | 'running' | 'completed' | 'failed';
 }
 
-const PRESETS: { label: string; id: FilterPreset; months: number | null; title: string }[] = [
-    { label: '1A',   id: '1y',  months: 12,  title: 'Último 1 ano' },
-    { label: '2A',   id: '2y',  months: 24,  title: 'Últimos 2 anos' },
-    { label: '5A',   id: '5y',  months: 60,  title: 'Últimos 5 anos' },
-    { label: '10A',  id: '10y', months: 120, title: 'Últimos 10 anos' },
-    { label: '20A',  id: '20y', months: 240, title: 'Últimos 20 anos' },
-    { label: 'HIST', id: 'all', months: null, title: 'Todo histórico (~30 anos)' },
+const PRESETS: { label: string; id: FilterPreset; months?: number | null; hours?: number; title: string }[] = [
+    { label: '24H',   id: '24h',  hours: 24,  title: 'Últimas 24 horas' },
+    { label: '48H',   id: '48h',  hours: 48,  title: 'Últimas 48 horas' },
+    { label: 'HISTORICO', id: 'all', months: null, title: 'Todo histórico' },
+    { label: 'AGENDA', id: 'agenda' as any, months: null, title: 'Agenda de eventos' },
 ];
+
+const hoursAgoISO = (hours: number): string => {
+    const d = new Date();
+    d.setHours(d.getHours() - hours);
+    return d.toISOString().split('T')[0];
+};
 
 const monthsAgoISO = (months: number): string => {
     const d = new Date();
@@ -37,8 +40,8 @@ const todayISO = () => new Date().toISOString().split('T')[0];
 
 const TopBar: React.FC<TopBarProps> = ({
     disasterFilter, onFilterChange, searchQuery, onSearchChange,
-    onImportClick, onRefresh, onDonateClick, loading, eventCount,
-    maxDataDate, analyticsAvailable, onRefreshAnalytics, analyticsRefreshing,
+    onSettingsClick, onRefresh, onDonateClick, loading, eventCount,
+    maxDataDate, analyticsAvailable, pipelineStatus = 'idle',
 }) => {
     const dataMax = maxDataDate ?? '2025-12-31';
     const [customMode, setCustomMode] = useState(disasterFilter.preset === 'custom');
@@ -47,7 +50,12 @@ const TopBar: React.FC<TopBarProps> = ({
 
     const handlePreset = (p: typeof PRESETS[number]) => {
         setCustomMode(false);
-        const startDate = p.months ? monthsAgoISO(p.months) : null;
+        let startDate: string | null = null;
+        if (p.hours) {
+            startDate = hoursAgoISO(p.hours);
+        } else if (p.months !== undefined) {
+            startDate = p.months ? monthsAgoISO(p.months) : null;
+        }
         onFilterChange({ preset: p.id, startDate, endDate: null });
     };
 
@@ -91,16 +99,26 @@ const TopBar: React.FC<TopBarProps> = ({
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         background: 'rgba(255,94,58,0.06)',
                         position: 'relative',
+                        overflow: 'hidden'
                     }}>
-                        <span className="font-brand" style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: 800, lineHeight: 1 }}>⊕</span>
+                        <img 
+                            src="/favicon.png" 
+                            alt="Skyvidya Logo" 
+                            style={{ 
+                                width: '80%', 
+                                height: '80%', 
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 0 4px var(--primary-glow))' 
+                            }} 
+                        />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <h1 className="logo-brand-name">
-                            Skyvidya <span className="brand-accent">Observatory</span>
+                            Skyvidya <span className="brand-accent">Observatory</span> <span style={{ fontSize: '0.6rem', verticalAlign: 'top', opacity: 0.8 }}>EWS™</span>
                         </h1>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                            <span className="logo-brand-sub">Early Warning System</span>
-                            <span className="logo-ews-badge">EWS</span>
+                            <span className="logo-brand-sub">Disaster Early Warning System</span>
+                            <span className="logo-ews-badge">STABLE AI</span>
                         </div>
                     </div>
                 </div>
@@ -216,39 +234,41 @@ const TopBar: React.FC<TopBarProps> = ({
                         }
                     </div>
 
-                    {/* Analytics Pipeline Status */}
-                    <div className="font-mono hud-border" style={{
-                        fontSize: '0.55rem', padding: '0 8px',
-                        height: 'var(--btn-height-sm)',
-                        display: 'flex', alignItems: 'center', gap: 5,
-                        color: analyticsAvailable ? 'var(--green)' : 'var(--text-muted)',
-                        letterSpacing: '0.06em',
-                    }}>
-                        <Activity style={{ width: 9, height: 9 }} />
-                        <span>{analyticsAvailable ? 'MCDA' : 'MCDA OFF'}</span>
-                    </div>
+                    {/* Analytics + Pipeline Status */}
+                    <a
+                        href="http://localhost:8080"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono hud-border"
+                        title={pipelineStatus === 'running' ? 'Pipeline executando — ver Kestra' : 'Abrir Kestra UI'}
+                        style={{
+                            fontSize: '0.55rem', padding: '0 8px',
+                            height: 'var(--btn-height-sm)',
+                            display: 'flex', alignItems: 'center', gap: 5,
+                            letterSpacing: '0.06em',
+                            textDecoration: 'none',
+                            color: pipelineStatus === 'running'  ? 'var(--cyan)'
+                                 : pipelineStatus === 'failed'   ? 'var(--red, #f87171)'
+                                 : pipelineStatus === 'completed' ? 'var(--green)'
+                                 : analyticsAvailable             ? 'var(--green)'
+                                 : 'var(--text-muted)',
+                        }}
+                    >
+                        <Activity style={{
+                            width: 9, height: 9,
+                            animation: pipelineStatus === 'running' ? 'spin 1s linear infinite' : undefined,
+                        }} />
+                        <span>
+                            {pipelineStatus === 'running'   ? 'PIPELINE...'
+                           : pipelineStatus === 'failed'    ? 'PIPELINE ERR'
+                           : pipelineStatus === 'completed' ? 'PIPELINE OK'
+                           : `MCDA ${analyticsAvailable ? 'ATIVO' : 'AGUARDANDO'}`}
+                        </span>
+                    </a>
 
-                    {/* Refresh Analytics */}
-                    {onRefreshAnalytics && (
-                        <button
-                            onClick={onRefreshAnalytics}
-                            className="btn-tactical"
-                            disabled={analyticsRefreshing}
-                            title="Atualizar Analytics Pipeline"
-                            aria-label="Atualizar pipeline analytics"
-                            style={{ padding: '0 10px' }}
-                        >
-                            <RefreshCw style={{
-                                width: 11, height: 11,
-                                animation: analyticsRefreshing ? 'spin 1s linear infinite' : 'none',
-                                color: 'var(--purple)',
-                            }} />
-                        </button>
-                    )}
-
-                    <button onClick={onImportClick} className="btn-tactical primary" aria-label="Importar dados">
+                    <button onClick={onSettingsClick} className="btn-tactical primary" aria-label="Configurações e Importação">
                         <Terminal style={{ width: 11, height: 11 }} />
-                        <span>Import</span>
+                        <span>Settings</span>
                     </button>
 
                     <button onClick={onRefresh} className="btn-tactical" disabled={loading} title="Atualizar dados" aria-label="Atualizar dados" style={{ padding: '0 10px' }}>

@@ -40,12 +40,23 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, su
       <div style={{ position: 'absolute', bottom: 0, left: 0, width: 6, height: 6, borderBottom: `1px solid ${c.border}`, borderLeft: `1px solid ${c.border}` }} />
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 6, height: 6, borderBottom: `1px solid ${c.border}`, borderRight: `1px solid ${c.border}` }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <div>
-          <p className="font-mono" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2, fontWeight: 600 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p className="font-mono" style={{ 
+            fontSize: '0.62rem', 
+            color: 'var(--text-muted)', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.05em', 
+            marginBottom: 2, 
+            fontWeight: 800,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            width: '100%'
+          }}>
             {title}
           </p>
-          <h3 className="font-display" style={{ fontSize: '1.4rem', color: c.text, fontWeight: 700, letterSpacing: '0.05em', lineHeight: 1.1 }}>
+          <h3 className="font-display" style={{ fontSize: '1.4rem', color: c.text, fontWeight: 700, letterSpacing: '0.05em', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {value}
           </h3>
           {subtext && (
@@ -57,8 +68,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, su
             </p>
           )}
         </div>
-        <div style={{ padding: 6, border: `1px dashed ${c.border}`, background: 'rgba(0,0,0,0.5)', opacity: 0.8 }}>
-          <Icon style={{ width: 16, height: 16, color: c.text }} />
+        <div style={{ padding: 6, background: 'rgba(255,255,255,0.02)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon style={{ width: 14, height: 14, color: c.text }} />
         </div>
       </div>
     </div>

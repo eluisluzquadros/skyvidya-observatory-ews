@@ -18,51 +18,44 @@
 
 /* ── CSS Variables ── */
 :root {
-  /* Skyvidya Baseline Colors */
-  --bg-primary: #0B0F14;
-  --bg-panel: #161B22;
-  --bg-card: #161B22;
-  --bg-elevated: #1F242C;
+  /* Skyvidya Baseline Colors - Deep Navy 2026 */
+  --bg-primary: #020617;
+  --bg-panel: rgba(6, 8, 13, 0.9);
+  --bg-card: rgba(15, 23, 42, 0.6);
+  --bg-elevated: #0f172a;
 
   --border-primary: rgba(255, 255, 255, 0.08);
-  /* Crisp subtle border */
-  --border-active: rgba(255, 255, 255, 0.15);
+  --border-active: rgba(0, 245, 255, 0.2);
+  --border-hud: rgba(0, 245, 255, 0.15);
 
-  --text-primary: #E6EDF3;
-  --text-secondary: #8B949E;
-  --text-muted: #4a5a70;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
-  --primary: #FF5E3A;
-  /* Skyvidya Orange */
-  --primary-glow: rgba(255, 94, 58, 0.2);
+  --primary: #FF5E3A; /* Skyvidya Orange */
+  --primary-glow: rgba(255, 94, 58, 0.4);
 
-  --cyan: #00D4FF;
-  --cyan-glow: rgba(0, 212, 255, 0.2);
+  --cyan: #00f5ff;
+  --cyan-glow: rgba(0, 245, 255, 0.4);
 
   --green: #10B981;
-  --green-dim: #059669;
-  --green-glow: rgba(16, 185, 129, 0.15);
+  --green-glow: rgba(16, 185, 129, 0.3);
 
-  --blue: #00D4FF;
-  /* Retaining blue alias for backward compat */
-  --blue-dim: #0099cc;
-  --blue-glow: rgba(0, 212, 255, 0.15);
+  --blue: #3b82f6;
+  --blue-glow: rgba(59, 130, 246, 0.3);
 
-  --red: #EF4444;
-  --red-dim: #DC2626;
-  --red-glow: rgba(239, 68, 68, 0.15);
+  --red: #ef4444;
+  --red-glow: rgba(239, 68, 68, 0.3);
 
-  --amber: #F59E0B;
-  --amber-dim: #D97706;
-  --amber-glow: rgba(245, 158, 11, 0.15);
+  --amber: #f59e0b;
+  --amber-glow: rgba(245, 158, 11, 0.3);
 
-  --purple: #8B5CF6;
-  --purple-glow: rgba(139, 92, 246, 0.15);
-
-  --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-brand: 'Syne', 'Space Grotesk', sans-serif;
-  --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  /* Typography 2026 */
+  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-brand: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Instrument Serif', serif;
 
   /* Spacing scale */
   --space-xs: 4px;
@@ -132,21 +125,28 @@ body {
 
 /* ── Utility Classes ── */
 
-/* Fonts */
 .font-mono {
   font-family: var(--font-mono);
+  letter-spacing: -0.01em;
 }
 
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 .font-brand {
   font-family: var(--font-brand);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .font-body {
   font-family: var(--font-body);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
 }
 
 /* Glassmorphism Panel */
@@ -785,6 +785,21 @@ body {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* News Ticker */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.news-ticker-track {
+  animation: ticker-scroll linear infinite;
+  width: max-content;
+}
+
+.news-ticker-track:hover {
+  animation-play-state: paused;
 }
 
 /* GeoRAG Chat */

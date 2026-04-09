@@ -31,13 +31,16 @@ const getSeverityColor = (severity: number = 2): string => {
 const Globe: React.FC<GlobeProps> = ({ data, onPointClick, selectedEvent }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const rotationRef = useRef<[number, number]>([42, 15]);
+  // d3 geoOrthographic.rotate([lambda, phi]) where lambda=-lon, phi=-lat
+  // Brazil: lon=-51.93, lat=-14.24 → rotate([51.93, 14.24])
+  const rotationRef = useRef<[number, number]>([51.93, 14.24]);
   const isDraggingRef = useRef(false);
   const timerRef = useRef<d3.Timer | null>(null);
 
   const [tooltip, setTooltip] = useState<{ x: number, y: number, data: DisasterDecree } | null>(null);
-  const isPausedRef = useRef(false);
-  const [isPaused, setIsPaused] = useState(false);
+  // Start paused by default
+  const isPausedRef = useRef(true);
+  const [isPaused, setIsPaused] = useState(true);
 
   const togglePause = () => {
     setIsPaused(prev => {
@@ -82,7 +85,7 @@ const Globe: React.FC<GlobeProps> = ({ data, onPointClick, selectedEvent }) => {
     const projection = d3.geoOrthographic()
       .scale(Math.min(width, height) * 0.42)
       .center([0, 0])
-      .rotate([-rotationRef.current[0], -rotationRef.current[1]])
+      .rotate(rotationRef.current)  // stored as [lambda, phi] = [-lon, -lat]
       .translate([width / 2, height / 2]);
 
     const initialScale = projection.scale();
@@ -263,38 +266,25 @@ const Globe: React.FC<GlobeProps> = ({ data, onPointClick, selectedEvent }) => {
       {/* Grid overlay */}
       <div className="grid-bg" style={{ position: 'absolute', inset: 0, opacity: 0.3, pointerEvents: 'none' }} />
 
-      {/* Satellite status HUD */}
-      <div className="font-mono hud-border" style={{
+      {/* Globe Controls HUD */}
+      <div className="font-mono" style={{
         position: 'absolute', top: 16, left: 16, zIndex: 10,
-        fontSize: '0.6rem', color: 'var(--green)', textTransform: 'uppercase',
-        letterSpacing: '0.08em', background: 'rgba(0,0,0,0.6)',
-        padding: '8px 12px', border: '1px solid rgba(0,255,65,0.2)',
-        lineHeight: 1.8, display: 'flex', flexDirection: 'column', gap: '8px'
       }}>
-        <div>
-          <span style={{ color: 'var(--text-muted)' }}>{'>'}</span> SAT_LINK: <span style={{ color: 'var(--green)' }}>ACTIVE</span><br />
-          <span style={{ color: 'var(--text-muted)' }}>{'>'}</span> SECTOR: <span style={{ color: 'var(--blue)' }}>BR_SA</span><br />
-          <span style={{ color: 'var(--text-muted)' }}>{'>'}</span> RES: <span style={{ color: 'var(--blue)' }}>4K_TAC</span>
-        </div>
-
-        {/* Globe Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, paddingTop: 8, borderTop: '1px solid rgba(0,212,255,0.2)' }}>
-          <button
-            onClick={togglePause}
-            style={{
-              background: 'rgba(0,212,255,0.1)', border: '1px solid var(--blue)',
-              color: 'var(--cyan)', padding: '4px 8px', borderRadius: 4,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-              fontSize: '0.55rem', transition: 'all 0.2s', textTransform: 'uppercase',
-              outline: 'none'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,212,255,0.2)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,212,255,0.1)'}
-          >
-            {isPaused ? <Play size={10} /> : <Pause size={10} />}
-            <span>{isPaused ? 'ROTATION: PAUSED' : 'ROTATION: ACTIVE'}</span>
-          </button>
-        </div>
+        <button
+          onClick={togglePause}
+          style={{
+            background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(0,212,255,0.25)',
+            color: 'var(--cyan)', padding: '6px 10px', borderRadius: 4,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: '0.55rem', transition: 'all 0.2s', textTransform: 'uppercase',
+            letterSpacing: '0.08em', outline: 'none',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,212,255,0.15)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+        >
+          {isPaused ? <Play size={10} /> : <Pause size={10} />}
+          <span>{isPaused ? 'ROTATION: PAUSADA' : 'ROTATION: ATIVA'}</span>
+        </button>
       </div>
 
       {/* Legend */}

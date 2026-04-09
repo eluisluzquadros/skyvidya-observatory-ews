@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, TrendingDown, Minus, FileText, Loader2, Image, Download, X as XIcon } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Minus, FileText, Loader2, X as XIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type {
   MunicipalityRisk,
   AnalyticsDistributions,
   ChoroplethColorBy,
-  ReportAsset,
   LLMReport,
+  LISAClusterData,
 } from '../analyticsTypes';
-import { RISK_CATEGORY_COLORS, TREND_COLORS } from '../analyticsTypes';
+import { RISK_CATEGORY_COLORS, TREND_COLORS, THREAT_COLORS, LISA_CLUSTER_COLORS } from '../analyticsTypes';
 import { generateRiskReport } from '../services/geminiService';
-import { fetchReportAssets, generateLLMReport } from '../services/analyticsService';
+import { generateLLMReport } from '../services/analyticsService';
 
 interface AnalyticsPanelProps {
   riskData: MunicipalityRisk[];
@@ -20,6 +20,7 @@ interface AnalyticsPanelProps {
   onLisaVariableChange: (variable: string) => void;
   colorBy: ChoroplethColorBy;
   onColorByChange: (mode: ChoroplethColorBy) => void;
+  lisaClusters?: LISAClusterData | null;
   onMunicipalityClick?: (municipality: MunicipalityRisk) => void;
 }
 
@@ -37,11 +38,11 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   onLisaVariableChange,
   colorBy,
   onColorByChange,
+  lisaClusters,
   onMunicipalityClick,
 }) => {
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
-  const [reportAssets, setReportAssets] = useState<ReportAsset[]>([]);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [llmReport, setLlmReport] = useState<LLMReport | null>(null);
   const [llmLoading, setLlmLoading] = useState(false);
@@ -49,9 +50,6 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   const [selectedUF, setSelectedUF] = useState<string>('');
   const [llmExpanded, setLlmExpanded] = useState(false);
 
-  useEffect(() => {
-    fetchReportAssets().then(setReportAssets).catch(() => {});
-  }, []);
 
   const handleGenerateLLMReport = async () => {
     setLlmLoading(true);
@@ -101,12 +99,52 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   // Top 10 rankings
   const top10 = [...riskData].sort((a, b) => b.riskScore - a.riskScore).slice(0, 10);
 
-  // Distribution chart data
-  const riskChartData = distributions?.riskCategories?.map(d => ({
-    name: d.category,
-    value: d.count,
-    fill: RISK_CATEGORY_COLORS[d.category] || '#666',
-  })) || [];
+  // Distribution chart data dynamically based on colorBy
+  let riskChartData: { name: string, value: number, fill: string }[] = [];
+  let chartTitle = 'Distribuição de Risco';
+
+  if (colorBy === 'riskCategory') {
+    chartTitle = 'Distribuição de Risco';
+    riskChartData = distributions?.riskCategories?.map(d => ({
+      name: d.category,
+      value: d.count,
+      fill: RISK_CATEGORY_COLORS[d.category] || '#666',
+    })) || [];
+  } else if (colorBy === 'principalThreat') {
+    chartTitle = 'Principais Ameaças';
+    riskChartData = distributions?.threats?.map(d => ({
+      name: d.threat.length > 15 ? d.threat.substring(0, 15) + '...' : d.threat,
+      value: d.count,
+      fill: THREAT_COLORS[Math.abs(d.threat.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % THREAT_COLORS.length],
+    })).sort((a,b) => b.value - a.value).slice(0, 5) || [];
+  } else if (colorBy === 'lisaCluster' && lisaVariables.includes(selectedLisaVariable) && lisaClusters) {
+    chartTitle = 'Clusters LISA';
+    
+    const clustersCount = new Map<string, number>();
+    const varData = lisaClusters.variables[selectedLisaVariable];
+    
+    if (varData) {
+      varData.municipalities.forEach(m => {
+        const c = m.clusterType;
+        clustersCount.set(c, (clustersCount.get(c) || 0) + 1);
+      });
+      
+      riskChartData = Array.from(clustersCount.entries()).map(([cluster, count]) => {
+        let fill = LISA_CLUSTER_COLORS['N/A'];
+        for (const [key, color] of Object.entries(LISA_CLUSTER_COLORS)) {
+          if (cluster.includes(key.split(' ')[0])) {
+            fill = color;
+            break;
+          }
+        }
+        return {
+          name: cluster,
+          value: count,
+          fill
+        };
+      }).sort((a,b) => b.value - a.value);
+    }
+  }
 
   const trendChartData = distributions?.trends?.map(d => ({
     name: d.trend,
@@ -116,18 +154,31 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
 
   // Color-by selector options
   const colorByOptions: { value: ChoroplethColorBy; label: string }[] = [
-    { value: 'riskCategory', label: 'Risco MCDA' },
+    { value: 'riskCategory', label: 'Risco' },
     { value: 'trend', label: 'Tendência' },
     { value: 'principalThreat', label: 'Ameaça' },
-    { value: 'lisaCluster', label: 'Cluster LISA' },
+    { value: 'lisaCluster', label: 'LISA' },
   ];
 
   if (totalMunicipalities === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-gray-500 p-6 text-center">
-        <BarChart3 size={32} className="mb-3 opacity-40" />
-        <p className="text-sm font-mono">Dados de analytics não disponíveis.</p>
-        <p className="text-xs mt-2 opacity-60">Execute o pipeline Python de analytics primeiro.</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '24px 16px', textAlign: 'center', gap: 12 }}>
+        <BarChart3 size={28} style={{ opacity: 0.25, color: 'var(--text-muted)' }} />
+        <div>
+          <p className="font-mono" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+            Analytics Indisponível
+          </p>
+          <p className="font-body" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 12 }}>
+            O servidor de analytics (porta 3001) precisa estar ativo com dados MCDA pré-computados.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn-tactical"
+            style={{ fontSize: '0.6rem', color: 'var(--cyan)', borderColor: 'rgba(0,212,255,0.3)', margin: '0 auto' }}
+          >
+            Tentar Novamente
+          </button>
+        </div>
       </div>
     );
   }
@@ -160,18 +211,28 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
       </div>
 
       {/* Map Color Mode Selector */}
-      <div>
-        <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Colorir mapa por</div>
-        <div className="flex flex-wrap gap-1">
+      <div style={{ padding: '10px 12px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.18)', borderRadius: 6 }}>
+        <div className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cyan)', display: 'inline-block', flexShrink: 0 }} />
+          Colorir mapa por
+        </div>
+        <div className="flex flex-wrap gap-1.5">
           {colorByOptions.map(opt => (
             <button
               key={opt.value}
               onClick={() => onColorByChange(opt.value)}
-              className={`px-2 py-1 rounded text-[10px] font-mono transition-all ${
-                colorBy === opt.value
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
-              }`}
+              className="font-mono"
+              style={{
+                padding: '5px 10px',
+                borderRadius: 4,
+                fontSize: '0.62rem',
+                fontWeight: colorBy === opt.value ? 700 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: colorBy === opt.value ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.03)',
+                color: colorBy === opt.value ? 'var(--cyan)' : 'var(--text-secondary)',
+                border: colorBy === opt.value ? '1px solid rgba(0,212,255,0.4)' : '1px solid var(--border-primary)',
+              }}
             >
               {opt.label}
             </button>
@@ -200,7 +261,7 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
       {/* Risk Distribution Chart */}
       {riskChartData.length > 0 && (
         <div>
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Distribuição de Risco</div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">{chartTitle}</div>
           <div className="h-32">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={riskChartData} layout="vertical" margin={{ left: 2, right: 8 }}>
@@ -429,59 +490,6 @@ const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
           </div>
         )}
       </div>
-
-      {/* ── Relatório Visual ── */}
-      {reportAssets.length > 0 && (
-        <div style={{ padding: '0 12px 12px' }}>
-          <div className="font-mono" style={{
-            fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em',
-            textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6,
-          }}>
-            <Image size={10} />
-            Relatório Visual
-          </div>
-
-          {/* PNG thumbnails grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 8 }}>
-            {reportAssets.filter(a => a.type === 'png').map(asset => (
-              <button
-                key={asset.filename}
-                onClick={() => setLightboxSrc(asset.url)}
-                title={asset.filename.replace(/_/g, ' ').replace('.png', '')}
-                style={{
-                  padding: 0, border: '1px solid var(--border-primary)',
-                  background: 'var(--bg-primary)', cursor: 'pointer',
-                  overflow: 'hidden', aspectRatio: '4/3',
-                  transition: 'border-color 0.15s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--cyan)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-primary)')}
-              >
-                <img
-                  src={asset.url}
-                  alt={asset.filename}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  loading="lazy"
-                />
-              </button>
-            ))}
-          </div>
-
-          {/* CSV downloads */}
-          {reportAssets.filter(a => a.type === 'csv').map(asset => (
-            <a
-              key={asset.filename}
-              href={asset.url}
-              download={asset.filename}
-              className="btn-tactical"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, textDecoration: 'none', fontSize: '0.6rem' }}
-            >
-              <Download size={10} />
-              <span className="font-mono">{asset.filename.replace(/_/g, ' ').replace('.csv', '').toUpperCase()}</span>
-            </a>
-          ))}
-        </div>
-      )}
 
       {/* ── Lightbox ── */}
       {lightboxSrc && (

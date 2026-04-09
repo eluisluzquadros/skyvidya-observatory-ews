@@ -29,14 +29,12 @@ const ValidationFeed: React.FC<ValidationFeedProps> = ({ articles, loading, even
                 background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Newspaper style={{ width: 14, height: 14, color: 'var(--blue)' }} />
-                    <h3 className="font-mono" style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--blue)', fontWeight: 700 }}>
-                        Validação Jornalística
+                    <Newspaper style={{ width: 14, height: 14, color: 'var(--cyan)' }} />
+                    <h3 className="font-mono" style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--cyan)', fontWeight: 800 }}>
+                        DeepSearch Validation
                     </h3>
                 </div>
-                <span className="font-mono" style={{ fontSize: '0.5rem', color: 'var(--text-muted)' }}>
-                    {articles.length} FONTES
-                </span>
+                <div className="logo-ews-badge" style={{ fontSize: '0.45rem', opacity: 0.8 }}>GROUNDSOURCE</div>
             </div>
 
             {/* Content */}
@@ -47,8 +45,21 @@ const ValidationFeed: React.FC<ValidationFeedProps> = ({ articles, loading, even
                         <span className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--blue)' }}>BUSCANDO EVIDÊNCIAS...</span>
                     </div>
                 ) : articles.length === 0 ? (
-                    <div className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textAlign: 'center', padding: 24 }}>
-                        {'>'} SELECIONE UM EVENTO PARA VALIDAÇÃO
+                    <div style={{ textAlign: 'center', padding: 24 }}>
+                        {eventName ? (
+                            <>
+                                <div className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--amber)', marginBottom: 8 }}>
+                                    {'>'} FALHA AO CARREGAR ARTIGOS
+                                </div>
+                                <div className="font-mono" style={{ fontSize: '0.55rem', color: 'var(--text-muted)' }}>
+                                    Verifique a conexão com o módulo de inteligência
+                                </div>
+                            </>
+                        ) : (
+                            <div className="font-mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                {'>'} SELECIONE UM EVENTO PARA VALIDAÇÃO
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
