@@ -33,43 +33,77 @@ def identify_main_threat(
     """
     Identify the principal threat (dominant disaster type) per municipality.
 
-    Looks at COBRADE-specific count columns for the given timeframe and
-    finds the disaster type with the highest count for each municipality.
-
-    Args:
-        df: DataFrame with pivoted COBRADE count columns
-        cobrade_map: Dict mapping COBRADE codes to disaster names
-        cobrade_codes: List of COBRADE codes to consider
-        timeframe_prefix: Column prefix for the timeframe to analyze
+    Strategy:
+    1. Use `timeframe_prefix` count columns (default: LAST10_YEARS) to rank threats.
+    2. If a municipality has zero events in that timeframe, fall back to HISTORIC_COUNT
+       (captures events older than 10 years that would otherwise be invisible).
+    3. When counts are tied, break the tie using impact:
+       score = count * (1 + log1p(total_human_damage))
+       where damage comes from HISTORIC_IMPACT_DANOS_{code} columns, if available.
 
     Returns:
-        Series with threat names per municipality
+        Series with threat names per municipality.
     """
-    logger.info(f"Identifying main threats using {timeframe_prefix}...")
+    logger.info(f"Identifying main threats using {timeframe_prefix} (with HISTORIC fallback + impact weighting)...")
 
-    # Build list of threat columns to check
-    threat_cols = [f"{timeframe_prefix}_{code}" for code in cobrade_codes]
-    existing_cols = [c for c in threat_cols if c in df.columns]
+    # ── Step 1: primary count columns (e.g. LAST10_YEARS_COUNT_{code}) ──
+    primary_cols = [f"{timeframe_prefix}_{code}" for code in cobrade_codes]
+    existing_primary = [c for c in primary_cols if c in df.columns]
 
-    if not existing_cols:
+    if not existing_primary:
         logger.warning(
             f"No threat columns found for prefix '{timeframe_prefix}'. "
             f"Returning 'Nenhuma Ameaça Dominante' for all municipalities."
         )
-        return pd.Series(
-            ["Nenhuma Ameaça Dominante"] * len(df), index=df.index
-        )
+        return pd.Series(["Nenhuma Ameaça Dominante"] * len(df), index=df.index)
 
-    threat_data = df[existing_cols].copy().fillna(0)
+    count_data = df[existing_primary].copy().fillna(0)
 
-    # Find column with max value per row
-    max_col = threat_data.idxmax(axis=1)
-    has_threat = threat_data.max(axis=1) > 0
+    # ── Step 2: fallback to HISTORIC_COUNT for rows with all-zero primary ──
+    all_zero_primary = count_data.max(axis=1) == 0
+    if all_zero_primary.any():
+        historic_cols = [f"HISTORIC_COUNT_{code}" for code in cobrade_codes]
+        existing_historic = [c for c in historic_cols if c in df.columns]
+        if existing_historic:
+            historic_data = df.loc[all_zero_primary, existing_historic].fillna(0)
+            # Rename historic columns to match the count_data column order by code suffix
+            rename_map = {
+                f"HISTORIC_COUNT_{code}": f"{timeframe_prefix}_{code}"
+                for code in cobrade_codes
+                if f"HISTORIC_COUNT_{code}" in existing_historic
+                and f"{timeframe_prefix}_{code}" in existing_primary
+            }
+            historic_data = historic_data.rename(columns=rename_map)
+            for col in count_data.columns:
+                if col in historic_data.columns:
+                    count_data.loc[all_zero_primary, col] = historic_data[col].values
+            n_fallback = int(all_zero_primary.sum())
+            logger.info(f"  Fallback to HISTORIC_COUNT for {n_fallback} municipalities with no recent events")
 
-    # Extract COBRADE code from column name (last part after underscore)
+    # ── Step 3: impact-weighted score = count × (1 + log1p(afetados)) ──
+    # Uses HISTORIC_IMPACT_DANOS_{code} columns if available
+    impact_cols = {
+        code: f"HISTORIC_IMPACT_DANOS_{code}"
+        for code in cobrade_codes
+        if f"HISTORIC_IMPACT_DANOS_{code}" in df.columns
+    }
+
+    if impact_cols:
+        score_data = count_data.copy()
+        for code in cobrade_codes:
+            primary_col = f"{timeframe_prefix}_{code}"
+            impact_col  = f"HISTORIC_IMPACT_DANOS_{code}"
+            if primary_col in score_data.columns and impact_col in df.columns:
+                impact = df[impact_col].fillna(0)
+                score_data[primary_col] = score_data[primary_col] * (1 + np.log1p(impact))
+        max_col = score_data.idxmax(axis=1)
+    else:
+        max_col = count_data.idxmax(axis=1)
+
+    has_threat = count_data.max(axis=1) > 0
+
+    # Extract COBRADE code from column name (last token after underscore)
     codes = max_col.str.rsplit("_", n=1).str[-1]
-
-    # Map to threat names
     threat_names = codes.map(cobrade_map).fillna("Outro")
 
     result = np.where(has_threat, threat_names, "Nenhuma Ameaça Dominante")

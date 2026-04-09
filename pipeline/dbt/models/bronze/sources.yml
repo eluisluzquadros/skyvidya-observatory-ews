@@ -1,0 +1,57 @@
+version: 2
+
+# Fonte externa: GeoParquet gerado por bronze_ingest.py
+# Schema real validado em 2026-04-03 contra database.json real (88.578 registros)
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Camada Bronze — dados raw ingeridos do database.json via bronze_ingest.py"
+    freshness:
+      warn_after:  {count: 8,  period: hour}
+      error_after: {count: 25, period: hour}
+    loaded_at_field: _ingested_at
+
+    tables:
+      - name: stg_s2id_raw
+        description: "Registros S2ID/Atlas raw — sem transformação, com colunas de auditoria"
+        columns:
+          - name: _pipeline_run_id
+            description: "ID da execução do bronze_ingest.py"
+            tests: [not_null]
+          - name: _ingested_at
+            description: "Timestamp da ingestão"
+            tests: [not_null]
+          - name: _row_hash
+            description: "MD5 para detecção de duplicatas"
+            tests: [not_null]
+          - name: id
+            description: "ID original da fonte"
+            tests: [not_null]
+          - name: date
+            description: "Data do evento (VARCHAR raw)"
+            tests: [not_null]
+          - name: municipality
+            description: "Nome do município"
+            tests: [not_null]
+          - name: uf
+            description: "Sigla do estado"
+            tests: [not_null]
+          - name: type
+            description: "Tipo de desastre"
+          - name: status
+            description: "Status do registro"
+          - name: affected
+            description: "Número de afetados"
+          - name: source
+            description: "Fonte: atlas | s2id"
+          - name: report_type
+            description: "Tipo de relatório"
+          - name: collected_at
+            description: "Timestamp de coleta da fonte"
+
+models:
+  - name: stg_s2id_raw
+    description: "Bronze: ingestão raw com schema real do database.json"
+    config:
+      materialized: table
+      schema: bronze

@@ -142,15 +142,22 @@ def serialize_risk_analysis(gdf: gpd.GeoDataFrame) -> list[dict]:
         if danos:
             record["danos"] = danos
 
-        # Add per-COBRADE counts for the last 10 years
+        # Add per-COBRADE breakdown: last-10yr count, historic count, historic impact
         cobrade_counts = {}
         for code, name in COBRADE_MAP.items():
-            col = f"LAST10_YEARS_COUNT_{code}"
-            if col in gdf.columns:
-                cobrade_counts[code] = {
-                    "name": name,
-                    "count": int(row.get(col, 0)),
+            col_10y     = f"LAST10_YEARS_COUNT_{code}"
+            col_hist    = f"HISTORIC_COUNT_{code}"
+            col_impact  = f"HISTORIC_IMPACT_DANOS_{code}"
+            if col_10y in gdf.columns or col_hist in gdf.columns:
+                entry: dict = {
+                    "name":  name,
+                    "count": int(row.get(col_10y, 0)),
                 }
+                if col_hist in gdf.columns:
+                    entry["historicCount"] = int(row.get(col_hist, 0))
+                if col_impact in gdf.columns:
+                    entry["historicImpact"] = int(row.get(col_impact, 0))
+                cobrade_counts[code] = entry
         if cobrade_counts:
             record["cobradeBreakdown"] = cobrade_counts
 

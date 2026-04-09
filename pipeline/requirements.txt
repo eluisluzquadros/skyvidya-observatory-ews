@@ -1,0 +1,19 @@
+# Pipeline EWS — Modern Data Stack
+# Instalar com: pip install -r pipeline/requirements.txt
+
+# Bronze ingest + DuckDB engine
+duckdb>=1.1.0
+pyarrow>=14.0.0
+pandas>=2.0.0
+
+# dbt Core com adapter DuckDB
+dbt-core>=1.8.0
+dbt-duckdb>=1.8.0
+
+# Geoespacial (Silver/Gold spatial joins)
+geopandas>=0.14.0
+shapely>=2.0.0
+
+# PySAL — LISA (mantido, DuckDB não computa spatial weights)
+libpysal>=4.9.0
+esda>=2.5.0

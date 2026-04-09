@@ -1,0 +1,21 @@
+ews_duckdb:
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
+  outputs:
+    dev:
+      type: duckdb
+      # Local: relative from pipeline/dbt/ → server/data/duckdb/ews.duckdb
+      path: "{{ env_var('DBT_DUCKDB_PATH', '../../server/data/duckdb/ews.duckdb') }}"
+      extensions:
+        - spatial
+      settings:
+        threads: 4
+        memory_limit: "1GB"
+    docker:
+      type: duckdb
+      # Docker: Kestra mounts ../server/data → /app/ews-data
+      path: "/app/ews-data/duckdb/ews.duckdb"
+      extensions:
+        - spatial
+      settings:
+        threads: 4
+        memory_limit: "1GB"

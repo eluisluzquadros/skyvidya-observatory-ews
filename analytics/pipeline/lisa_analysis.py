@@ -202,12 +202,29 @@ def run_lisa(
     Returns:
         Tuple of (enriched GeoDataFrame, global Moran's I results)
     """
-    # Validate geometries
-    valid_mask = gdf.geometry.is_valid & ~gdf.geometry.is_empty
-    invalid_count = (~valid_mask).sum()
+    # Validate and repair geometries — never drop municipalities
+    invalid_mask = ~gdf.geometry.is_valid | gdf.geometry.is_empty
+    invalid_count = invalid_mask.sum()
     if invalid_count > 0:
-        logger.warning(f"Removing {invalid_count} invalid/empty geometries")
-        gdf = gdf[valid_mask].copy()
+        bad = gdf.loc[invalid_mask, ["CD_MUN"] + [c for c in ["NM_MUN", "NM_MUN_SEM_ACENTO", "SIGLA_UF"] if c in gdf.columns]]
+        logger.warning(
+            f"{invalid_count} invalid/empty geometries — attempting buffer(0) repair\n"
+            f"  Affected: {bad.to_dict('records')}"
+        )
+        gdf = gdf.copy()
+        gdf.loc[invalid_mask, "geometry"] = (
+            gdf.loc[invalid_mask, "geometry"].buffer(0)
+        )
+        # If still invalid after repair, replace with centroid buffer as last resort
+        still_invalid = ~gdf.geometry.is_valid | gdf.geometry.is_empty
+        if still_invalid.sum() > 0:
+            logger.warning(
+                f"{still_invalid.sum()} geometries still invalid after buffer(0) — "
+                "using convex_hull fallback (municipality kept in analysis)"
+            )
+            gdf.loc[still_invalid, "geometry"] = (
+                gdf.loc[still_invalid, "geometry"].convex_hull
+            )
 
     # Auto-detect variables if not specified
     if variables is None:

@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_s2id_clean
+    description: "Silver: registros S2ID limpos, deduplicados e com UF validada"
+    config:
+      materialized: incremental
+      schema: silver
+    columns:
+      - name: decree_id
+        description: "Chave de negócio — ID do registro (id ou _row_hash)"
+        tests: [not_null, unique]
+      - name: event_date
+        description: "Data do evento (DATE tipada)"
+        tests: [not_null]
+      - name: uf
+        description: "Sigla do estado (validada)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
+                       'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']
+      - name: municipality
+        description: "Nome do município (trimado)"
+        tests: [not_null]
+      - name: disaster_type
+        description: "Tipo de desastre em maiúsculas"
+        tests: [not_null]
+      - name: affected_count
+        description: "Número de pessoas afetadas (>= 0)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: data_source
+        description: "Fonte do dado: atlas | s2id"
+        tests: [not_null]
+      - name: status
+        description: "Status do registro (active / etc)"
+      - name: report_type
+        description: "Tipo de relatório S2ID"
+      - name: collected_at
+        description: "Timestamp de coleta (da fonte)"
+      - name: cod_ibge
+        description: "Código IBGE do município (NULL se não encontrado)"

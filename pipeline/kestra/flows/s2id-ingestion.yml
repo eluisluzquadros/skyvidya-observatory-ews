@@ -1,0 +1,205 @@
+id: s2id-ingestion-pipeline
+namespace: ews.disaster
+
+description: |
+  Pipeline principal do Skyvidya Observatory EWS.
+  Orquestra: scraping S2ID → Bronze GeoParquet → Silver (dbt) → Gold (dbt + LISA) → GeoJSON export.
+  Cronograma: toda segunda-feira às 06:00 (dados S2ID atualizam semanalmente).
+  Trigger manual: UI Kestra (localhost:8080) ou POST /api/pipeline/trigger.
+
+  Arquitetura de execução:
+  - Tasks HTTP: chamam o backend Express em host.docker.internal:3001
+    → Express tem acesso ao filesystem e executa scripts Python localmente
+  - Tasks dbt: rodam em container dbt-duckdb com docker.volumes para acesso ao DuckDB
+    → Requer volume-enabled: true no KESTRA_CONFIGURATION (já configurado)
+    → Requer HOST_EWS_DATA e HOST_EWS_DBT definidos no docker-compose.yml
+
+labels:
+  project: skyvidya-ews
+  layer: orchestration
+
+triggers:
+  - id: weekly_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 * * 1"
+    timezone: America/Sao_Paulo
+
+inputs:
+  - id: source
+    type: SELECT
+    displayName: Fonte de dados
+    defaults: atlas
+    values: [atlas, s2id, all]
+  - id: express_url
+    type: STRING
+    displayName: URL do backend Express
+    defaults: http://host.docker.internal:3001
+
+tasks:
+
+  # ─── TASK 0: Notificar início ─────────────────────────────────────────────
+  - id: notify_started
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/started"
+    method: POST
+    contentType: application/json
+    body: |
+      {
+        "pipeline_run_id": "{{ execution.id }}",
+        "status": "running",
+        "timestamp": "{{ execution.startDate }}"
+      }
+    allowFailed: true
+
+  # ─── TASK 1: Verificar saúde do backend Express ───────────────────────────
+  - id: health_check
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/health"
+    method: GET
+    timeout: PT10S
+    allowFailed: true
+
+  - id: check_backend_online
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ outputs.health_check.code != 200 }}"
+    then:
+      - id: warn_backend_offline
+        type: io.kestra.plugin.core.log.Log
+        message: "AVISO: Backend Express não respondeu. Continuando mesmo assim."
+
+  # ─── TASK 2: Trigger scraping via Express API ─────────────────────────────
+  - id: trigger_scrape
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/refresh"
+    method: POST
+    contentType: application/json
+    body: |
+      { "source": "{{ inputs.source }}" }
+    timeout: PT300S
+    allowFailed: false
+
+  - id: log_scrape_result
+    type: io.kestra.plugin.core.log.Log
+    message: "Scraping concluído. Status: {{ outputs.trigger_scrape.code }}"
+
+  # ─── TASK 3: Bronze — database.json → GeoParquet ─────────────────────────
+  # Express executa bronze_ingest.py localmente (acesso direto ao filesystem)
+  - id: bronze_ingest
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/bronze"
+    method: POST
+    contentType: application/json
+    body: "{}"
+    timeout: PT120S
+    allowFailed: false
+
+  - id: log_bronze_result
+    type: io.kestra.plugin.core.log.Log
+    message: "Bronze ingest concluído. Status: {{ outputs.bronze_ingest.code }}"
+
+  # ─── TASK 4: Silver — dbt run + test ────────────────────────────────────
+  # dbt-duckdb roda em container com volumes bindados ao DuckDB e ao projeto dbt.
+  # Requer: volume-enabled: true em KESTRA_CONFIGURATION + HOST_EWS_DATA/DBT definidos.
+  - id: dbt_deps
+    type: io.kestra.plugin.scripts.shell.Commands
+    docker:
+      image: ghcr.io/dbt-labs/dbt-duckdb:1.8.latest
+      volumes:
+        - "{{ envs.HOST_EWS_DATA }}:/app/ews-data"
+        - "{{ envs.HOST_EWS_DBT }}:/app/ews-dbt"
+    env:
+      EWS_DATA_DIR: /app/ews-data
+    commands:
+      - dbt deps --project-dir /app/ews-dbt --profiles-dir /app/ews-dbt
+    allowFailed: false
+
+  - id: dbt_silver
+    type: io.kestra.plugin.scripts.shell.Commands
+    docker:
+      image: ghcr.io/dbt-labs/dbt-duckdb:1.8.latest
+      volumes:
+        - "{{ envs.HOST_EWS_DATA }}:/app/ews-data"
+        - "{{ envs.HOST_EWS_DBT }}:/app/ews-dbt"
+    env:
+      EWS_DATA_DIR: /app/ews-data
+    commands:
+      - dbt run  --select silver --project-dir /app/ews-dbt --profiles-dir /app/ews-dbt --target docker
+      - dbt test --select silver --project-dir /app/ews-dbt --profiles-dir /app/ews-dbt --target docker
+    allowFailed: false
+
+  # ─── TASK 5: Gold — dbt run + test ─────────────────────────────────────
+  - id: dbt_gold
+    type: io.kestra.plugin.scripts.shell.Commands
+    docker:
+      image: ghcr.io/dbt-labs/dbt-duckdb:1.8.latest
+      volumes:
+        - "{{ envs.HOST_EWS_DATA }}:/app/ews-data"
+        - "{{ envs.HOST_EWS_DBT }}:/app/ews-dbt"
+    env:
+      EWS_DATA_DIR: /app/ews-data
+    commands:
+      - dbt run  --select gold --project-dir /app/ews-dbt --profiles-dir /app/ews-dbt --target docker
+      - dbt test --select gold --project-dir /app/ews-dbt --profiles-dir /app/ews-dbt --target docker
+    allowFailed: false
+
+  # ─── TASK 6: LISA — PySAL via Express (non-fatal) ───────────────────────
+  # Express executa analytics/pipeline/lisa_analysis.py localmente
+  - id: run_lisa
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/lisa"
+    method: POST
+    contentType: application/json
+    body: "{}"
+    timeout: PT300S
+    allowFailed: true
+
+  - id: log_lisa_result
+    type: io.kestra.plugin.core.log.Log
+    message: "LISA concluído. Status: {{ outputs.run_lisa.code }}"
+
+  # ─── TASK 7: Gold Espacial — GeoJSON enriquecido via Express (non-fatal) ─
+  # Express executa export_gold_geojson.py + recarrega analyticsData + emite data-updated
+  - id: export_gold_geojson
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/geo-export"
+    method: POST
+    contentType: application/json
+    body: "{}"
+    timeout: PT120S
+    allowFailed: true
+
+  - id: log_geo_export
+    type: io.kestra.plugin.core.log.Log
+    message: "GeoJSON export concluído. Status: {{ outputs.export_gold_geojson.code }}"
+
+  # ─── TASK 8: Notificar conclusão ────────────────────────────────────────
+  - id: notify_express
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/done"
+    method: POST
+    contentType: application/json
+    body: |
+      {
+        "pipeline_run_id": "{{ execution.id }}",
+        "status": "success",
+        "timestamp": "{{ execution.startDate }}"
+      }
+    allowFailed: true
+
+  - id: log_done
+    type: io.kestra.plugin.core.log.Log
+    message: "Pipeline EWS concluído. Run: {{ execution.id }}"
+
+errors:
+  - id: notify_failure
+    type: io.kestra.plugin.core.http.Request
+    uri: "{{ inputs.express_url }}/api/pipeline/done"
+    method: POST
+    contentType: application/json
+    body: |
+      {
+        "pipeline_run_id": "{{ execution.id }}",
+        "status": "failed",
+        "timestamp": "{{ execution.startDate }}"
+      }
+    allowFailed: true

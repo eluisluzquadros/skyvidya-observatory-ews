@@ -89,9 +89,18 @@ class StorageService {
         return insertedCount + updatedCount;
     }
 
+    private normalizeString(str: string): string {
+        return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    }
+
     // Get disasters with filters
     getDisasters(filters: FilterOptions = {}): DisasterRecord[] {
-        let results = [...this.db.disasters];
+        // Filter out incomplete/ghost records (empty municipality, uf, or date)
+        let results = this.db.disasters.filter(d => d.municipality && d.uf && d.date);
 
         // Apply filters
         if (filters.uf) {
@@ -99,8 +108,16 @@ class StorageService {
         }
 
         if (filters.type) {
+            const normalizedFilter = this.normalizeString(filters.type);
             results = results.filter(d =>
-                d.type.toLowerCase().includes(filters.type!.toLowerCase())
+                this.normalizeString(d.type).includes(normalizedFilter)
+            );
+        }
+
+        if (filters.municipality) {
+            const normalizedFilter = this.normalizeString(filters.municipality);
+            results = results.filter(d =>
+                this.normalizeString(d.municipality).includes(normalizedFilter)
             );
         }
 
@@ -141,7 +158,8 @@ class StorageService {
         byUf: { uf: string; count: number }[];
         byType: { type: string; count: number }[];
     } {
-        let disasters = this.db.disasters;
+        // Filter out incomplete/ghost records
+        let disasters = this.db.disasters.filter(d => d.municipality && d.uf && d.date);
 
         if (filters.startDate) disasters = disasters.filter(d => d.date >= filters.startDate!);
         if (filters.endDate)   disasters = disasters.filter(d => d.date <= filters.endDate!);

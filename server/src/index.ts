@@ -9,6 +9,7 @@ import logger from './services/logger';
 import scheduler from './services/scheduler';
 import apiRoutes from './routes/api';
 import analyticsRoutes from './routes/analytics';
+import pipelineRoutes from './routes/pipeline';
 import storage from './services/storage';
 import analyticsData from './services/analyticsData';
 
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api', apiRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/pipeline', pipelineRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -110,6 +112,9 @@ io.on('connection', (socket) => {
     });
 });
 
+// Register io globally so pipeline routes can emit without circular imports
+(globalThis as any).__ewsIO = io;
+
 // Export io for use in other modules
 export { io };
 
@@ -133,6 +138,8 @@ httpServer.listen(PORT, () => {
     logger.info(`  GET  http://localhost:${PORT}/api/analytics/risk`);
     logger.info(`  GET  http://localhost:${PORT}/api/analytics/rankings`);
     logger.info(`  GET  http://localhost:${PORT}/api/analytics/geojson`);
+    logger.info(`  POST http://localhost:${PORT}/api/pipeline/done (Kestra webhook)`);
+    logger.info(`  GET  http://localhost:${PORT}/api/pipeline/status`);
 });
 
 // Graceful shutdown

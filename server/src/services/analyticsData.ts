@@ -34,6 +34,30 @@ export interface MunicipalityRisk {
     lat: number | null;
     lng: number | null;
     cobradeBreakdown?: Record<string, { name: string; count: number }>;
+    socioeconomico?: {
+        pibPerCapita?: number;
+        pibTotal?: number;
+        idhm?: number;
+        densidadeDemografica?: number;
+        taxaMortalidadeInfantil?: number;
+        receitasBrutas?: number;
+        despesasBrutas?: number;
+    };
+    danos?: {
+        peprAgricultura?: number;
+        peprPecuaria?: number;
+        peprIndustria?: number;
+        peprComercio?: number;
+        peprServicos?: number;
+        peplSaude?: number;
+        peplEnsino?: number;
+        peplTransportes?: number;
+        peplEnergia?: number;
+        dhMortos?: number;
+        dhDesabrigados?: number;
+        dhDesalojados?: number;
+        dhOutrosAfetados?: number;
+    };
 }
 
 export interface LISAClusterData {
@@ -168,6 +192,12 @@ class AnalyticsDataService {
 
     isAvailable(): boolean {
         return this.loaded;
+    }
+
+    // Explicit reload — called by pipeline webhook after Gold export completes
+    reload(): void {
+        logger.info('[analyticsData] Manual reload triggered by pipeline webhook');
+        this.loadAll();
     }
 
     getRiskData(filters: RiskFilters = {}): MunicipalityRisk[] {

@@ -1,0 +1,31 @@
+name: ews_disaster
+version: "1.0.0"
+config-version: 2
+
+profile: ews_duckdb
+
+model-paths: ["models"]
+test-paths: ["tests"]
+log-path: "logs"
+target-path: "target"
+clean-targets: ["target"]
+
+models:
+  ews_disaster:
+    bronze:
+      +materialized: table
+      +schema: bronze
+      +tags: ["bronze", "raw"]
+    silver:
+      +materialized: incremental
+      +schema: silver
+      +tags: ["silver", "clean"]
+    gold:
+      +materialized: table
+      +schema: gold
+      +tags: ["gold", "mart"]
+      mart_disasters_geo:
+        +tags: ["gold", "spatial", "geojson"]
+        +pre-hook:
+          - "INSTALL spatial"
+          - "LOAD spatial"

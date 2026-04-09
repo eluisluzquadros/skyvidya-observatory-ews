@@ -13,6 +13,7 @@ S2ID_DATA_DIR = SERVER_DATA_DIR / "s2id"
 ANALYTICS_OUTPUT_DIR = SERVER_DATA_DIR / "analytics"
 IBGE_DATA_DIR = ANALYTICS_ROOT / "data" / "ibge"
 LOCAL_OUTPUT_DIR = ANALYTICS_ROOT / "data" / "output"
+RELATORIOS_DATA_DIR = ANALYTICS_ROOT / "data" / "mdr" / "01_bronze" / "relatorios"
 
 # Ensure output directories exist
 ANALYTICS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -21,6 +22,21 @@ LOCAL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # === IBGE Data ===
 IBGE_GEOPARQUET_FILENAME = "BR_Municipios_2024.geoparquet"
 IBGE_GEOPARQUET_URL = "https://github.com/skyvidya/ibge-geospatial/raw/main/BR_Municipios_2024.geoparquet"
+
+# Enriched municipal data (população + indicadores socioeconômicos)
+# Gerado por: br/02_ingestao_dados_municipios_v1.ipynb
+IBGE_ENRIQUECIDO_FILENAME = "BR_Municipios_2024_enriquecido.parquet"
+
+# Colunas socioeconômicas adicionadas pelo enriquecimento
+ENRICHED_COLUMNS = [
+    "pib_per_capita",
+    "pib_total",
+    "idhm",
+    "densidade_demografica",
+    "taxa_mortalidade_infantil",
+    "receitas_brutas",
+    "despesas_brutas",
+]
 
 # === COBRADE Disaster Type Taxonomy ===
 # 5-digit codes mapping to disaster names (Portuguese)
@@ -114,28 +130,48 @@ ATLAS_CSV_COLUMNS = {
     "Protocolo": "PROTOCOLO",
 }
 
-# === Human Damage Fields ===
+# === Human Damage Fields (from Danos_Informados CSVs) ===
 HUMAN_DAMAGE_FIELDS = [
-    "DH_MORTOS",
-    "DH_FERIDOS",
-    "DH_ENFERMOS",
-    "DH_DESABRIGADOS",
-    "DH_DESALOJADOS",
-    "DH_DESAPARECIDOS",
-    "DH_OUTROS AFETADOS",
+    "DH_Mortos",
+    "DH_Feridos",
+    "DH_Enfermos",
+    "DH_Desabrigados",
+    "DH_Desalojados",
+    "DH_Desaparecidos",
+    "DH_Outros Afetados",
 ]
 
-# === Economic Damage Fields ===
+# === Economic Damage Fields (from Danos_Informados CSVs) ===
+# PEPR = Perdas Econômicas Setor Privado (R$)
+# PEPL = Perdas em Serviços Públicos Essenciais (R$)
 ECONOMIC_DAMAGE_FIELDS = [
-    "PEPR_AGRICULTURA",
-    "PEPR_INDUSTRIA",
-    "PEPR_COMERCIO",
-    "PEPR_PECUARIA",
-    "PEPR_SERVICOS",
-    "PEPL_ENSINO",
-    "PEPL_TELECOMUNICACOES",
-    "PEPL_SEGURANCA PUBLICA",
+    "PEPR_Agricultura (R$)",
+    "PEPR_Pecuária (R$)",
+    "PEPR_Indústria (R$)",
+    "PEPR_Comércio (R$)",
+    "PEPR_Serviços (R$)",
+    "PEPL_Assistência médica, saúde pública e atendimento de emergências médicas (R$)",
+    "PEPL_Ensino (R$)",
+    "PEPL_Transportes locais, regionais e de longo curso (R$)",
+    "PEPL_Geração e distribuição de energia elétrica (R$)",
 ]
+
+# Short keys for JSON output (mapped from ECONOMIC_DAMAGE_FIELDS)
+DAMAGE_COLUMN_MAP = {
+    "PEPR_Agricultura (R$)":   "peprAgricultura",
+    "PEPR_Pecuária (R$)":      "peprPecuaria",
+    "PEPR_Indústria (R$)":     "peprIndustria",
+    "PEPR_Comércio (R$)":      "peprComercio",
+    "PEPR_Serviços (R$)":      "peprServicos",
+    "PEPL_Assistência médica, saúde pública e atendimento de emergências médicas (R$)": "peplSaude",
+    "PEPL_Ensino (R$)":        "peplEnsino",
+    "PEPL_Transportes locais, regionais e de longo curso (R$)": "peplTransportes",
+    "PEPL_Geração e distribuição de energia elétrica (R$)":     "peplEnergia",
+    "DH_Mortos":               "dhMortos",
+    "DH_Desabrigados":         "dhDesabrigados",
+    "DH_Desalojados":          "dhDesalojados",
+    "DH_Outros Afetados":      "dhOutrosAfetados",
+}
 
 # === Server Configuration ===
 FASTAPI_HOST = "0.0.0.0"

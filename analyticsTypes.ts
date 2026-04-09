@@ -33,6 +33,33 @@ export interface MunicipalityRisk {
     lat: number | null;
     lng: number | null;
     cobradeBreakdown?: Record<string, { name: string; count: number }>;
+    socioeconomico?: {
+        pibPerCapita?: number;
+        pibTotal?: number;
+        idhm?: number;
+        densidadeDemografica?: number;
+        taxaMortalidadeInfantil?: number;
+        receitasBrutas?: number;
+        despesasBrutas?: number;
+    };
+    danos?: {
+        // PEPR — Perdas Econômicas Setor Privado (R$)
+        peprAgricultura?: number;
+        peprPecuaria?: number;
+        peprIndustria?: number;
+        peprComercio?: number;
+        peprServicos?: number;
+        // PEPL — Perdas em Serviços Públicos Essenciais (R$)
+        peplSaude?: number;
+        peplEnsino?: number;
+        peplTransportes?: number;
+        peplEnergia?: number;
+        // DH — Danos Humanos
+        dhMortos?: number;
+        dhDesabrigados?: number;
+        dhDesalojados?: number;
+        dhOutrosAfetados?: number;
+    };
 }
 
 // === LISA Cluster Types ===
@@ -152,18 +179,24 @@ export const RISK_CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const TREND_COLORS: Record<string, string> = {
-    'Crescente': '#ef4444',   // red
-    'Estável': '#eab308',     // yellow
-    'Decrescente': '#22c55e', // green
+    'Crescente': '#ef4444',     // red
+    'Estável': '#eab308',        // yellow
+    'Decrescente': '#22c55e',   // green
 };
 
 export const LISA_CLUSTER_COLORS: Record<string, string> = {
-    'HH (Alto-Alto)': '#ef4444',    // red - hot spot
-    'HL (Alto-Baixo)': '#93c5fd',   // light blue
-    'LH (Baixo-Alto)': '#f97316',   // orange
-    'LL (Baixo-Baixo)': '#3b82f6',  // blue - cold spot
-    'N/A': '#4b5563',               // gray
+    'HH': '#ef4444', // red (hotspot)
+    'LL': '#3b82f6', // blue (coldspot)
+    'LH': '#f97316', // orange (low outlier in hot area)
+    'HL': '#06b6d4', // cyan (high outlier in cold area)
+    'N/A': '#1e293b',// dark gray (not significant)
 };
+
+export const THREAT_COLORS = [
+    '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6',
+    '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#06b6d4',
+    '#84cc16', '#a855f7', '#d946ef',
+];
 
 // === LLM Reports ===
 

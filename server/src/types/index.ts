@@ -27,6 +27,7 @@ export interface CollectionStatus {
 export interface FilterOptions {
     uf?: string;
     type?: string;
+    municipality?: string;
     startDate?: string;
     endDate?: string;
     source?: 'atlas' | 's2id' | 'all';

@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: mart_disasters
+    description: "Gold: agregações por município — risk scores S1-S5, rankings, contagens"
+    config:
+      materialized: table
+      schema: gold
+    columns:
+      - name: municipality
+        description: "Nome do município"
+        tests: [not_null]
+      - name: uf
+        description: "Sigla do estado"
+        tests: [not_null]
+      - name: risk_score
+        description: "Score de risco 0-100 (frequência 60% + afetados 40%)"
+        tests: [not_null]
+      - name: risk_category
+        description: "Categoria S1 BAIXO → S5 CRÍTICO"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['S1 BAIXO','S2 MODERADO','S3 ELEVADO','S4 ALTO','S5 CRÍTICO']
+
+  - name: mart_analytics
+    description: "Gold: série temporal por UF — inputs para LISA, MCDA, recharts"
+    config:
+      materialized: table
+      schema: gold
+    columns:
+      - name: uf
+        description: "Sigla do estado"
+        tests: [not_null, unique]
+      - name: rank_by_events
+        description: "Ranking 1=mais eventos"
+        tests: [not_null]

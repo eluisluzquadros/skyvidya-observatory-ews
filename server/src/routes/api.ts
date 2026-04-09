@@ -3,56 +3,68 @@ import storage from '../services/storage';
 import scheduler from '../services/scheduler';
 import logger from '../services/logger';
 import { FilterOptions } from '../types';
+import { getSilverDisasters, getGoldStats, isDuckDBReady } from '../services/duckdbService';
 
 const router = Router();
 
 // GET /api/disasters - List all disasters with optional filters
-router.get('/disasters', (req: Request, res: Response) => {
+// Strategy: DuckDB Silver layer (post-pipeline) → fallback to storage.ts (database.json)
+router.get('/disasters', async (req: Request, res: Response) => {
     try {
         const filters: FilterOptions = {
-            uf: req.query.uf as string,
-            type: req.query.type as string,
-            startDate: req.query.startDate as string,
-            endDate: req.query.endDate as string,
-            source: req.query.source as 'atlas' | 's2id' | 'all',
-            limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 1000,
-            offset: req.query.offset ? parseInt(req.query.offset as string, 10) : 0,
+            uf:           req.query.uf as string,
+            type:         req.query.type as string,
+            municipality: req.query.municipality as string,
+            startDate:    req.query.startDate as string,
+            endDate:      req.query.endDate as string,
+            source:       req.query.source as 'atlas' | 's2id' | 'all',
+            limit:        req.query.limit  ? parseInt(req.query.limit  as string, 10) : 2000,
+            offset:       req.query.offset ? parseInt(req.query.offset as string, 10) : 0,
         };
 
-        const disasters = storage.getDisasters(filters);
+        let disasters = isDuckDBReady() ? await getSilverDisasters(filters) : null;
+        const dataSource = disasters !== null ? 'duckdb_silver' : 'storage_json';
+
+        if (disasters === null) {
+            disasters = storage.getDisasters(filters);
+        }
 
         res.json({
             success: true,
             count: disasters.length,
             data: disasters,
+            _meta: { source: dataSource },
         });
     } catch (error) {
         logger.error('Error fetching disasters:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch disasters',
-        });
+        res.status(500).json({ success: false, error: 'Failed to fetch disasters' });
     }
 });
 
 // GET /api/stats - Get aggregated statistics
-router.get('/stats', (req: Request, res: Response) => {
+// Strategy: DuckDB Gold layer (post-pipeline) → fallback to storage.ts
+router.get('/stats', async (req: Request, res: Response) => {
     try {
-        const stats = storage.getStats({
+        const dateFilters = {
             startDate: req.query.startDate as string | undefined,
-            endDate: req.query.endDate as string | undefined,
-        });
+            endDate:   req.query.endDate   as string | undefined,
+        };
+
+        let stats = isDuckDBReady() ? await getGoldStats(dateFilters) : null;
+        const dataSource = stats !== null ? 'duckdb_gold' : 'storage_json';
+
+        if (stats === null) {
+            stats = storage.getStats(dateFilters);
+        }
 
         res.json({
             success: true,
             data: stats,
+            _meta: { source: dataSource },
         });
     } catch (error) {
         logger.error('Error fetching stats:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch statistics',
-        });
+        res.status(500).json({ success: false, error: 'Failed to fetch statistics' });
     }
 });
 

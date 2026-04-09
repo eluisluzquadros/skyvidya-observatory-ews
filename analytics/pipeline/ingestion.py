@@ -25,12 +25,17 @@ from config import (
     S2ID_DATA_DIR,
     IBGE_DATA_DIR,
     IBGE_GEOPARQUET_FILENAME,
+    IBGE_ENRIQUECIDO_FILENAME,
+    RELATORIOS_DATA_DIR,
     COBRADE_MAP,
     COBRADES_OF_INTEREST,
     PERIODS_CONFIG,
     DEFAULT_VALIDITY_DAYS,
     UFS_TO_FILTER,
     GEOJSON_SIMPLIFY_TOLERANCE,
+    HUMAN_DAMAGE_FIELDS,
+    ECONOMIC_DAMAGE_FIELDS,
+    DAMAGE_COLUMN_MAP,
 )
 
 logger = logging.getLogger(__name__)
@@ -312,7 +317,8 @@ def summarize_disasters_by_period(
     """
     logger.info("Summarizing disasters by period...")
     result = df.copy()
-    group_cols = ["COD_COBRADE", "SIGLA_UF", "NM_MUN_SEM_ACENTO", "VALIDITY"]
+    # CD_MUN (7-digit IBGE code) is the primary join key — avoids name-normalization mismatches
+    group_cols = ["COD_COBRADE", "CD_MUN", "SIGLA_UF", "NM_MUN_SEM_ACENTO", "VALIDITY"]
 
     # Filter by COBRADE codes of interest
     if cobrades_of_interest and "COD_COBRADE" in result.columns:
@@ -356,6 +362,20 @@ def summarize_disasters_by_period(
         agg = period_df.groupby(valid_group_cols).size().reset_index(
             name=f"{period_name}_COUNT"
         )
+
+        # For HISTORIC period, also aggregate total human impact per COBRADE/municipality
+        # Used by identify_main_threat for impact-weighted principal threat scoring
+        if period_name == "HISTORIC":
+            IMPACT_COL = "DH_TOTAL_DANOS_HUMANOS_DIRETOS"
+            if IMPACT_COL in period_df.columns:
+                impact_agg = (
+                    period_df.groupby(valid_group_cols)[IMPACT_COL]
+                    .sum()
+                    .reset_index(name="HISTORIC_IMPACT_DANOS")
+                )
+                agg = agg.merge(impact_agg, on=valid_group_cols, how="left")
+                agg["HISTORIC_IMPACT_DANOS"] = agg["HISTORIC_IMPACT_DANOS"].fillna(0)
+
         period_summaries.append(agg)
 
     if not period_summaries:
@@ -392,15 +412,20 @@ def aggregate_and_pivot_summary(
     count_cols = [
         f"{p}_COUNT" for p in periods_config if f"{p}_COUNT" in summary_df.columns
     ]
-    group_cols = ["SIGLA_UF", "NM_MUN_SEM_ACENTO"]
+    # Use CD_MUN as primary key; keep SIGLA_UF/NM_MUN_SEM_ACENTO when available
+    base_cols = ["CD_MUN", "SIGLA_UF", "NM_MUN_SEM_ACENTO"]
+    group_cols = [c for c in base_cols if c in summary_df.columns]
 
     # Aggregate by municipality (sum across COBRADEs)
     agg_funcs = {col: "sum" for col in count_cols}
     by_city = summary_df.groupby(group_cols).agg(agg_funcs).reset_index()
 
-    # Merge with population data
-    pop_data = municipios_pop_df[["SIGLA_UF", "NM_MUN_SEM_ACENTO", pop_col]].copy()
-    by_city = by_city.merge(pop_data, on=group_cols, how="left")
+    # Merge with population data — use CD_MUN when available
+    pop_cols_avail = [c for c in ["CD_MUN", "SIGLA_UF", "NM_MUN_SEM_ACENTO", pop_col]
+                      if c in municipios_pop_df.columns]
+    pop_data = municipios_pop_df[pop_cols_avail].copy()
+    merge_on = [c for c in group_cols if c in pop_data.columns]
+    by_city = by_city.merge(pop_data, on=merge_on, how="left")
     by_city[pop_col] = pd.to_numeric(by_city[pop_col], errors="coerce").fillna(0)
 
     # Calculate per-capita rates (per 10K inhabitants)
@@ -415,7 +440,7 @@ def aggregate_and_pivot_summary(
     if "COD_COBRADE" not in summary_df.columns:
         return by_city.fillna(0)
 
-    summary_with_pop = summary_df.merge(pop_data, on=group_cols, how="left")
+    summary_with_pop = summary_df.merge(pop_data, on=merge_on, how="left")
     summary_with_pop[pop_col] = pd.to_numeric(
         summary_with_pop[pop_col], errors="coerce"
     ).fillna(0)
@@ -438,10 +463,15 @@ def aggregate_and_pivot_summary(
         .str.replace(r"\.0$", "", regex=True)
     )
 
+    pivot_values = count_cols + rate_cols
+    impact_col = "HISTORIC_IMPACT_DANOS"
+    if impact_col in summary_with_pop.columns:
+        pivot_values = pivot_values + [impact_col]
+
     pivot = summary_with_pop.pivot_table(
-        index=group_cols,
+        index=merge_on,
         columns="COD_COBRADE",
-        values=count_cols + rate_cols,
+        values=pivot_values,
         aggfunc="sum",
         fill_value=0,
     )
@@ -451,7 +481,7 @@ def aggregate_and_pivot_summary(
     ]
     pivot.reset_index(inplace=True)
 
-    final = by_city.merge(pivot, on=group_cols, how="left")
+    final = by_city.merge(pivot, on=merge_on, how="left")
     return final.fillna(0)
 
 
@@ -464,16 +494,94 @@ def aggregate_geospatial_data(
     Merge geospatial municipality boundaries with disaster summary data.
     """
     logger.info("Merging geospatial data with disaster summary...")
-    merge_cols = ["SIGLA_UF", "NM_MUN_SEM_ACENTO"]
 
     summary_processed = summary_df.copy()
     if pop_col in summary_processed.columns and pop_col in geo_df.columns:
         summary_processed = summary_processed.drop(columns=[pop_col])
 
+    # Prefer CD_MUN (7-digit code) to avoid name-normalization mismatches.
+    # Fall back to SIGLA_UF + NM_MUN_SEM_ACENTO only if CD_MUN is unavailable.
+    if "CD_MUN" in geo_df.columns and "CD_MUN" in summary_processed.columns:
+        merge_cols = ["CD_MUN"]
+    else:
+        logger.warning("CD_MUN not available in both DataFrames; falling back to name-based join.")
+        merge_cols = ["SIGLA_UF", "NM_MUN_SEM_ACENTO"]
+
     merged = geo_df.merge(summary_processed, how="left", on=merge_cols)
-    merged = merged.drop_duplicates()
+    merged = merged.drop_duplicates(subset=["CD_MUN"] if "CD_MUN" in merged.columns else merge_cols)
     merged.fillna(0, inplace=True)
     return merged
+
+
+def load_damage_reports() -> pd.DataFrame:
+    """
+    Load and aggregate all Danos_Informados_YYYY.csv files from the relatorios directory.
+
+    Extracts CD_MUN from the Protocolo field (format: UF-F-CDMUN-COBRADE-DATE),
+    aggregates economic and human damage fields per municipality across all years.
+
+    Returns:
+        DataFrame indexed by CD_MUN with aggregated damage columns.
+    """
+    relatorios_dir = RELATORIOS_DATA_DIR
+    if not relatorios_dir.exists():
+        logger.warning(f"Relatorios directory not found: {relatorios_dir}")
+        return pd.DataFrame()
+
+    csv_files = sorted(relatorios_dir.glob("Danos_Informados_*.csv"))
+    if not csv_files:
+        logger.warning("No Danos_Informados_*.csv files found in relatorios directory")
+        return pd.DataFrame()
+
+    all_dfs = []
+    for csv_path in csv_files:
+        try:
+            df = pd.read_csv(
+                csv_path, sep=";", encoding="latin-1", skiprows=4, on_bad_lines="skip"
+            )
+            if df.empty or "Protocolo" not in df.columns:
+                continue
+
+            # Extract CD_MUN from Protocolo: "UF-F-CDMUN-COBRADE-DATE" → index 2
+            df["CD_MUN"] = (
+                df["Protocolo"]
+                .astype(str)
+                .str.split("-")
+                .apply(lambda parts: parts[2] if len(parts) >= 3 else None)
+            )
+            df = df.dropna(subset=["CD_MUN"])
+            df = df[df["CD_MUN"].str.len() == 7]  # valid 7-digit CD_MUN only
+
+            all_dfs.append(df)
+        except Exception as e:
+            logger.warning(f"Failed to read {csv_path.name}: {e}")
+
+    if not all_dfs:
+        logger.warning("No valid damage report files could be loaded")
+        return pd.DataFrame()
+
+    combined = pd.concat(all_dfs, ignore_index=True)
+    logger.info(f"Loaded {len(combined)} damage report records from {len(all_dfs)} files")
+
+    # Aggregate columns: all PEPR/PEPL/DH fields
+    agg_cols = [c for c in (HUMAN_DAMAGE_FIELDS + ECONOMIC_DAMAGE_FIELDS) if c in combined.columns]
+    for col in agg_cols:
+        combined[col] = pd.to_numeric(
+            combined[col].astype(str).str.replace(",", "."), errors="coerce"
+        )
+
+    if not agg_cols:
+        logger.warning("No damage columns found in report files")
+        return pd.DataFrame()
+
+    agg = combined.groupby("CD_MUN")[agg_cols].sum(min_count=1).reset_index()
+
+    # Rename to short JSON keys
+    rename = {col: DAMAGE_COLUMN_MAP[col] for col in agg_cols if col in DAMAGE_COLUMN_MAP}
+    agg = agg.rename(columns=rename)
+
+    logger.info(f"Aggregated damage data for {len(agg)} municipalities")
+    return agg
 
 
 def run_ingestion(
@@ -493,13 +601,45 @@ def run_ingestion(
     """
     ufs = ufs_filter or UFS_TO_FILTER
 
-    # 1. Load IBGE municipalities
+    # 1. Load IBGE municipalities + enriched socioeconomic data
     logger.info("Step 1/5: Loading IBGE municipality boundaries...")
     municipios = read_geoparquet_municipios(
         IBGE_DATA_DIR, IBGE_GEOPARQUET_FILENAME, ufs
     )
     municipios_dissolved = dissolve_municipalities(municipios)
     logger.info(f"Loaded {len(municipios_dissolved)} municipalities")
+
+    enri_path = IBGE_DATA_DIR / IBGE_ENRIQUECIDO_FILENAME
+    if enri_path.exists():
+        logger.info(f"Merging enriched socioeconomic data from {enri_path}...")
+        df_enri = pd.read_parquet(str(enri_path))
+        df_enri["CD_MUN"] = df_enri["CD_MUN"].astype(str)
+        municipios_dissolved["CD_MUN"] = municipios_dissolved["CD_MUN"].astype(str)
+        # Only add columns not already present in the geometry file
+        new_cols = [c for c in df_enri.columns
+                    if c not in municipios_dissolved.columns and c != "CD_MUN"]
+        municipios_dissolved = municipios_dissolved.merge(
+            df_enri[["CD_MUN"] + new_cols], on="CD_MUN", how="left"
+        )
+        logger.info(f"Enriched with {len(new_cols)} additional columns: {new_cols}")
+    else:
+        logger.warning(
+            f"Enriched parquet not found at {enri_path}. "
+            "Run br/02_ingestao_dados_municipios_v1.ipynb to generate it."
+        )
+
+    # Merge aggregated damage reports (PEPR/PEPL/DH from Danos_Informados)
+    damage_df = load_damage_reports()
+    if not damage_df.empty:
+        damage_df["CD_MUN"] = damage_df["CD_MUN"].astype(str)
+        damage_cols = [c for c in damage_df.columns if c != "CD_MUN"]
+        # Prefix to avoid collision: danos_ prefix
+        rename_prefix = {c: f"danos_{c}" for c in damage_cols}
+        damage_df = damage_df.rename(columns=rename_prefix)
+        municipios_dissolved = municipios_dissolved.merge(
+            damage_df, on="CD_MUN", how="left"
+        )
+        logger.info(f"Added {len(damage_cols)} damage aggregate columns from Danos_Informados")
 
     # 2. Read Atlas CSV
     logger.info("Step 2/5: Reading Atlas Digital CSV...")
@@ -597,4 +737,9 @@ def run_ingestion(
         f"Ingestion complete: {result.shape[0]} municipalities, "
         f"{result.shape[1]} columns"
     )
+    if result.shape[0] != 5573:
+        logger.warning(
+            f"Expected 5573 municipalities, got {result.shape[0]}. "
+            "Check for missing CD_MUN or duplicate rows."
+        )
     return result

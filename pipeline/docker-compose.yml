@@ -1,0 +1,60 @@
+services:
+  kestra:
+    image: kestra/kestra:latest
+    container_name: ews-kestra
+    pull_policy: always
+    user: "root"
+    command: server standalone
+    volumes:
+      - kestra-data:/app/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+      - ./kestra/flows:/app/flows           # auto-load flows on startup
+      - ../server/data:/app/ews-data        # acesso aos dados do EWS
+      - ../analytics:/app/analytics         # pipeline Python existente
+      - ./dbt:/app/ews-dbt                  # dbt project (silver/gold models)
+    environment:
+      # Absolute host paths used by dbt task containers (docker.volumes)
+      # Override these if your repo is not at the default location.
+      HOST_EWS_DATA: ${HOST_EWS_DATA:-./server/data}
+      HOST_EWS_DBT:  ${HOST_EWS_DBT:-./pipeline/dbt}
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:h2:mem:kestra;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+            driverClassName: org.h2.Driver
+            username: sa
+            password: ""
+        kestra:
+          server:
+            basic-auth:
+              enabled: false
+          repository:
+            type: memory
+          storage:
+            type: local
+            local:
+              base-path: /app/storage
+          queue:
+            type: memory
+          tasks:
+            tmp-dir:
+              path: /tmp/kestra-wd
+          plugins:
+            docker:
+              # Allow bind-mount volumes in script task containers
+              volume-enabled: true
+          url: http://localhost:8080/
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    healthcheck:
+      test: curl -s http://localhost:8080/api/v1/flows/search 2>/dev/null | grep -q '"total"' || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  kestra-data:
+    driver: local

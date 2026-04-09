@@ -54,28 +54,169 @@ function parseNumber(value: string): number {
     return isNaN(num) ? 0 : num;
 }
 
+// Normalize key for flexible matching (remove accents, lowercase)
+function normalizeKey(key: string): string {
+    return key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+// Find value in record using flexible key matching
+function getValue(record: Record<string, string>, possibleKeys: string[]): string {
+    const recordKeys = Object.keys(record);
+    const normalizedMap = recordKeys.reduce((acc, k) => {
+        acc[normalizeKey(k)] = k;
+        return acc;
+    }, {} as Record<string, string>);
+
+    for (const key of possibleKeys) {
+        if (record[key] !== undefined) return record[key];
+        const norm = normalizeKey(key);
+        if (normalizedMap[norm]) return record[normalizedMap[norm]];
+    }
+    return '';
+}
+
+// Extract disaster type from COBRADE (e.g., "14110 - Estiagem")
+function extractDisasterType(cobrade: string): string {
+    if (!cobrade) return 'Outros';
+    const match = cobrade.match(/^\d+\s*-\s*(.+)$/);
+    if (match) return match[1].trim();
+    const upper = cobrade.toUpperCase();
+    if (upper.includes('ESTIAGEM')) return 'Estiagem';
+    if (upper.includes('SECA')) return 'Seca';
+    if (upper.includes('ENXURRADA')) return 'Enxurrada';
+    if (upper.includes('INUNDA')) return 'Inundação';
+    if (upper.includes('ALAGAMENTO')) return 'Alagamento';
+    if (upper.includes('VENDAVAL') || upper.includes('VENTO')) return 'Vendaval';
+    if (upper.includes('GRANIZO')) return 'Granizo';
+    if (upper.includes('DESLIZAMENTO')) return 'Deslizamento';
+    if (upper.includes('CHUVAS') || upper.includes('TEMPESTADE')) return 'Chuvas Intensas';
+    return cobrade;
+}
+
 // Transform S2ID CSV record to DisasterRecord
-function transformS2IDRecord(raw: Record<string, string>, reportType: string): DisasterRecord {
-    // Column names vary by report type, try common patterns
-    const municipality = raw['Município'] || raw['MUNICIPIO'] || raw['municipio'] || '';
-    const uf = raw['UF'] || raw['uf'] || raw['Estado'] || '';
-    const type = raw['Tipo de Desastre'] || raw['TIPO_DESASTRE'] || raw['Desastre'] || raw['Tipologia'] || '';
-    const dateStr = raw['Data'] || raw['DATA'] || raw['Data do Desastre'] || raw['Data Decreto'] || '';
-    const status = raw['Status'] || raw['STATUS'] || raw['Situação'] || raw['Situacao'] || '';
-    const affected = raw['População Afetada'] || raw['Afetados'] || raw['AFETADOS'] || raw['Total Afetados'] || '0';
+function transformS2IDRecord(raw: Record<string, string>, reportType: string): DisasterRecord | null {
+    const uf = getValue(raw, ['UF', 'Estado']);
+    const municipality = getValue(raw, ['Município', 'Municipio']);
+    const dateStr = getValue(raw, ['Registro', 'Data', 'Data do Desastre', 'Data Decreto']);
+    const cobrade = getValue(raw, ['COBRADE', 'Tipologia', 'Tipo de Desastre']);
+    const status = getValue(raw, ['Status', 'Situação', 'Situacao']);
+    const population = getValue(raw, ['População', 'Populacao']);
+
+    // Skip records with missing key fields
+    if (!uf || !municipality || !dateStr) return null;
+
+    const parsedDate = parseDate(dateStr);
+    
+    // VALIDATION: Prevent future dates
+    const today = new Date().toISOString().split('T')[0];
+    if (parsedDate > today) {
+        logger.warn(`Skipping record with future date: ${parsedDate} (Municipality: ${municipality})`);
+        return null;
+    }
+
+    const mortos = parseNumber(getValue(raw, ['DH_Mortos', 'Mortos']));
+    const feridos = parseNumber(getValue(raw, ['DH_Feridos', 'Feridos']));
+    const enfermos = parseNumber(getValue(raw, ['DH_Enfermos', 'Enfermos']));
+    const desabrigados = parseNumber(getValue(raw, ['DH_Desabrigados', 'Desabrigados']));
+    const desalojados = parseNumber(getValue(raw, ['DH_Desalojados', 'Desalojados']));
+    const afetados = parseNumber(getValue(raw, ['DH_Afetados', 'Afetados', 'Total Afetados', 'População Afetada']));
+    const totalAffected = mortos + feridos + enfermos + desabrigados + desalojados + afetados;
 
     return {
-        id: generateId(municipality, uf, dateStr, type),
+        id: generateId(municipality, uf, dateStr, cobrade),
         municipality,
         uf,
-        type,
-        date: parseDate(dateStr),
+        type: extractDisasterType(cobrade),
+        date: parsedDate,
         status,
-        affected: parseNumber(affected),
+        affected: totalAffected > 0 ? totalAffected : parseNumber(population),
         source: 's2id',
         reportType,
         collectedAt: new Date().toISOString(),
     };
+}
+
+// ── Local File Ingestion (Fallback for manual downloads) ──
+export async function scanLocalRelatorios(): Promise<number> {
+    // Current user path provided: analytics/data/mdr/01_bronze/relatorios/
+    const localDir = path.join(__dirname, '..', '..', '..', 'analytics', 'data', 'mdr', '01_bronze', 'relatorios');
+    
+    if (!fs.existsSync(localDir)) {
+        logger.warn(`Local reports directory not found: ${localDir}`);
+        return 0;
+    }
+
+    logger.info(`Scanning local reports from: ${localDir}`);
+    const files = fs.readdirSync(localDir);
+    const csvFiles = files.filter(f => f.toLowerCase().endsWith('.csv'));
+    
+    let totalImported = 0;
+    for (const file of csvFiles) {
+        try {
+            const filePath = path.join(localDir, file);
+            const buffer = fs.readFileSync(filePath);
+            // Try ISO-8859-1 first (standard S2ID), then fallback to UTF-8
+            let content = '';
+            try {
+                content = new TextDecoder('iso-8859-1').decode(buffer);
+            } catch {
+                content = fs.readFileSync(filePath, 'utf-8');
+            }
+
+            const lines = content.split('\n');
+            let headerLineIndex = -1;
+            for (let i = 0; i < Math.min(20, lines.length); i++) {
+                const line = lines[i].trim();
+                // Match standard S2ID header OR line starting with state-initials (AC; AL; etc) if there's no header
+                if (line.match(/^UF[;,]/i) || line.match(/^(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)[;,]/i)) {
+                    headerLineIndex = i;
+                    break;
+                }
+            }
+
+            if (headerLineIndex === -1) {
+                logger.warn(`Could not find header or data start in ${file}. Skipping.`);
+                continue;
+            }
+
+            // Check if the "header" line is actually a data line (no UF label)
+            const firstDataLine = lines[headerLineIndex].trim();
+            const hasHeader = firstDataLine.toLowerCase().startsWith('uf');
+
+            let dataContent = '';
+            let parseOptions: any = {
+                delimiter: ';',
+                skip_empty_lines: true,
+                relax_column_count: true,
+                relax_quotes: true,
+            };
+
+            if (hasHeader) {
+                dataContent = lines.slice(headerLineIndex).join('\n');
+                parseOptions.columns = true;
+            } else {
+                // Headerless "Relatório Gerencial" format. We assume standard column order:
+                // UF; Município; Registro (Date); Processo; COBRADE; Status; População; ...
+                dataContent = lines.slice(headerLineIndex).join('\n');
+                parseOptions.columns = ['UF', 'Município', 'Registro', 'Processo', 'COBRADE', 'Status', 'População'];
+            }
+
+            const records = parse(dataContent, parseOptions) as Record<string, string>[];
+
+            const transformed = records
+                .map(r => transformS2IDRecord(r, 'danos-informados'))
+                .filter((r): r is DisasterRecord => r !== null);
+
+            if (transformed.length > 0) {
+                const count = storage.insertDisasters(transformed);
+                totalImported += count;
+                logger.info(`Local Import: ${count} records from ${file}`);
+            }
+        } catch (err) {
+            logger.error(`Error importing local file ${file}:`, err);
+        }
+    }
+    return totalImported;
 }
 
 // Format date for S2ID input fields (DD/MM/YYYY)
@@ -268,9 +409,11 @@ export class S2IDScraper {
 
             logger.info('Expanded report accordion');
 
+            const activePanel = await page.evaluateHandle((el) => el.nextElementSibling, targetAccordion);
+
             // Fill in date range - find inputs within the expanded accordion content
             // The S2ID form has date inputs that we need to fill
-            const dateInputs = await page.$$('input[type="text"]');
+            const dateInputs = await activePanel.$$('input[type="text"]');
             logger.info(`Found ${dateInputs.length} text inputs`);
 
             if (dateInputs.length >= 2) {
@@ -311,24 +454,33 @@ export class S2IDScraper {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Select "Select All" checkboxes if not checked
-            // Find visible checkboxes in the expanded accordion that represent "Select All"
-            // Usually valid ids contain 'selecionar_todos'
-            const checkboxes = await page.$$('input[type="checkbox"][id*="selecionar_todos"]');
-
+            // Find visible checkboxes in the expanded accordion
+            const checkboxes = await activePanel.$$('input[type="checkbox"]');
+            
             for (const checkbox of checkboxes) {
                 try {
-                    // Check visibility
-                    const isVisible = await checkbox.evaluate((el: any) => {
-                        return el.offsetParent !== null;
-                    });
+                    const id = await checkbox.evaluate((el: any) => el.id || '');
+                    const label = await page.evaluate((el: any) => {
+                        const parent = el.closest('div, td');
+                        return parent ? parent.textContent || '' : '';
+                    }, checkbox);
 
-                    if (isVisible) {
-                        const isChecked = await checkbox.evaluate((el: any) => el.checked);
-                        if (!isChecked) {
-                            logger.info('checking "Select All" checkbox...');
-                            await checkbox.click();
-                            // Wait for AJAX update (PrimeFaces busy indicator)
-                            await new Promise(resolve => setTimeout(resolve, 3000));
+                    // Check for "Selecione todos" or "Todas as tipologias" or "Todos os estados"
+                    const shouldCheck = 
+                        id.toLowerCase().includes('selecionar_todos') || 
+                        label.includes('Todas as tipologias') || 
+                        label.includes('Todos os estados') ||
+                        label.includes('Selecionar Todos');
+
+                    if (shouldCheck) {
+                        const isVisible = await checkbox.evaluate((el: any) => el.offsetParent !== null);
+                        if (isVisible) {
+                            const isChecked = await checkbox.evaluate((el: any) => el.checked);
+                            if (!isChecked) {
+                                logger.info(`Checking checkbox: ${label.trim() || id}`);
+                                await checkbox.click();
+                                await new Promise(resolve => setTimeout(resolve, 3000));
+                            }
                         }
                     }
                 } catch (err) {
@@ -337,7 +489,7 @@ export class S2IDScraper {
             }
 
             // Find and click CSV export button
-            const buttons = await page.$$('button, a');
+            const buttons = await activePanel.$$('button, a');
             let exportButton = null;
 
             for (const button of buttons) {
@@ -353,7 +505,7 @@ export class S2IDScraper {
 
             if (!exportButton) {
                 // Try finding by href or onclick
-                exportButton = await page.$('a[href*="csv"], button[onclick*="csv"]');
+                exportButton = await activePanel.$('a[href*="csv"], button[onclick*="csv"]');
             }
 
             if (!exportButton) {
@@ -426,23 +578,53 @@ export class S2IDScraper {
 
             logger.info(`Downloaded file: ${downloadedFile}`);
 
-            // Parse the downloaded CSV
-            const content = fs.readFileSync(downloadedFile, 'utf-8');
-            const records = parse(content, {
-                columns: true,
+            // Parse the downloaded CSV — S2ID exports in Latin-1 with 4-line metadata header
+            const buffer = fs.readFileSync(downloadedFile);
+            const decoder = new TextDecoder('iso-8859-1');
+            const rawContent = decoder.decode(buffer);
+
+            // Skip metadata lines, find the actual header row or data start
+            const lines = rawContent.split('\n');
+            let headerLineIndex = -1;
+            for (let i = 0; i < Math.min(20, lines.length); i++) {
+                const line = lines[i].trim();
+                if (line.match(/^UF[;,]/i) || line.match(/^(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)[;,]/i)) {
+                    headerLineIndex = i;
+                    break;
+                }
+            }
+
+            if (headerLineIndex === -1) {
+                throw new Error(`Could not find CSV header or data start in downloaded file.`);
+            }
+
+            const firstDataLine = lines[headerLineIndex].trim();
+            const hasHeader = firstDataLine.toLowerCase().startsWith('uf');
+            const dataContent = lines.slice(headerLineIndex).join('\n');
+
+            let parseOptions: any = {
                 delimiter: ';',
                 skip_empty_lines: true,
                 relax_column_count: true,
-            }) as Record<string, string>[];
+                relaxQuotes: true,
+            };
 
-            logger.info(`Parsed ${records.length} records from CSV`);
+            if (hasHeader) {
+                parseOptions.columns = true;
+            } else {
+                parseOptions.columns = ['UF', 'Município', 'Registro', 'Processo', 'COBRADE', 'Status', 'População'];
+            }
+
+            const records = parse(dataContent, parseOptions) as Record<string, string>[];
+
+            logger.info(`Parsed ${records.length} records from CSV (Header detected: ${hasHeader})`);
 
             // Transform to DisasterRecord format
             const disasters = records
-                .filter(r => Object.values(r).some(v => v && v.trim()))
-                .map(r => transformS2IDRecord(r, options.reportId));
+                .map(r => transformS2IDRecord(r, options.reportId))
+                .filter((r): r is DisasterRecord => r !== null);
 
-            logger.info(`Transformed ${disasters.length} disaster records`);
+            logger.info(`Transformed ${disasters.length} valid disaster records`);
 
             return disasters;
 
@@ -458,19 +640,35 @@ export class S2IDScraper {
 // High-level collection function
 export async function collectS2IDData(reportIds?: string[]): Promise<number> {
     const reportsToCollect = reportIds || Object.keys(REPORT_CONFIGS);
-
-    const scraper = new S2IDScraper();
     let totalRecords = 0;
+
+    // ── STEP 1: Always run local file scan FIRST (reliable, fast) ──
+    logger.info('=== STEP 1: Local CSV file ingestion ===');
+    try {
+        const localCount = await scanLocalRelatorios();
+        totalRecords += localCount;
+        if (localCount > 0) {
+            logger.info(`Local scan: Imported ${localCount} records from local CSV files`);
+        } else {
+            logger.info('Local scan: No new records found in local files');
+        }
+    } catch (localErr) {
+        logger.error('Local file scan failed (non-blocking):', localErr);
+    }
+
+    // ── STEP 2: Attempt Puppeteer web scraping (supplementary) ──
+    logger.info('=== STEP 2: Puppeteer web scraping ===');
+    const scraper = new S2IDScraper();
 
     try {
         await scraper.initialize();
 
-        // Calculate date range: 01/01/2025 until today
-        // Note: S2ID has max 365 days per query, data available since 01/01/2013
+        // Calculate date range: last 90 days to today
         const endDate = new Date();
-        const startDate = new Date(endDate.getFullYear(), 0, 1); // January 1st of current year
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 90);
 
-        logger.info(`Date range for collection: ${startDate.toLocaleDateString('pt-BR')} - ${endDate.toLocaleDateString('pt-BR')}`);
+        logger.info(`Date range for collection: ${formatDateForS2ID(startDate)} - ${formatDateForS2ID(endDate)}`);
 
         for (const reportId of reportsToCollect) {
             const status: CollectionStatus = {
@@ -511,7 +709,8 @@ export async function collectS2IDData(reportIds?: string[]): Promise<number> {
                 logger.error(`Failed to collect ${reportId}:`, error);
             }
         }
-
+    } catch (scraperErr) {
+        logger.error('Puppeteer scraper initialization failed (local data was still imported):', scraperErr);
     } finally {
         await scraper.close();
     }
