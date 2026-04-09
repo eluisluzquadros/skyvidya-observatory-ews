@@ -1,0 +1,716 @@
+ 
+EDITAL DE CHAMADA PÚBLICA iCS Nº 4  
+Clima na Economia: integrando a questão climática à agenda econômica  
+ 
+1. Apresentação 
+O INSTITUTO CLIMA E SOCIEDADE torna pública a presente chamada , em parceria com o 
+Hub de Economia & Clima, com o objetivo de apoiar projetos de pesquisa aplicada que 
+contribuam para promover conhecimento voltado para a ação e fortalecer a interface entre 
+economia e clima.  
+Para fins deste edital, pesquisa aplicada refere -se a estudos, análises, metodologias ou 
+produtos de conhecimento cuja finalidade principal é gerar evidências, diagnósticos, ferramentas ou recomendações diretamente utilizáveis por tomadores de decisão públ icos e privados que atuam na interface entre economia e clima. Os projetos de 
+pesquisa deverão produzir resultados concretos e acionáveis, contribuindo para o aprimoramento de políticas públicas, estratégias empresariais, instrumentos financeiros, 
+modelos de governança ou decisões de investimento voltadas à mitigação e adaptação às 
+mudanças climáticas.  
+Ao adotar esta definição, o presente edital busca garantir que as pesquisas apoiadas contribuam efetivamente para ampliar a base de conhecimento aplicado, gerando 
+impacto e fortalecendo um ecossistema de decisões mais informado, transparente e alinhado aos  desafios e oportunidades da agenda de economia e clima no Brasil.  
+O Instituto Clima e Sociedade (iCS) é uma organização filantrópica que apoia projetos e instituições dedicados ao enfrentamento das mudanças climáticas em todas as regiões do Brasil. O Instituto funciona como uma ponte entre financiadores internacionais e nacionais e parceiros locais, pertencendo a uma ampla rede de organizações filantrópicas dedicadas à construção de soluções para a crise climática. Muito mais do que um 
+intermediador de financiamentos, o iCS promove o diálogo entre setores, agrega 
+conhecim ento e estabelece redes de informação, de inteligência e de cooperação, em 
+uma combinação de estratégias para promover maior ambição brasileira na agenda 
+climática.  
+O Hub de Economia & Clima é uma iniciativa do Instituto Clima e Sociedade (iCS) voltada 
+a fortalecer a integração entre a agenda econômica e a ação climática no Brasil. Seu 
+propósito é consolidar uma rede de pesquisa influente e duradoura, apoiando a produ ção 
+de estudos de alta qualidade que subsidiem a tomada de decisão e contribuam para a 
+implementação de políticas públicas e ações climáticas transformadoras, tanto no setor público quanto no privado. O Hub parte do princípio de que a pesquisa aplicada é e ssencial 
+para formular políticas públicas sólidas e mobilizar investimentos alinhados ao desenvolvimento econômico sustentável e à transição justa, conectando evidências 
+científicas às necessidades concretas de governos, empresas e investidores.  
+A equidade e a diversidade fazem parte dos valores do Instituto Clima e Sociedade. Garantimos a igualdade de oportunidade em nossos processos seletivos e procuramos 
+ativamente compor um leque diverso de parceiros, quanto a porte, natureza jurídica, 
+ 
+localização, tipo de atuação, beneficiários, entre outros aspectos. Além disso, 
+encorajamos a candidatura de organizações inclusivas, que busquem promover a diversidade em suas equipes, especialmente de gênero, orientação sexual, raça, condição socioeconôm ica ou pessoas com deficiência nos diferentes níveis hierárquicos.  
+2. Objetivo do Edital  
+O presente edital visa selecionar e apoiar propostas que contribuam para:  
+2.1 Promover conhecimento voltado para ação e fortalecer a interface entre economia 
+e clima, com foco em pesquisa aplicada , buscando a realização de estudos, 
+pesquisas e diálogos que ampliem a produção de evidências e conectem agendas científicas às demandas de tomada de decisão envolvendo as temáticas de 
+economia e clima.  
+ 
+2.2 Desenvolver  pesquisas voltadas para a produção de conhecimento, ferramentas 
+ou modelos  que gerem insumos concretos para políticas públicas, empresas e 
+investidores, mapeando e fortalecendo organizações, grupos e iniciativas que 
+produzem análises estratégicas e conhecimento aplicado voltado à ação climática 
+e sua interface com a economia.  
+2.2.1  O edital apoiará tanto o desenvolvimento de nov os projetos, quanto o 
+fortalecimento, acompanhamento e escalonamento de iniciativas já em 
+curso ou em fase de aplicação, desde que apresentem potencial de gerar 
+insumos concretos para políticas públicas, práticas empresariais e decisões de investimento relacionadas à a genda de economia e clima.  
+ 
+2.3 Estimular o amadurecimento científico de longo prazo, com a formação de novos 
+pesquisadores, a continuidade de agendas de pesquisa e a consolidação de grupos 
+acadêmicos, incentivando o desenvolvimento de capacidades técnicas e 
+analíticas no campo da econom ia e clima.  
+O iCS encoraja  Instituições de Ciência e Tecnologia (ICTs) e grupos de pesquisa sediados 
+fora dos grandes centros urbanos a  submet erem propostas, com o objetivo de promover 
+a descentralização da produção científica no país.  
+3. Contexto Geral  
+É um fato que as mudanças climáticas afetam diretamente a dinâmica econômica, social 
+e territorial do Brasil. Em um cenário de transição para modelos de desenvolvimento mais 
+sustentáveis, torna -se fundamental integrar análises econômicas robustas à agenda 
+climática, fortalecendo a capacidade nacional de responder a desafios complexos e de 
+identificar oportunidades para um crescimento de baixo carbono.  
+Nesse contexto, o país demanda pesquisas aplicadas capazes de gerar evidências concretas, apoiar o desenho de políticas públicas, aprimorar práticas empresariais e 
+ 
+estimular investimentos alinhados à mitigação e adaptação climática. O fortalecimento da 
+produção científica nas diversas regiões do país é essencial para ampliar o entendimento sobre como os impactos e as soluções climáticas variam no território brasileir o, 
+garantindo maior diversidade e capilaridade analítica.  
+O presente edital busca promover conhecimento orientado para ação, fortalecer laços 
+entre economia e clima e fomentar o amadurecimento científico de longo prazo. Ao apoiar 
+grupos de pesquisa, Instituições de Ciência e Tecnologia (ICTs) e novas gerações de 
+pesquisadores, a iniciativa visa consolidar uma base técnico -científica capaz de 
+influenciar políticas, práticas e decisões econômicas que contribuam para uma transição 
+justa, resiliente e inclusiva.  
+Os projetos selecionados deverão demonstrar potencial de uso prático, indicando como seus resultados podem influenciar decisões econômicas, regulatórias, institucionais ou operacionais em diferentes escalas territoriais.   
+4. Linhas Temáticas  
+As propostas devem se enquadrar em uma das seguintes linhas temáticas (para 
+detalhamento das linhas temáticas, ver Anexo 1): 
+TEMA 1: ADAPTAÇÃO ÀS MUDANÇAS CLIMÁTICAS  
+A adaptação às mudanças climáticas é essencial diante de impactos já inevitáveis, com 
+efeitos diretos sobre disponibilidade de água, a agricultura, a infraestrutura, a saúde e a produtividade de diversos setores. A despeito disso, persistem lacunas importa ntes, como 
+a baixa utilização do conhecimento existente, a insuficiência de estudos de impactos e de vulnerabilidades em diferentes escalas, a falta de métricas atualizadas e a pouca 
+integração entre estratégias de adaptação e o planejamento territorial. N esse contexto, 
+demandam atenção temas como gestão hídrica, impactos na saúde, passivo/impacto 
+fiscal em termos de redução das receitas fiscais (prejuízos setoriais, danos a infraestrutura 
+e queda de atividade econômica), orçamento para adaptação climática e aumento dos 
+gastos públicos (reparação dos danos, atenção às emergências, gastos imprevistos), priorização de investimentos em infraestrutura resiliente e avaliação econô  mica  
+de riscos e instrumentos de adaptação no setor agropecuário e de geração/trans missão e 
+distribuição de eletricidade. As propostas deverão contribuir com ferramentas de apoio à tomada de decisão, recomendações para políticas públicas, tradução de evidências 
+científicas para gestores e a proposição de arcabouços que fortaleçam a coord enação 
+entre União, estados e municípios.  
+TEMA 2: MACROECONOMIA E MEIO AMBIENTE / MUDANÇAS CLIMÁTICAS  
+A área de macroeconomia e meio ambiente busca compreender como as mudanças 
+climáticas afetam a dinâmica econômica e como políticas econômicas influenciam 
+emissões, riscos e resiliência. Persistem lacunas importantes, como a limitada incorporação de variáve is climáticas em modelos macroeconômicos, a falta de métricas 
+robustas de exposição setorial e geográfica, a escassez de análises sobre impactos macroeconômicos e distributivos da precificação de carbono e a ausência de metodologias consolidadas que integr em política fiscal e objetivos climáticos. Demandam 
+ 
+aprofundamento temas como riscos climáticos e estabilidade financeira, rastreamento de 
+gastos e subsídios climáticos no orçamento público, mecanismos fiscais para lidar com eventos extremos e modelagem dos efeitos de choques climáticos sobre produtividade,  
+inflação, custos de produção e atividade econômica. Espera -se que os projetos 
+contribuam para aprimorar modelos de previsão macroeconômica com variáveis 
+climáticas, desenvolver instrumentos de política fiscal verde, apoiar a gestão de riscos 
+climáticos no  sistema financeiro e gerar análises que fortaleçam o posicionamento 
+brasileiro em negociações internacionais.  
+TEMA 3: MICROECONOMIA E CLIMA   
+O tema de microeconomia e clima busca compreender como decisões de produtores, 
+consumidores, empresas, gestores públicos e agentes financeiros influenciam emissões, 
+adaptação, inovação e eficiência econômica. Persistem importantes lacunas sobre como choque s climáticos afetam produtividade, custos operacionais, organização industrial, 
+difusão tecnológica e decisões de investimento, especialmente em setores expostos a 
+riscos físicos e de transição. Há também necessidade de analisar barreiras à adoção de 
+tecno logias limpas, respostas a incentivos econômicos, efeitos climáticos sobre 
+estruturas de mercado e comportamento intertemporal diante de incertezas climáticas e 
+regulatórias. Espera -se que pesquisas nessa linha ofereçam evidências aplicadas capazes 
+de orie ntar políticas públicas e estratégias empresariais, contribuindo para decisões mais 
+eficientes, para a redução de riscos e para acelerar a transição para uma economia 
+resiliente e de baixo carbono.  
+TEMA 4: FINANÇAS PÚBLICAS E MUDANÇAS CLIMÁTICAS  
+O tema de finanças públicas e mudanças climáticas examina como instrumentos fiscais, tributários e orçamentários podem orientar a ação climática e viabilizar a transição para uma economia de baixo carbono. Persistem lacunas importantes no Brasil, como 
+avaliação dos impactos climáticos em infraestruturas essenciais, com eventuais reflexos 
+orçamentários, a ausência de métricas fiscais para riscos climáticos, a baixa integração 
+entre orçamento e metas nacionais e a falta de ferramentas que permitam avaliar, de  
+forma contínua, os impactos fiscais de eventos climáticos e das políticas de adaptação e mitigação. Demandam especial atenção temas como financiamento climático subnacional, revisão de subsídios e incentivos, instrumentos tributários verdes, 
+mecanismos fi scais de apoio à adaptação e metodologias para incorporar riscos 
+climáticos ao ciclo orçamentário. Espera -se que os projetos produzam orientações 
+práticas, modelos de governança e ferramentas aplicáveis que auxiliem gestores públicos 
+a alinhar sustentabili dade fiscal e ação climática, fortalecendo a capacidade do Estado de 
+planejar e executar investimentos de longo prazo.  
+5. Recursos e Contratação  
+O valor total destinado a esta chamada é de R$ 2.500.000,00 ( dois  milhões e quinhentos 
+mil reais) . O iCS se reserva ao direito de não distribuir a totalidade dos fundos.   
+Cada organização proponente deverá pleitear um apoio individual de até R$ 500.000,00 
+(quinhentos mil reais).  
+ 
+Os recursos serão concedidos em caráter não reembolsável . O  Instituto Clima e 
+Sociedade (iCS) se reserva o direito de definir, no momento oportuno, os valores que cada 
+projeto selecionado receberá, não havendo obrigatoriedade de conceder todo o valor 
+solicitado  pela organização proponente .  
+O repasse dos recursos será realizado exclusivamente em conta corrente de titularidade da entidade responsável pela gestão financeira do projeto, conforme definido abaixo.  
+Nos casos em que a Organização Proponente possua CNPJ próprio e capacidade para gerir os recursos, o apoio financeiro será formalizado por meio de contrato de doação celebrado 
+diretamente entre o iCS e a Organização Proponente, que será também a responsáve l pelo 
+recebimento e gestão dos recursos.  
+Nos casos em que a Organização Proponente não possua CNPJ próprio  ou não tenha 
+capacidade de gerir diretamente os recursos, incluindo, mas não se limitando, às Instituições públicas de e nsino e/ou pesquisa, deverá ser indicada uma Organização 
+Financeira responsável pela gestão dos recursos. Nesses casos, o contrato de doação 
+será celebrado preferencialmente  entre o iCS e a Organização Financeira,  em nome do 
+projeto, cabendo a esta o recebimento, a gestão financeira e a prestação de contas dos 
+recursos.   
+Quando se tratar de u niversidade ou instituição de pesquisa pública s, a Organização 
+Financeira deverá ser, obrigatoriamente, a fundação de apoio devidamente credenciada pela instituição, nos termos da legislação aplicável.  
+Quando houver Organização Financeira, esta poderá ser a única entidade signatária do 
+contrato de doação com o iCS, sem prejuízo das responsabilidades técnicas e institucionais da Organização Proponente quanto à execução do projeto.  É possível que a 
+Organização Proponente também assine o contrato, na condição de interveniente  ou 
+anuente .  
+O recebimento do apoio financeiro é condicionado à satisfação das formalidades e procedimentos necessários para realização da doação pelo  iCS.   
+O período de execução dos projetos deverá ser de até 24 (vinte e quatro) meses, acrescido de um mês adicional para envio de relatórios finais.  
+6.  Elegibilidade  
+6.1  O(a) coordenador(a) da proposta deve possuir qualificação técnica compatível 
+com o cargo (p.ex. título de doutor e/ou mestre) e experiência comprovada de, no mínimo, 
+5 (cinco) anos como pesquisador(a) responsável ou líder de projetos de pesquisa, e 
+produção  acadêmica ou técnica relevante nas áreas de economia sendo desejável, mas 
+ 
+não eliminatória, a produção acadêmica ou técnica em clima, demonstrando capacidade 
+de coordenação científica e gestão de equipes.  
+ 6.2  Podem participar do processo seletivo:  
+6.2.1 Organizações da sociedade civil sem fins lucrativos, l egalmente constituídas sob as 
+leis brasileiras , incluindo organizações do terceiro setor, que tenham em sua missão 
+institucional ou em seu objetivo social ou estatutário o histórico comprovado na pesquisa 
+aplicada de caráter científico ou tecnológico, entre elas: institutos e fundações privadas 
+ligadas à produção de conhecimento; ONGs com atuação consolidada em climate policy, 
+economia, desenvolvimento territorial, conservação, etc.; organizações de pesquisa independentes; think tanks e centros de inovação tecnol ógica ou socioambiental ; 
+6.2. 2  Instituições  de ensino e/ou pesquisa públicas ou privadas sem fins lucrativos, que 
+sejam  legalmente constituídas  sob as leis brasileiras, com sede e foro no Brasil , que inclua 
+em sua missão institucional ou em seu objetivo social ou estatutário a pesquisa básica ou aplicada de caráter científico ou tecnológico ou o desenvolvimento de novos produtos, serviços  ou processos.    
+6.2.3  Grupos de pesquisa formal  ou informalmente constituídos, ainda que não possuam 
+CNPJ próprio, desde que comprovem atuação contínua na temática objeto deste Edital 
+por, no mínimo, 02 (dois) anos, devendo indicar, obrigatoriamente, instituição sem fins 
+lucrativos com CNPJ válido que assumirá a responsabilidade jurídica e financeira pela 
+celebração do instrumento contratual e pela gestão dos recursos.   
+6.3  Caso a organização  proponente não possua CNPJ próprio e/ou conta bancária 
+própria, ou ainda, caso não tenha capacidade de gerir os recursos por conta própria, é 
+possível que indique uma instituição para atuar como “organização financeira”.  
+6.4  Somente  é permitida a apresentação de 1 (um) projeto por organização 
+proponente. Em caso de universidades ou instituições públicas de pesquisa, considera -se 
+a organização proponente como sendo a instância específica responsável pela implementação da proposta (por exemplo, departamento específico, ou um laboratório 
+formalmente constituído como parte da universidade ou instituição de pesquisa). Portanto, é permitido mais de um projeto por universidade ou instituição pública de pesquisa, desde que submeti do por instâncias distintas. Para os demais casos, se a 
+organização proponente enviar mais de um projeto, só será considerado aquele que tenha 
+sido enviado por último.  
+6.5 Organizações  que não  podem participar do processo seletivo : 
+6.5.1  Órgãos governamentais (salvo universidades e instituições de pesquisa);  
+6.5.2  Fundações públicas, igrejas, clubes, associações de funcionários públicos;   
+6.5.3 Partidos políticos ou organizações ligadas/controladas por partidos políticos;  
+6.5.4  Organizações cujo objeto social não se enquadre no objetivo deste edital;  
+6.5.5  Organizações com pendências legais, fiscais ou reputacionais;    
+ 
+6.5.6  Empresas com fins lucrativos  ou filiais brasileiras de e mpresas com fins lucrativos 
+com sede no exterior, ainda que a filial  esteja  legalmente estabelecida no Brasil.  
+6.5.7   Não é elegível a organização que: (i) for alvo de quaisquer sanções comerciais 
+administradas ou aplicadas pelos EUA, UE, Nações Unidas ou Reino Unido, (ii) estiver 
+agindo em nome de entidades que são alvo de tais sanções, ou (iii) que tenha escritórios 
+em qualquer área, país, estado, território ou província onde as leis locais ou dos Estados 
+Unidos proíbam a participação no Edital ou em qualquer país ou jurisdição que seja alvo 
+dos EUA, UE, Nações Unidas, ou Sanções comerciais abrangentes do Reino Unido (por exemplo, regiões da Crimeia, Donetsk e Luhansk da Ucrânia, Cuba, Coreia do Norte, Irã e Síria, conforme tal lista possa ser alterada).  
+7. Processo de Inscrição  
+O processo de inscrição tem como finalidade garantir a transparência e a uniformidade na análise das propostas apresentadas. As organizações interessadas deverão observar atentamente as orientações e requisitos descritos a seguir, assegurando o correto preenchimento do formulário e o envio de todas as informações solicitadas dentro do 
+prazo estabelecido neste edital.  
+Eventual preenchimento incorreto do formulário de inscrição , ou após a data de término 
+do período de inscrições,  poderá acarretar a desclassificação da Organização Proponente.  
+No momento da inscrição a organização proponente deve indicar uma pessoa física, residente no Brasil, maior de 18 anos, como sua representante legal, para fins de submissão de proposta a esta chamada. Essa pessoa deve possuir poderes e autorização 
+válidos para representar a Organização Proponente no ato da submissão da proposta, e deve responder pela Organização Proponente frente ao iCS. No caso de universidades, 
+prof essores ou pesquisadores com vínculo empregatício formal poderão representar a 
+instituição,  desde que formalmente habilitados para tanto. Estudantes, professores 
+visitantes, bolsistas ou pessoas com vínculo temporário ou precário não estão aptos a 
+realizar a inscrição em nome da universidade. A inscrição realizada em desacordo com o disposto nes te item poderá ensejar a desclassificação da proposta. Cada pessoa física só 
+poderá atuar como representante em uma única proposta.  
+Todas as informações solicitadas no formulário de inscrição são obrigatórias, exceto 
+quando indicadas como opcionais. As propostas devem ser submetidas em Língua 
+Portuguesa.  
+Para a primeira etapa de seleção, as propostas devem ser submetidas eletronicamente por meio do link http://ics.fluxx.io/apply/ed04 -economia  pelo qual os proponentes devem 
+preencher o Formulário de Inscrição da Proposta, devendo cada proposta conter, no mínimo, as informações relacionadas no referido formulário.  
+O iCS não se responsabiliza por problemas técnicos ou de internet no momento do envio da proposta. Serão desclassificados aqueles projetos que apresentarem dados incorretos, incompletos ou inverídicos. Recomendamos envio com antecedência.  
+ 
+Ao completar  e enviar uma inscrição, a Organização Proponente concorda em:  
+a) fornecer informações verdadeiras, precisas, atuais e completas sobre o 
+proponente e demais parceiros mencionados e ; 
+b) comunicar prontamente qualquer  alteração , conforme necessário, para mant er os 
+dados  verdadeiros, precisos, atuais e completos.  
+c) fornecer qualquer informação adicional solicitada ou completar a documentação 
+necessária para realizar a triagem da inscrição.  
+Devem ser atendidos os seguintes requisitos formais da proposta e pela organização 
+proponente:  
+7.1 A proposta deve estar alinhada ao objetivo da chamada definido no item 2 e se enquadrar em pelo menos uma das linhas temáticas descritas no item 4  e no Anexo 1 
+do edital para os eixos que queiram detalhar mais as linhas temáticas;  
+7.2 A proposta deve estar completa e seguir o modelo do Formulário de Inscrição da 
+Proposta  
+7.3 O cronograma de execução do projeto não pode ultrapassar o prazo de 24 (vinte e 
+quatro) meses, acrescido do período de um mês após a finalização da execução para 
+envio do relatório final;  
+7.4 Caso a proposta inclua parcerias com outras organizações ou pessoas físicas, a instituição proponente deverá especificar claramente as responsabilidades e 
+atribuições de cada parte envolvida. É considerada favorável, no âmbito deste Edital, 
+a formação de g rupos interinstitucionais, desde que haja coordenação efetiva  da 
+instituição proponente  e complementaridade entre as instituições parceiras. No 
+entanto, tal arranjo não implica repasse de recursos pelo iCS a todas as entidades participantes  e tampouco qual quer responsabilidade do iCS no arranjo institucional 
+estabelecido entre as organizações. Os recursos financeiros serão destinados 
+exclusivamente à instituição proponente  (se necessário, por meio da organização 
+financeira por ela indicada) , que será responsável por supervisionar, orientar e garantir 
+a adequada execução das atividades realizadas pelas organizações ou indivíduos 
+parceiros.  
+ 
+7.5 Documentos necessários  
+A proponente deve rá preencher e ou  anexar os seguintes documentos na primeira e 
+segunda etapa de seleção:   
+1- na 1ª etapa Formulário de Inscrição do Projeto preenchido, conforme Anexo 2 deste 
+edital ; 
+ 
+na 2ª etapa  
+1- Estatuto e suas atualizações registradas em cartório que comprovem  a missão 
+institucional ou o objetivo social ou estatutário de pesquisa básica ou aplicada de 
+caráter científico ou tecnológico ou o desenvolvimento de novos produtos, serviços ou processos (apenas no caso de  que a organização proponente seja uma  
+associa ção ou  e funda ção  sem fins lucrativos).  
+ 
+2- Comprovante de Inscrição e Situação Cadastral (CNPJ) da Receita Federal gerado 
+através do site 
+https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/Cnpjreva_Solicitacao.
+asp  há no máximo 2 meses  (no caso de associações e fundações sem fins 
+lucrativos) ; 
+3- Ata vigente da atual diretoria devidamente registrada em cartório (no caso de 
+associações e fundações sem fins lucrativos);  
+4- Demonstrativos contábeis, preferencialmente auditados dos últimos 2 anos (no caso de associações e fundações sem fins lucrativos);  
+5- Documento  que comprove a experiência com pesquisa aplicada.  Podem ser 
+atestados de capacidade técnica, relatórios técnicos ou científicos de projetos 
+anteriores; contratos, termos de fomento ou convênios já executados; publicações 
+técnicas, científicas, declarações de financiadores ou parceiros.  
+6- Documento de comprovação do credenciamento da fundação de apoio  junto a  
+institui ção  pública de ensino e/ou pesquisa .  Isso é necessário  exclusivamente  no 
+caso de  propostas apresentadas por instituições públicas de ensino e/ou pesquisa  
+que desejem receber por meio de  uma  fundação de apoio , que irá atuar como 
+organização financeira ; 
+7- Currículos da equipe de pesquisa (preferencialmente Lattes ou equivalente), 
+incluindo a formação  acadêmica. O currículo do(a) coordenador(a) da proposta 
+deve obrigatoriamente incluir diploma de doutorado (ou mestrado), além de evidência de que possui experiência de, no mínimo 5 (cinco) anos como 
+pesquisador(a) responsável ou líder de projetos de pesq uisa, enquanto os demais 
+integrantes devem apresentar comprovantes de titulação conforme sua formação 
+(graduação, pós- graduação, doutorado, quando aplicável).  
+8- Documentos que comprovem os critérios de elegibilidade e a qualificação técnica da proposta, da organização e da equipe, incluindo portfólio de publicações científicas, técnicas ou produtos relevantes relacionados ao tema da proposta, dos últimos 2 (dois) anos, com os respectivos links, bem como comprovação de experiência em pesquisa aplicada. Para esse fim, poderão ser apresentados atestados de capacidade técnica, relatórios técnicos ou científicos de projetos 
+anteriores, contratos, termos de fomento ou co nvênios já executados, 
+publicações técnicas ou científicas e declarações de financiadores ou parceiros.
+ 
+9- Planilha orçamentária preenchida, conforme modelo que será disponibilizado para 
+download;  
+10- Planilha de entregas e atividades, conforme modelo que será disponibilizado para download;  
+ 
+ 
+ 
+8. Processo de seleção  
+A análise dos projetos inscritos em conformidade com o disposto neste edital será 
+realizada de acordo com as seguintes etapas:  
+8.1 Primeira etapa  
+Para esta etapa serão considerados  critérios de avaliação:  
+1- Triagem inicial de todas as Organizações Proponentes, para validação da 
+candidatura .  
+Neste momento, serão analisados os parâmetros objetivos de elegibilidade, incluindo a qualificação da  organização  proponente , os requisitos formais da 
+proposta e os impedimentos à candidatura, funcionando como uma triagem para verificar se as propostas atendem aos requisitos formais mínimos estabelecidos.  
+ 
+2- Avaliação inicial, quando o mérito técnico -científico e o mérito estratégico das 
+propostas serão efetivamente analisados e comparados, considerando -se os 
+seguintes aspectos:  
+a. Aderência ao escopo com adequação aos temas contemplados na 
+chamada;  
+b. Rigor metodológico consistente com a proposta submetida;  
+c. Potencial de impacto : examina o grau em que os resultados previstos são 
+estrategicamente relevantes para avançar a agenda de economia e clima, 
+especialmente quanto à sua capacidade de orientar decisões públicas ou privadas. Projetos com impacto potencial claro e bem fundamentad o sobre 
+processos decisórios terão melhor avaliação ; 
+d. Originalidade na integração de dados climáticos e econômicos, com 
+adaptação ao contexto brasileiro (ou regional);  
+e. Portfólio com os principais estudos, projetos ou pesquisas executadas  nos 
+últimos 2 anos em temas econômicos, podendo apresentar interface com outras áreas do conhecimento (como clima, saúde, entre outras), com produção correlacionada ao(à) coordenador(a) do projeto e aos demais pesquisadores principais da equipe . 
+ 
+Serão selecionadas até 18 (dezoito) propostas que forem mais bem qualificadas e 
+avaliadas pela banca, assim consideradas as que apresentarem uma maior aderência com 
+o atendimento das condições estabelecidas nesta chamada, para participar da segunda 
+etapa.  
+8.2 Segunda etapa  
+Após a divulgação do resultado da primeira etapa, os proponentes que tiverem suas 
+propostas pré -selecionadas receberão login e senha para submissão de documentos e 
+uma segunda versão da proposta , com mais informações,  em formulário no sistema de 
+gestão do iCS.  
+Nesta etapa, o proponente deverá detalhar entregas, resultados, indicadores, riscos e 
+outros aspectos da proposta. A equipe do iCS estará à disposição através de plantões de 
+ 
+dúvidas previamente agendados para ajudar a esclarecer dúvidas para o preenchimento 
+deste formulário.  
+Apenas as propostas que estiverem devidamente detalhadas, com informações corretas e completas inseridas no sistema Fluxx, poderão ser aprovad as pelo iCS, estando aptos à 
+assinatura de contrato e à fase de execução e acompanhamento, para recebimento dos desembolsos respectivos.  
+Para esta etapa, além do aprofundamento dos critérios de mérito técnico -científico e de 
+mérito estratégico, serão considerados os seguintes critérios adicionais de avaliação:  
+1- Adequação do plano de trabalho à execução do projeto, considerando aspectos de 
+completude, clareza, apontamento de riscos e suas formas de mitigação;  
+2- Viabilidade do cronograma de execução no prazo estipulado, mediante descrição 
+das macroetapas e entregas do projeto, recursos necessários e formas de 
+monitoramento;  
+3- Viabilidade e coerência do orçamento em relação às atividades propostas.  
+ 
+Nessa fase, o conteúdo das propostas qualificadas será comparado em profundidade, 
+considerando aderência ao escopo, experiência da organização e da equipe, exequibilidade do plano de trabalho e alinhamento com os objetivos do edital. Além disso, 
+se buscará compor um conjunto diverso de propostas e organizações selecionadas.  
+Como resultado, os projetos deverão apresentar produtos orientados à tomada de 
+decisão, que superem formatos acadêmicos tradicionais e priorizem a aplicabilidade prática. Espera -se a entrega de instrumentos como policy briefs, notas técnicas, briefings 
+executivos, dashboards, simuladores, ferramentas analíticas, guias práticos ou 
+recomendações regulatórias, além de atividades de devolutiva com atores estratégicos, assegurando o uso efetivo dos resultados por governos, empresas e investidores.  
+A qualquer momento , durante a segunda etapa de seleção,  ou no momento de preparar 
+minuta de contrato,  podem ser solicitados possíveis ajustes na proposta e orçamento. 
+Quaisquer ajustes solicitados pelo iCS deverão ser encaminhados em prazo estipulado 
+para tal, sob pena de desclassificação do processo seletivo .  
+ 
+8.2.1 Composição do orçamento do projeto  
+Na segunda etapa de seleção, será obrigatório o preenchimento de um orçamento 
+detalhado, em arquivo Excel fornecido pelo iCS.  
+Os proponentes poderão ser solicitados a justificar gastos específicos previsto s no 
+orçamento. Os recursos solicitados devem ser dimensionados para o alcance das metas listadas no projeto.  
+Não será exigida contrapartida obrigatória para o projeto, mas incentivamos que a organização proponente indique tudo o que oferece de forma complementar ao projeto que pode ser: bens, serviços e trabalho voluntário e/ou apoio financeiro de outra fonte.  
+ 
+Devem ser observados critérios orçamentários de itens financiáveis (que podem ser 
+incluídos no orçamento) e não financiáveis (que não podem ser incluídos no orçamento), como explicado a seguir.  
+São considerados itens e atividades financiáveis do projeto, entre outras:  
+1. Despesas com pessoal ligado diretamente ao projeto;  
+2. Pagamento  de bolsa para estudantes de graduação (iniciação científica), 
+mestrado, doutorado e jovens pesquisadores (pós- doutorado) . Para tal deve -se 
+usar como base os valores atualmente praticados pela Fundação de Amparo à 
+Pesquisa do Estado de São Paulo - FAPESP;  
+3. Assistência técnica, estudos, consultorias e outros serviços especializados relacionados ao projeto;  
+4. Aquisição de materiais de consumo e de escritório, assim como máquinas e equipamentos necessários para a execução de atividades relacionadas ao projeto;  
+5. Transporte , hospedagem e alimentação para idas a campo , reuniões técnicas 
+relativas com interlocutores estratégicos, workshops e eventos necessários à 
+execução do projeto;  
+6. Apoio administrativo, técnico e financeiro.  
+7. Despesas administrativas limitadas a 15% do valor do projeto. Exemplos: aluguel 
+de salas, contas de telefone, contas de água, contas de energia, entre outras.  
+8. Taxa administrativa da organização financeira, exclusivamente no caso de ter uma organização financeira para fazer a gestão de recursos, quando a organização proponente não possa fazê -lo diretamente, limitada a 10% do valor do projeto . 
+São considerados itens e atividades não -financiáveis do projeto, entre outras:  
+1. Diárias para servidores e funcionários públicos, salvo em atividades de pesquisa ou ida s a campo envolvendo instituições públicas de pesquisa em projetos que 
+apresentem componente de pesquisa  ou ida a campo  necessária à 
+implementação do projeto;  
+2. Pagamentos de salários ou qualquer tipo de remuneração a servidores e funcionários públicos (é permitido o pagamento de bolsas de pesquisa para professor(es) e/ou pesquisador(es) de universidades públicas);  
+3. Aquisição de bens imóveis e veículos;  
+4. Atividades que promovam interesses partidários ou eleitoreiros;  
+5. Bolsas de estudo e pesquisas acadêmicas não diretamente relacionadas ou necessárias à implementação do projeto;  
+6. Projetos governamentais ou de partidos políticos;  
+7. Despesas não relacionadas ao projeto ou em finalidade diversa da estabelecida neste edital, ainda que em caráter de emergência;  
+8. Despesas em data anterior ou posterior à vigência do contrato que será celebrado entre a organização proponente selecionada e o iCS;  
+9. Despesas com multas, juros ou correção monetária, inclusive referentes a pagamentos ou recolhimentos fora dos prazos.  
+8.3 Contratação  
+Somente os proponentes que tiverem suas propostas aprovadas na segunda etapa de seleção estarão aptos à celebração de contrato com o iCS.  
+ 
+Para a celebração de contrato, o iCS poderá requisitar a reapresentação ou atualização de 
+documentos institucionais e declaração de inexistência de pendências.  
+O contrato será de doação . Se houver Organização Financeira para fazer a gestão dos 
+recursos, esta deverá assinar o contrato.  
+Após a disponibilização do contrato para assinatura eletrônica, todos os participantes 
+devem assiná -lo impreterivelmente em um prazo máximo de três meses, a partir da 
+disponibilização do contrato. Caso este prazo não seja cumprido, o proponente pode ser 
+desclassificado sem que isso gere qualquer responsabilidade ou ônus por parte do iCS e o  
+apoio a organização proponente pode não ser concedido.  
+Após a assinatura do contrato entre o iCS e a organização proponente celebrante  e/ou 
+organização financeira , o iCS repassará a primeira parcela do apoio acordado à 
+proponente celebrante  (ou à organização financeira, se houver) .  
+Após  assinatura dos contratos, havendo vagas remanescentes por qualquer motivo, o iCS 
+poderá, a seu critério, convocar outra(s) organização(ões) proponente(s), limitadas aos 
+valores disponíveis, conforme estabelecido neste edital.  
+9. Execução e acompanhamento  
+Após a celebração do contrato (conforme item 8.3 ), a etapa de execução do processo 
+consistirá na implementação, pela proponente celebrante, do projeto aprovado, cujas 
+atividades passarão a ser acompanhadas por ponto focal da equipe técnica do iCS.  
+É esperado que haja ampla abertura e interação entre o iCS e a proponente celebrante 
+durante esta fase, com transparência quanto às ações em andamento, eventuais dificuldades identificadas, ajustes necessários, entre outros aspectos. A proponente celebrant e deverá convidar o ponto focal da equipe técnica do iCS para a participação em 
+eventos relevantes associados ao projeto, bem como compartilhar materiais produzidos e 
+manter o iCS devidamente informado sobre o progresso do projeto. Esta comunicação 
+deverá ocorrer tanto por meio de contatos orais e e -mails, quanto por meio dos relatórios 
+previstos em contrato.  
+Adicionalmente, espera -se que o grupo de pesquisa esteja disponível para participar de 
+reuniões com interlocutores estratégicos —  oriundos do poder público e/ou do setor 
+privado — de modo a favorecer a integração dos resultados do projeto com processos rea is 
+de tomada de decisão relacionados à agenda de economia e clima. Essas interações têm 
+como objetivo ampliar o impacto aplicado das pesquisas apoiadas, contribuindo para que evidências geradas possam informar políticas públicas, decisões empresariais ou iniciativas de investimento alinhadas à transição sustentável.  
+O acompanhamento do iCS objetiva o monitoramento do desempenho, entregas e 
+resultados esperados, assim como eventual apoio técnico ou institucional  do iCS para 
+melhor implementação do projeto. Por exemplo, o iCS poderá em alguns casos 
+disponibilizar informações e relatórios técnicos que possam ser úteis para o avanço dos 
+projetos, facilitar a interação com outras instituições, convidar para participa r de eventos, 
+entre outros.  
+ 
+As Organizações Proponentes contempladas se comprometem a usar o apoio financeiro  
+para execução da proposta inscrita, em conformidade com todos os requisitos éticos, 
+legais, regulatórios e de segurança aplicáveis, incluindo padrões internacionais, nacionais, locais e institucionais aplicáveis. A  Organização Proponente cumprirá todas as 
+leis e regulamentos aplicáveis que proíbem a lavagem de dinheiro ou qualquer atividade 
+que facilite a lavagem de dinheiro ou o financiamento de atividades terroristas ou 
+crim inosas. Além disso, a doação não poderá ser usada para o uso pessoal ou benefício 
+de qualquer pessoa individual.  
+A proponente celebrante  (e organização financeira, se houver)  deverá submeter ao iCS, 
+através do sistema de gestão de doações do iCS (Fluxx) relatórios financeiros e técnicos, na frequência estabelecida em contrato, abordando os resultados e produtos obtidos no período, assim como relato de mudanças do contexto, eve ntuais contratempos ou 
+quaisquer mudanças ou ajustes que tenham sido feitos em relação ao projeto original. 
+Além dos relatórios contratuais, haverá monitoramento de resultados parciais por meio d a 
+apresentação de issue briefs, notas técnicas e outros produtos intermediários, bem como  
+uma possível  exposição dos resultados em encontros promovidos pelo iCS com atores 
+estratégicos das esferas pública e privada. Esses momentos têm por objetivo acompanhar 
+o avanço do projeto, fortalecer sua aplicabilidade e ampliar o potencial de impacto dos resultados.  
+A segunda parcela da doação só será repassada após a aprovação do primeiro relatório intermediário  e o uso, de pelo, menos 70% dos recursos desembolsados da parcela 
+anterior. Se houver mais parcelas, estas também serão condicionadas às mesmas 
+condições acima.  
+Em caso de alteração significativa do projeto sem a prévia anuência do iCS, a organização proponente celebrante deverá fazer a devolução integral dos recursos disponibilizados.  
+10. Encerramento do projeto  
+Ao final do projeto, o proponente celebrante deverá submeter ao iCS um relatório final, com uma parte técnica e uma parte financeira, em um mês após a data de término do 
+projeto, prevista em contrato. O projeto só será considerado encerrado pelo iCS após a  
+aprovação do relatório final e a comprovação do cumprimento das obrigações acordadas 
+no contrato.  
+11. Propriedade intelectual  
+Ao enviar uma proposta para o edital, a organização proponente automaticamente autoriza o iCS a usar seu nome em divulgação relacionada a este edital e às atividades do iCS. Além disso, caso seja selecionada, a organização proponente deverá autorizar o uso  de seu 
+nome, marcas e logotipos em divulgações feitas pelo iCS em seu website, em seu boletim mensal, relatório anual e quaisquer outros meios que julgue necessário, para tal devendo ser fornecido o logotipo pela organização proponente através do sistema online Fluxx usado pelo iCS, na segunda etapa de seleção deste edital.  
+Caso seja selecionada, a organização proponente se compromete a divulgar o apoio do 
+iCS sempre que estiver estritamente relacionado ao projeto específico apoiado, em 
+ 
+especial às atividades e produtos previstos na proposta submetida ao iCS. A organização 
+proponente não deve usar a logo do iCS em nenhuma outra hipótese que não diretamente ligada ao Projeto apoiado por esta doação.  
+A organização proponente deverá licenciar os produtos criados com recursos da doação 
+(tais como livros, vídeos, publicações, ou outros produtos sujeitos a copyright) sob a 
+licença Creative Commons Atribuição 4.0. Além disso, sempre que couber, a organizaçã o 
+proponente deverá disponibilizar gratuitamente na internet os produtos criados com 
+recursos advindos deste edital.  
+Caso não seja possível licenciar os produtos criados com recursos da doação sob a licença Creative Commons Atribuição 4.0 e/ou disponibilizá -los gratuitamente na internet, 
+por exemplo, devido a informações sensíveis ou confidenciais, tal impossibilidade de verá 
+ser comunicada ao iCS. É recomendável informar isso ao submeter a proposta, ou tão logo 
+se perceba tal impossibilidade.  
+12. Proteção de dados pessoais  
+O tratamento de dados pessoais é realizado conforme Política de Privacidade do iCS (https://climaesociedade.org/politica -de-privacidade/ ). 
+A organização proponente deve cumprir a Lei Geral de Proteção de Dados (LGPD), garantindo que todos os dados pessoais coletados durante o projeto sejam tratados de acordo com as disposições legais. Isso inclui a obtenção de consentimento dos titulares, se necessário aos fins deste edital, e a adoção de medidas para proteger os dados contra 
+vazamentos ou usos indevidos.  
+A organização proponente será responsável por qualquer infração à LGPD na execução do 
+projeto e por ocasião de sua divulgação, incluindo danos causados a terceiros.  
+13. Código de conduta  e integridade da pesquisa  
+As atividades propostas devem obedecer aos princípios éticos e às normas legais em vigor 
+no Brasil. A conformidade às regras e normas legais vigentes é de responsabilidade das 
+organizações proponentes. Exigimos o respeito aos direitos de privacidade, integ ridade 
+física, proteção de dados e não discriminação. O desrespeito a qualquer desses direitos pode resultar no cancelamento do apoio.  
+As organizações apoiadas por meio deste edital devem comprometer- se a promover e 
+observar, em tudo que lhe for cabível, o Código de Conduta e a Política de Garantia e Proteção à Criança do iCS, disponíveis em https://climaesociedade.org/governanca -e-
+politicas/#politicas.   
+O iCS apoia firmemente a integridade da pesquisa. Na eventual ocorrência de casos comprovados de má conduta científica, como plágio, invenção ou falsificação de resultados ao longo de um projeto financiado pelo iCS, o apoio financeiro será cancelado.  
+ 
+14. Cronograma  
+O cronograma previsto de cada etapa do edital seguirá a seguinte estrutura:  
+a) Abertura do edital: 09/03/2026  
+b) Prazo para envio do formulário de inscrição (1ª etapa): 08/04/2026, às 1 6:00 
+(horário de Brasília)  
+c) Publicação dos aprovados na primeira etapa: 01 /06/2026  
+d) Prazo para envio  das propostas completas (2ª etapa): 0 5/07/2026  
+e) Publicação final de aprovados:  03/09/2026  
+O iCS se reserva o direito de ajustar o cronograma conforme a necessidade.  
+O resultado de todas as etapas de seleção das propostas será divulgado no site do iCS 
+(https://climaesociedade.org/) e por mensagem para cada proponente, enviada pelo e -
+mail edital@climaesociedade.org . Recomendamos atenção a caixa de spam.  
+O iCS, seus funcionários, ou qualquer das partes diretamente envolvidas, não estão autorizados a divulgar o resultado antes de sua publicação  no site do iCS e o envio da 
+mensagem oficial através do e-mail edital@climaesociedade.org .  
+15. Contato  
+Dúvidas devem ser enviadas ao iCS para o e -mail edital@climaesociedade.org , 
+respeitando os seguintes prazos abaixo. Escrever no campo de assunto “ Edital 4 - Clima 
+na Economia ” e o tema da mensagem.  
+- Para dúvidas sobre a submissão do formulário para a primeira etapa de seleção: até 0 6 
+de abril  de 2026, às 18:00 (horário de Brasília);  
+- Para dúvidas sobre a submissão do formulário para a segunda etapa de seleção: até 02  
+de julho  de 2026, às 18:00 (horário de Brasília);   
+Dúvidas enviadas fora dos respectivos prazos não serão respondidas.  
+Recomendamos atenção ao site do iCS (www.climaesociedade.org/editais), onde podem ser publicadas eventuais atualizações ou informações adicionais.  
+16. Disposições finais  
+O iCS se reserva o direito de cancelar, suspender, modificar, rever ou postergar, a qualquer momento, a seu exclusivo critério de avaliação, o processo de seleção a que se refere esta chamada, mediante simples aviso publicado no site do iCS (www.climaesoci edade.org/editais).  
+Caso haja cancelamento, suspensão, modificação ou postergação do processo de seleção objeto desta chamada, nenhum valor ou ressarcimento será devido, a qualquer título, a qualquer pessoa ou instituição, incluindo, mas não se limitando, a potenciais 
+propone ntes e organizações que já tenham submetido propostas.  
+ 
+A preparação das propostas e sua respectiva submissão ao processo de seleção objeto 
+desta chamada são de integral responsabilidade das organizações proponentes, as quais 
+deverão arcar integralmente com os custos decorrentes. Ao aderir a esta chamada, as 
+organizações proponentes reconhecem que cabe exclusivamente ao iCS arbitrar o 
+processo de seleção, observados os procedimentos aqui descritos.  
+Em face do processo de deliberação e escolha das organizações proponentes por parte do 
+iCS, não caberá nenhum tipo de recurso, pedido de revisão ou ressarcimento de custos, despesas ou indenização na hipótese de não seleção de propostas submetidas, em qual quer fase ou etapa dos processos descritos nesta chamada.  
+Exceções às regras previstas no presente edital, bem como lacunas ou dúvidas de interpretação, serão decididas pela diretoria do iCS.  
+O ato de inscrição implica plena concordância com os termos deste edital.  
+  
+ 
+ANEXO 1 - DETALHAMENTO DAS LINHAS TEMÁTICAS  
+TEMA 1: ADAPTAÇÃO ÀS MUDANÇAS CLIMÁTICAS  
+A mudança do clima global já em curso, se avizinha de pontos de não -  retorno ou “tipping 
+points”, em componentes do sistema climático global: geleiras, oceanos, florestas, 
+biosfera. Apesar das incertezas em cada fenômeno específico, tais como o degelo 
+permanente do Ártico ou da perda definitiva de corais, o Acordo de Paris adotou a 
+recomendação IPCC do intervalo entre 1,5C e 2,0C como limite de aquecimento com 
+relação ao período pré -industrial, por indicações de que no limite superior dessa faixa 
+aumentam as probabilidades de “feed -backs” positivos, em que os efeitos do aumento da 
+temperatura, aceleram a própria mudança.  
+No quadro atual de emissões de GEE, por volta de 2030 a temperatura média global 
+ultrapassará 1,5C de aquecimento com relação ao período pré -industrial. Ao mesmo 
+tempo, a adaptação a essa mudança do clima já é observada na Natureza, por exemplo 
+pela migraç ão dos pássaros, peixes, mamíferos, plantas e insetos vetores de doenças à 
+espécie humana, a resposta à crise climática é, necessariamente, o par mitigação -  
+adaptação, em busca de resiliência.  
+O Brasil construiu nos últimos três anos o quadro legal -  regulatório reunidos no Plano 
+Clima (mitigação e adaptação), para serem desdobrados em planos de redução das 
+emissões estaduais, municipais e setoriais, com metas ambiciosas em direção a uma 
+economi a descarbonizada até 2050. Para que as ações públicas e privadas em resposta à 
+crise climática alcancem seus melhores resultados faz -se imprescindível alinhamento e 
+coordenação. Entre outros, evitar em política pública o análogo ao que assistimos cotidiana mente nas cidades onde, num dia assiste -se à repavimentação de uma dada via 
+para, logo após, o mesmo pavimento ser removido para alguma obra linear subterrânea. Se anteriormente à crise climática esse “desencontro administrativo” representasse simples ineficiência da gestão pública, na intensificação de fenômenos climáticos extremos essa mesma ineficiência gera perdas à saúde e vida humanas, para além de prejuízos materiais irreversíveis.  
+O momento é, portanto, de consolidação e organização de bons instrumentos metodológicos ou ferramentas, para serem usados na resposta à crise climática. Entre essas ferramentas, destaca -se a disponibilização dos cenários climáticos locais, desde o 
+momento atual até as próximas décadas. Tendo em mente que o clima global está em 
+mudança, as medidas de adaptação desenhadas para os fenômenos atuais – enchentes, 
+deslizamentos, tempestades, ondas de calor, secas prolongadas etc. - podem amenizar 
+os impactos a curto prazo, mas elas têm alta probabilidade de perderem eficácia pela intensificação dos mesmos fenômenos ou pelo surgimento de novos e não previstos. 
+Portanto, conhecer o presente e os possíveis cenários climáticos, à frente, é essencial ao 
+desenho de bons planos locais de adaptação.  
+O mesmo enfoque cabe aos sistemas naturais como, por exemplo, o regime hídrico que, 
+no Brasil, tem forte impacto sobre a oferta de energia, a segurança alimentar e da água 
+potável, a saúde pública, a logística e a moradia, principalmente da população vulne rabilizada. A amplitude dos impactos relacionados a água obriga ao tratamento 
+sistêmico das adaptações locais e setoriais, para que elas resultem, de fato, em resiliência. Sem um olhar para as microbacias hidrográficas as intervenções pontuais, importantes, não se completam para enfrentar os riscos nesse particular sistema.  
+ 
+Os cenários climáticos, reunidos no Adapta Brasil/INPE, mostram que todo o território 
+nacional está exposto a múltiplos impactos. Como os orçamentos públicos e privados disponíveis à adaptação são sempre limitados – se não escassos e deficitários - é preci so 
+selecionar prioridades e segui -las. Em termos administrativos significa perguntar “onde 
+estão as urgências?”  
+Entre as lacunas prioritárias, destaca -se a necessidade de ampliar a disseminação e a 
+aplicação do conhecimento já produzido, uma vez que, embora haja razoável avanço 
+acadêmico e técnico, seu uso pelos tomadores de decisão ainda é limitado. Também se 
+observa a falta de aprofundamento nos estudos de impactos e vulnerabilidades, tanto em 
+escala nacional quanto local, incluindo a criação de parâmetros e indicadores que orientem políticas públicas e a projeção de cenários climáticos futuros integrados ao desenv olvimento territorial. Soma -se a isso a ausência de métricas e indicadores 
+robustos, periodicamente atualizados e adequados às particularidades brasileiras. Outro 
+desafio relevante é a desconexão entre estratégias de adaptação e o planejamento 
+territorial e setorial nos níveis subnacionais, o que dificulta respostas coordenadas. Por 
+fim, permanece a carência de estudos que quantifiquem custos e benefícios de diferentes 
+medidas adaptativas, limitando a capacidade de valorar economicamente essas estratégias e  priorizar intervenções.  
+Entre os assuntos específicos a serem explorados, destacam -se aqueles relacionados à 
+adaptação de recursos hídricos, incluindo estudos regionalizados que analisem os impactos climáticos sobre a disponibilidade de água. Esse tema exige atenção diferenciada,  dado que regiões como o Sudeste demandam estratégias de adaptação e 
+maior eficiência no uso hídrico, enquanto o Sul enfrenta crescente imprevisibilidade 
+marcada por eventos extremos de cheias e secas. Nessa área, também se faz necessária 
+a análise de trad e-offs entre usos múltiplos da água em cenários de escassez. No campo 
+da adaptação urbana e da infraestrutura resiliente, há demanda por metodologias que orientem a priorização de investimentos em infraestrutura adaptativa, assim como por análises de custo -benefício comparando soluções baseadas na natureza e infraestrutura 
+cinza. Já no setor agropecuário, é fundamental avançar na avaliação de instrumentos como o Zoneamento Agrícola de Risco Climático (ZARC) e o Programa de Subvenção ao Prêmio do Seguro Rura l, além de desenvolver modelagens econômicas que estimem 
+perdas agrícolas sob diferentes cenários climáticos e avaliem os impactos das medidas de adaptação.  
+As contribuições esperadas incluem o desenvolvimento de instrumentos de apoio à decisão, com metodologias simplificadas que auxiliem na priorização de investimentos 
+adaptativos em contextos de recursos escassos. Espera -se também a produção de 
+subsídios para políticas públicas, oferecendo recomendações baseadas em evidências 
+que apoiem a elaboração e atualização dos 16 planos setoriais de adaptação previstos no Plano Clima. Outro resultado desejado é a redução de assimetrias informacionais, por meio de mater iais de comunicação capazes de traduzir evidências científicas para uma 
+linguagem acessível a gestores públicos e demais atores envolvidos. Além disso, busca -
+se o fortalecimento da governança multinível, com modelos que aprimorem a articulação entre União,  estados e municípios na implementação de ações de adaptação.  
+ 
+ TEMA 2: MACROECONOMIA E MEIO AMBIENTE/ MUDANÇAS CLIMÁTICAS  
+O campo da macroeconomia climática investiga as interações bidirecionais entre variáveis 
+macroeconômicas e as mudanças climáticas. Engloba tanto os impactos dos fenômenos climáticos sobre a economia como os efeitos das políticas econômicas sobre trajetória s 
+de emissões e resiliência climática.   
+Entre as lacunas prioritárias identificadas, destaca -se a necessidade de avançar na 
+modelagem macroclimática, de modo a incorporar de forma consistente os impactos 
+climáticos e ambientais aos modelos macroeconômicos. Há também carência de 
+métricas robustas que permitam avaliar a exposição setorial e geográfica a riscos 
+climáticos. Outro ponto crítico é a insuficiência de análises sobre a precificação de carbono e seus efeitos macroeconômicos e distributivos, especialmente no que se refere 
+ao impacto do merc ado regulado de carbono sobre a economia, a competitividade setorial 
+e diferentes grupos populacionais. Além disso, observa -se a ausência de metodologias 
+consolidadas para integrar política fiscal e climática, o que dificulta a avaliação da 
+coerência entre  gastos públicos e objetivos de descarbonização.  
+Entre os assuntos específicos a serem explorados, destacam -se aqueles relacionados aos 
+riscos climáticos e à estabilidade financeira, incluindo o aprofundamento de análises 
+sobre a exposição setorial e regional do sistema financeiro a riscos físicos e de t ransição, 
+bem como estudos que dimensionem a  vulnerabilidade dos bancos brasileiros diante da 
+perda de biodiversidade e de serviços ecossistêmicos. No campo da política fiscal e clima, há espaço para o desenvolvimento de metodologias de classificação e ras treamento de 
+gastos climáticos no orçamento público, para análises sobre subsídios com impactos ambientais negativos e respectivas propostas de reforma, além da avaliação de mecanismos de excepcionalidade fiscal destinados a responder a eventos climáticos extremos. Já no âmbito dos impactos macroeconômicos setoriais e agregados, é relevante 
+avançar na modelagem de choques climáticos sobre produtividade agrícola, preços de 
+alimentos e inflação, assim como compreender os efeitos de restrições hídricas sobre a  
+matriz energética e os custos de produção. Esses elementos devem ser analisados de 
+forma integrada, considerando seus impactos sobre a economia como um todo, incluindo 
+variáveis como PIB, preços, política monetária e finanças públicas.  
+Em relação às contribuições esperadas dos projetos de pesquisa enquadrados nesta linha temática, encontram -se o aprimoramento dos modelos de previsão econômica por meio 
+da incorporação de variáveis climáticas nas projeções macroeconômicas, bem como o 
+desen volvimento de instrumentos de política fiscal verde que permitam alinhar o 
+orçamento público às metas climáticas nacionais, sem deixar de levar em conta a questão 
+da sustentabilidade fiscal. Espera -se também o avanço de ferramentas práticas para 
+apoiar a g estão de riscos no sistema financeiro, possibilitando que instituições financeiras 
+avaliem e reportem de maneira mais consistente sua exposição a riscos climáticos. Além 
+disso, são desejáveis análises que ofereçam subsídios ao posicionamento brasileiro em negociações internacionais, especialmente em temas relacionados ao financiamento climático e às barreiras comerciais.  
+TEMA 3: MICROECONOMIA E CLIMA   
+ A interface entre microeconomia e mudanças climáticas constitui um eixo central para 
+compreender como decisões descentralizadas de firmas, consumidores, produtores 
+ 
+rurais, investidores, instituições financeiras e gestores públicos determinam trajetórias de 
+emissões, adaptação, inovação tecnológica e realocação de capital. A abordagem microeconômica permite modelar e quantificar como agentes respondem a incentivos, restrições orçamentárias, estruturas de mercado e expectativas sob incerteza, oferecendo 
+bases analíticas sólidas para avaliar eficiência alocativa, falhas de mercado e o desenho de políticas climáticas.  
+Choques climáticos, sejam físicos, como eventos extremos, aumento de temperatura e 
+variabilidade hídrica, sejam de transição, como mudanças regulatórias, precificação de 
+carbono e transformações tecnológicas e de preferências, afetam funções de produção, 
+custos marginais, produtividade total dos fatores, estrutura de custos e decisões 
+intertemporais de investimento. A análise microeconômica permite identificar como esses choques se propagam ao nível das firmas e setores, influenciando organização industrial , 
+dinâmica concorrencial, poder de mercado, risco financeiro e difusão tecnológica. 
+Também oferece instrumental rigoroso para avaliar instrumentos de política pública, como 
+impostos, subsídios, padrões regulatórios, garantias, contratos e mecanismos de 
+mer cado, à luz de critérios de eficiência, equidade e custo -benefício.  
+A relevância deste tema decorre da necessidade de produzir evidências empíricas e 
+modelos estruturais capazes de orientar decisões em um contexto de elevada incerteza 
+climática, riscos sistêmicos crescentes e potenciais efeitos distributivos significativos. A transição para uma economia de baixo carbono envolve realocações relevantes de capital, trabalho e tecnologia e exige compreensão detalhada dos mecanismos microeconômicos que moldam incentivos, barreiras à entrada, custos de ajuste e assimetrias de inf ormação.  
+Entre as agendas de pesquisa associadas a esta linha destacam -se os estudos sobre 
+impactos de variáveis climáticas nas decisões produtivas, incluindo efeitos de temperatura, precipitação e eventos extremos sobre produtividade, escolha de insumos e 
+intensid ade energética; análises de custos marginais e eficiência operacional diante de 
+choques climáticos e regulatórios; investigações sobre dinâmica de mercado e 
+organização industrial, com foco em entrada e saída de firmas, consolidação e 
+reestruturação de cad eias produtivas; pesquisas sobre decisões de investimento sob 
+incerteza, especialmente em ativos de longa maturação e infraestrutura resiliente; 
+estudos sobre comportamento intertemporal de consumidores e empresas, considerando formação de expectativas, av ersão ao risco e desconto temporal; análises sobre adoção e 
+difusão de tecnologias de baixo carbono, com atenção às barreiras financeiras, institucionais e informacionais; e avaliações microeconômicas de políticas climáticas, incluindo efeitos sobre bem -estar, competitividade e distribuição de renda.  
+O objetivo desta linha temática é estimular pesquisas que aliem rigor teórico e empírico à relevância aplicada, contribuindo para o desenho de políticas públicas mais eficazes e 
+para estratégias empresariais consistentes com a transição climática e a trans formação 
+estrutural da economia.  
+ 
+TEMA 4: FINANÇAS PÚBLICAS E MUDANÇAS CLIMÁTICAS  
+O campo de Finanças Públicas e Mudanças Climáticas analisa como o Estado usa seus 
+instrumentos fiscais, tributários e orçamentários para orientar a ação climática. A 
+ 
+transição para uma economia de baixo carbono depende da capacidade pública de 
+direcionar recursos, ajustar incentivos e lidar com riscos crescentes. Nesse contexto, orçamento e planejamento fiscal tornam -se decisivos para integrar metas ambientais à 
+políti ca econômica, influenciando tanto a qualidade do gasto quanto o ritmo das ações de 
+mitigação e adaptação.  
+A escolha do tema se justifica porque políticas climáticas só ganham escala quando 
+apoiadas por planejamento fiscal sólido e instituições capazes de executar investimentos 
+de longo prazo. No Brasil, onde eventos extremos já afetam finanças públicas e servi ços 
+essenciais, a falta de ação tem custo elevado. Por outro lado, reformas fiscais, revisão de 
+subsídios e maior previsibilidade regulatória podem abrir espaço para investimentos públicos e privados que fortalecem a resiliência econômica e ambiental.  
+A proposta temática parte de lacunas ainda pouco enfrentadas: ausência de métricas fiscais para riscos climáticos, baixa articulação entre orçamento e metas nacionais e falta de instrumentos contínuos para avaliar impactos fiscais da mudança do clima. A pa rtir 
+disso, sugerem -se temas aplicados como financiamento climático subnacional, 
+instrumentos tributários verdes, mecanismos fiscais de adaptação e métodos para incorporar riscos climáticos ao ciclo orçamentário. As contribuições esperadas incluem 
+orientaç ões práticas, modelos de governança e ferramentas que auxiliem gestores 
+públicos a integrar sustentabilidade fiscal e climática de forma consistente.  
+ 
+ANEXO 2 –  DÚVIDAS FREQUENTES  
+1) Os documentos enviados na segunda etapa de seleção podem ser apenas cópias 
+digitais?  
+Sim, os documentos solicitados devem ser cópias digitais.  
+2)  Organizações com projetos em execução com apoio do iCS podem encaminhar 
+propostas para esta chamada?  
+Sim, podem submeter proposta, mas cientes de que serão selecionados, prioritariamente, projetos de organizações que não tenham projetos em andamento com o iCS.  
+3)  Poderá participar desta chamada uma organização que tem pendências em 
+prestação de contas com o iCS?  
+Sim, mas se selecionadas na primeira etapa de seleção, organizações com pendência em 
+prestação de contas deverão regularizar todas as pendências como condição para 
+participar da segunda etapa de seleção.  
+4)  É preciso uma conta bancária jurídica para receber o recurso?  
+Sim, é necessária uma conta bancária de pessoa jurídica para receber os recursos do 
+projeto. A conta bancária deve estar no nome e CNPJ da organização proponente. Contas 
+bancárias de pessoas físicas não serão aceitas.  
+ 
+Caso a organização proponente não tenha CNPJ, não tenha conta bancária ou não tenha 
+capacidade de gerir os recursos, é possível que a organização proponente estabeleça uma parceria com uma “organização financeira” para gerir os recursos. Neste caso, a cont a 
+bancária deverá estar no nome e CNPJ da organização financeira.  
+5) É necessário abrir uma conta bancária específica para a gestão do recurso do projeto?  
+Não. Se o projeto for aprovado, pode -se usar uma conta bancária que também seja usada 
+para outras finalidades.  
+6) Posso transferir o recurso da conta da Organização para uma outra conta? Posso sacar todo o recurso da conta da Organização e ficar com o valor em espécie?  
+Não, em hipótese alguma o recurso pode sair da conta da organização proponente para conta de terceiros (isso inclui presidente, vice -presidente e integrantes da organização), e 
+nem ser sacado integralmente. Só poderá ser transferido para pagamento de despe sas 
+previstas no projeto, em uma relação direta , saindo da conta da organização para a conta 
+do fornecedor ou prestador de serviços, comprovado mediante nota fiscal ou recibo.  
+7) Consta no item 7 do edital que “a organização proponente deve indicar uma pessoa física, residente no Brasil, maior de 18 anos, como sua representante legal. Essa pessoa deve possuir autorização para atuar em nome da organização no momento 
+da submissão da proposta.”  Como a organização proponente deve comprovar que 
+autoriza uma pessoa a submeter a proposta em seu nome?  
+Esta comprovação deverá ser feita apenas caso seja solicitada pelo iCS. Se houver tal solicitação e ela não for atendida, a organização proponente poderá ser desclassificada do processo seletivo.  
+8) Trabalho em uma universidade pública que não tem como fazer a gestão dos recursos, e , portanto, precisarei de uma organização financeira. Como escolher 
+esta organização?  
+A escolha da organização financeira é responsabilidade da organização proponente.  O iCS não participa desta escolha. A organização financeira deve ser  uma fundação universitária 
+que tenha vínculo formal com a universidade . Na segunda etapa, será obrigatório 
+comprovar que a instituição que atuará como organização financeira tem um documento 
+que estabeleça sua relação com a universidade ou com a instituição pública de pesquisa.  
+Atenç ão: nem toda instituição pode fazer pagamentos através de bolsa de pesquisa. É de 
+responsabilidade do coordenador do projeto verificar se a organização financeira escolhida faz pagamento de bolsa , para poder fazer um orçamento que seja compatível 
+com o que se pode pagar.  

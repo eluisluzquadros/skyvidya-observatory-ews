@@ -2,7 +2,7 @@
 <img width="800" alt="Skyvidya Observatory EWS" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 
 # Skyvidya Observatory — Early Warning System (EWS)
-**v2.1 · Monitoramento Inteligente de Desastres Naturais no Brasil**
+**v2.2 · Monitoramento Inteligente de Desastres Naturais no Brasil**
 </div>
 
 Plataforma de comando e análise geoespacial de desastres naturais no Brasil. Agrega dados reais do **S2ID** e **Atlas Digital** com análise espacial avançada (LISA/MCDA), visualização 3D/2D, IA generativa (Gemini), busca geoespacial semântica e design system 2026.
@@ -44,7 +44,7 @@ Python FastAPI (:8000)           [analytics microservice]
 
 ### Dados Reais
 - **45.942 eventos** do Atlas Digital (1994–presente) via `database.json`
-- **5.572 municípios** com scores MCDA calculados pelo pipeline Python
+- **5.573 municípios** com scores MCDA calculados pelo pipeline Python
 - **Filtros server-side** por período: presets 1A / 2A / 5A / 10A / 20A / HIST e calendário customizado DE→ATÉ
 - **Datas reais** no formato DD/MM/AAAA — sem dados fictícios gerados por IA
 
@@ -53,13 +53,16 @@ Python FastAPI (:8000)           [analytics microservice]
 - **LISA** (Notebook 01): Local Moran's I para 8 variáveis core, clusters HH/HL/LH/LL
 - **MCDA** (Notebook 02): 8 critérios MinMax → score de risco → 5 categorias + tendência
 - **Output**: `risk_analysis.json` (8.5MB), `lisa_clusters.json` (3.4MB), `municipality_geometries.geojson` (10MB)
+- **Reporting Assets**: 7 PNGs (matplotlib) + 1 CSV exportáveis via endpoint
 - Runtime: ~107s para Brasil completo
 
 ### IA & Análise
 - **Oracle AI** (Gemini 2.5 Flash) — insights enriquecidos com contexto MCDA real
-- **GeoRAG** — queries em linguagem natural sobre perfis de risco municipal (DuckDB)
+- **GeoRAG** — queries em linguagem natural sobre perfis de risco municipal (ChromaDB + DuckDB)
+- **LLM Content** — narrativas profissionais por município/estado via Gemini
 - **News Validation** — correlação de eventos com notícias via Gemini
 - **Economic Impact** — análise de impacto econômico por evento
+- **Kepler.gl Config** — visualização avançada + exportação CSV/GeoJSON dos resultados GeoRAG
 
 ---
 
@@ -184,10 +187,13 @@ s2id-disaster-monitor/
 - [x] **Fase 8** — Gemini enriquecido com contexto MCDA
 - [x] **Fase 9** — Design System 2026 + rebrand Skyvidya Observatory EWS
 - [x] **Fase 10** — Sidebar hide/show (ambos) + auto-select evento mais recente
-- [ ] **Fase A** — Reporting Assets: mapas PNG + tabelas CSV via Notebook 03
-- [ ] **Fase B** — AI Content Framework: narrativas por município/estado (Notebook 04)
-- [ ] **Fase C1** — GeoRAG Semântico: ChromaDB + embeddings multilíngues
-- [ ] **Fase C2+C3** — Kepler.gl config + exportação CSV/GeoJSON
+- [x] **Fase A** — Reporting Assets: mapas PNG + tabelas CSV via pipeline + endpoint Express
+- [x] **Fase B** — AI Content Framework: narrativas por município/estado via Gemini (Notebook 04)
+- [x] **Fase C** — GeoRAG Semântico: ChromaDB + Kepler.gl + exportação CSV/GeoJSON
+- [x] **Fase 11** — Data Quality: Atlas dedup (Protocolo_S2iD), UF normalization, UTF-8 mojibake fix, server-side stats
+- [ ] **Fase 12** — Monitoramento Produção: retry logic, alertas de falha, logs persistentes
+- [ ] **Fase 13** — AI Assistant unificado (Oracle + GeoRAG → chatbot flutuante único)
+- [ ] **Fase 14** — Módulo financeiro: impacto econômico por município/evento
 
 ---
 

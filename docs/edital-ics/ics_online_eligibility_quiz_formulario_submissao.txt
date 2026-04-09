@@ -1,0 +1,156 @@
+Sistema de Gestão de Doações iCS
+ 
+ 
+EDIT AL ICS ED04   -   Inscrição  
+Preencha abaixo sua pr oposta para o Edital de Chamada Publica ICS ED04 - CLIMA  NA ECONOMIA: INTEGRANDO A QUESTÃO CLIMÁTICA  À AGENDA  ECONÔMICA.
+Você pode enviar  sua pr oposta até o dia 08/04/2026 , até as 16h do horário de Brasília. Havendo dúvidas, consulte o edital e outr os documentos disponíveis em:   https://climaesociedade.org/editais
+Depois de ler  o regulamento com atenção, se r estar  alguma dúvida, escr eva para edital@climaesociedade.org  (preencher  campo do Assunto com "Edital 04 - Economia" e em seguida o tema da sua dúvida).  O iCS r esponderá as dúvidas r ecebidas até 06 de abril de 2026, às 18:00 (horário de Brasília).
+Instruções para pr eenchimento:
+- Note que não é possível salvar  suas r espostas ao formulário abaixo. O formulário pr ecisa ser  todo pr eenchido e enviado em seguida.
+- Recomendamos fortemente que primeir o preencha as r espostas em um ar quivo Word, e em seguida copie e cole para o formulário abaixo.
+- Alguns campos têm limite no númer o de caracter es. Sugerimos, no Word, verificar  o tamanho do texto de cada campo antes de colar  no formulário. Se o texto for  maior  do que o permitido, o formulário não será submetido até o texto ser  reduzido para o tamanho aceitável. A contagem de caracter es inclui espaços.
+- Os campos em negrito são obrigatórios.
+- Os campos que possuem duas linhas em diagonal no canto inferior  direito podem ser  aumentados, passando o mouse em cima das linhas e puxando-o para baixo.
+- Ao terminar  de pr eencher , confira tudo e depois clique em “Submit Request”.
+ 
+ 
+ 
+CADASTRO
+1- ORGANIZAÇÃO PROPONENTE
+Organização principal a liderar a implementação deste pr ojeto, caso seja selecionado.
+1. Nome da or ganização  
+Se for uma or ganização com CNPJ próprio, informe a razão social conforme consta no CNPJ.
+Se for uma unidade de uma universidade, informe o nome da universidade e da unidade específica r esponsável pela pr oposta. Exemplo: Universidade Federal X, Departamento Y
+2. Sigla ou Nome Fantasia  
+3. Site e/ou Redes Sociais  
+1. Pais Brazil
+2. Estado  
+4. Cidade  
+5. Endereço  
+6. Bairro  
+7. CEP 
+8. Ano da fundação  
+Se for uma or ganização com CNPJ próprio, informe o ano em que foi criada a or ganização.
+Se for uma unidade de uma universidade ou instituição pública de pesquisa, ou privada sem fins lucrativos informe o ano em que foi criada a unidade específica.
+Se for uma or ganização sem CNPJ, informe o primeir o ano de atividades estruturadas.
+9. A organização possui CNPJ ?  
+ 
+2- OUTRAS ORGANIZAÇÕES ENVOLVIDAS NO PROJETO
+10. 2.a) Or ganização financeira
+Se a or ganização proponente não tiver CNPJ e/ou conta bancária própria, ou ainda, se for uma unidade de uma universidade ou instituição pública de pesquisa sem capacidade para gerir recursos, é possível indicar uma or ganização financeira para fazer a gestão dos recursos (conforme itens 5 e 6.3 do regulamento). Se for usar “or ganização
+financeira”, escreva o nome e CNPJ da or ganização e justifique a necessidade. Se não houver or ganização financeira, informe: “a or ganização proponente fará a gestão dos recursos”.
+11. 2.b) Parcerias e Alianças
+Se estiver prevista a colaboração técnica com outras or ganizações, informe o nome e site das or ganizações parceiras. Explique a relação institucional entre a or ganização proponente e as or ganizações parceiras, e explique como as or ganizações parceiras colaborarão com sua proposta.
+ 
+3- CONTATOS
+12. Representante legal
+Se a or ganização for selecionada, é esta pessoa quem irá assinar o contrato representando a or ganização proponente, e deve ter poder legal para isso. Escreva o nome completo, exatamente como deverá constar no contrato, CPF , telefone e e-mail desta pessoa.
+ 
+Responsável  pela execução do pr ojeto
+Pessoa que iCS deverá contatar se pr ojeto for selecionado para a 2ª etapa de seleção.  Se o pr ojeto for apr ovado, é quem irá coor denar a implementação do pr ojeto e será r esponsável pelo conteúdo do Relatório Narrativo. Escr eva nome, CPF , telefone e e-mail desta pessoa. Atenção : Pessoas físicas só podem se apr esentar como r epresentante de
+uma or ganização legalmente constituída se tiver em autorização prévia da parte r epresentada no momento da submissão da pr oposta. No caso de universidades, apenas pr ofessor es e/ou pesquisador es formalmente contratados pela universidade podem se apr esentar como r epresentantes de uma universidade.
+13. Primeiro Nome  
+14. Sobrenome  
+15. CPF 
+16. Cargo 
+17. E-mail  
+18. Telefone (com DDD)  
+ 
+ 
+PROPOST A NARRA TIVA
+4- LINHAS TEMÁTICAS
+Qual das 4 linhas temáticas apr esentadas no edital a sua pr oposta de atividades ender eça? (selecione apenas 1 opção)
+19. 1. Tema 1: Adaptação às Mudanças Climáticas
+2. Tema 2: Macroeconomia e Meio Ambiente / Mudanças Climáticas
+3. Tema 3: Microeconomia e Clima
+4. Tema 4: Finanças Públicas e Mudanças Climáticas
+ 
+20. 5- TÍTULO DO PROJET O 
+O título deve ser uma frase, de cer ca de 5 a 10 palavras, que destaque o foco do pr ojeto e sua principal contribuição. 
+[Máximo de 80 caracter es com espaço]
+ 
+21. 6- RESUMO DO PROJET O
+Escreva um breve resumo com os elementos essenciais. O resumo deve apresentar , de forma clara e sintética, os elementos centrais do projeto, evidenciando: • O alinhamento com os objetivos do edital e com a interface entre economia e clima, no âmbito da pesquisa aplicada. • A linha temática da proposta e o problema ou lacuna que pretende
+enfrentar . • A abordagem ou solução proposta (indicando se a iniciativa é nova ou já em curso). • Os principais resultados esperados e sua relevância para a tomada de decisão em políticas públicas, empresas ou investimentos. • Os potenciais interlocutores do projeto e de seus resultados.
+Characters left for field: 500
+ 
+22. 7- DESCRIÇÃO DO PROJET O
+Para responder os itens abaixo, fica a seu critério escrever um texto único ou or ganizar sua resposta em itens a/b/c etc. Recomenda-se que a descrição contemple, no mínimo, os seguintes aspectos:
+a) Problema ou desafio a ser enfrentado dentro da linha temática escolhida: definição clara do problema, lacuna de conhecimento ou desafio prático relacionado à interface entre economia e clima.
+b) Solução proposta: descrição da abordagem, pesquisa, ferramenta ou modelo a ser desenvolvido ou fortalecido, indicando seu caráter aplicado.
+c) Objetivos do projeto: resultados que se pretende alcançar e sua relevância para políticas públicas, práticas empresariais ou decisões de investimento.
+d) Metodologia e abordagem: principais métodos, estratégias analíticas e fontes de dados a serem utilizados.
+e) Resultados e entregas esperadas: produtos previstos, com destaque para formatos orientados à tomada de decisão (conforme item 9 do Edital)
+f) Aplicabilidade e uso dos resultados: como e por quem os resultados poderão ser utilizados.
+g) Estágio da iniciativa: indicação se o projeto é novo ou já está em fase de aplicação, quando pertinente.
+h) Contribuições adicionais: formação de pesquisadores, fortalecimento institucional ou impacto regional, quando aplicável. A descrição deve evidenciar o caráter aplicado da proposta e seu potencial de impacto concreto na agenda de economia e clima.
+Characters left for field: 3000
+ 
+23. 8- CAP ACIDADE DE EXECUÇÃO DO PROJET O
+Segundo consta no edital, os projetos selecionados deverão demonstrar potencial de uso prático, indicando como seus resultados podem influenciar decisões econômicas, regulatórias, institucionais ou operacionais em diferentes escalas territoriais. Mostre-nos que condições existem para que isso aconteça. Inclua em sua resposta:
+a) Que problema concreto, lacuna de conhecimento ou desafio de tomada de decisão na interface entre economia e clima a proposta busca enfrentar , e por que ele é relevante para políticas públicas, estratégias empresariais ou decisões de investimento?
+b) Que conhecimento, ferramenta ou modelo a proposta pretende desenvolver , fortalecer ou escalar , e em que medida essa abordagem é original e adequada ao contexto brasileiro ou regional?
+c) Como os resultados do projeto serão utilizados na prática e quem são os principais interlocutores (ex.: gestores públicos, empresas, setor financeiro)? Qual o potencial de impacto para a transição climática?
+d) Qual a experiência prévia da equipe e da instituição proponente em temas econômicos e/ou climáticos e em pesquisa aplicada, e como o projeto contribui para o amadurecimento científico, a formação de pesquisadores e o fortalecimento de capacidades institucionais ou regionais?
+e) Quais os métodos de pesquisa que serão adotados no desenvolvimento do projeto, seja para a produção de conhecimento, ferramentas ou modelos?
+Characters left for field: 2000
+ 
+24. 9- PÚBLICO DIRET O E INTERLOCUT ORES DO PROJET O
+Descreva o público direto e os potenciais interlocutores do projeto. O público direto são os grupos com quem o projeto interage diretamente para realizar suas entregas, e os interlocutores são os grupos que poderão se envolver diretamente com os resultados do projeto, apropriando-se deles em seus processos de atuação e de tomadas de decisão (p.
+ex. setores público, privado e financeiro) . Eles podem ou não ser os mesmos grupos.
+Characters left for field: 400
+ 
+25. 10- RISCOS E MITIGAÇÃO DOS RISCOS
+Identifique os principais riscos para o sucesso do projeto, informando qual sua natureza (Operacional, Reputação, Financeiro, Político, Segurança, Técnico, entre outros que julgar pertinentes) e descreva como pretende mitigá-los.
+Characters left for field: 800
+ 
+ORÇAMENT O DO PROJET O
+26. 11.a) Valor total solicitado R$  
+Digitar apenas númer os, sem centavos.
+O valor máximo é de R$500.000.
+ 
+27. 11.b) Descrição simplificada do orçamento
+Liste os recursos necessários usando no máximo 8 CA TEGORIAS de orçamento
+1. Salários, encar gos e benefícios 2. Serviços de Terceiros 3. Despesas com Viagens 4. Eventos e Divulgação 5. Despesas Administrativas Se necessário, crie as categorias 6, 7 e 8 - Escreva o nome da categoria desejada Informe o valor desejado para cada categoria orçamentária e o valor estimado total do projeto. (Máximo de 400 caracteres)
+Characters left for field: 500
+ 
+EXPERIÊNCIA
+28. 12- COORDENAÇÃO E EQUIPE SÊNIOR DO PROJET O 
+Informe o nome, a função desempenhada, mini-bio das pessoas que compõe a coordenação do projeto e a equipe técnica sênior que estará à frente deste projeto. No máximo 5 pessoas, apenas aquelas que assumirão maior responsabilidade neste projeto.
+Characters left for field: 2000
+ 
+29. 13- HISTÓRICO DA  ORGANIZAÇÃO PROPONENTE
+Informe os 3 principais temas que sua or ganização trabalha. Informe a experiência prévia da or ganização proponente relevante para a proposta que está sendo submetida. Se já tiver executado projetos similares, descreva-os resumidamente. Se houver , insira links para publicações relevantes, será um diferencial. Se for uma or ganização sem CNPJ, é
+obrigatório fornecer evidências de atuação há pelo menos dois anos.
+Characters left for field: 3000
+ 
+30. 14- RECEIT A TOTAL DA ORGANIZAÇÃO em 2025 
+Digitar apenas númer os, sem centavos
+Universidades e instituições públicas de pesquisa n ão pr ecisam pr eencher este campo
+ 
+ 
+FINALIZANDO
+31. 15- COMENTÁRIOS ADICIONAIS 
+Preenchimento Opcional. Qualquer outra informação relevante para entendermos sua proposta, o contexto em que atua etc. 
+(Máximo de 2000 caracteres)
+Characters left for field: 2000
+ 
+16- DECLARAÇÕES
+32. 
+- Atendo a todos os requerimentos do Regulamento;
+- O coordenador do projeto possui as qualificações necessárias conforme item 6 do Edital 04 - Economia e Clima.
+- Tenho autorização da or ganização proponente para submeter esta proposta em seu nome;
+- Não estou vinculado direta ou indiretamente às partes or ganizadoras;
+- Estou ciente de que:
+a) o processo seletivo inclui duas etapas;
+b) projetos selecionados devem começar sua execução logo após a assinatura de contrato, prevista para setembro 2026, e que o limite máximo de vigência da doação é até 24 meses, acrescido de um mês para a submissão dos relatórios finais.
+ 
+ 
+Cancel Submit Request
+loi
+Loi
+/lois?q=&type=&view=filter
+style-lois
+["bar","line","donut"]
+Privacy Policy
+Accessibility

@@ -1,7 +1,7 @@
-# PRD — Skyvidya Observatory EWS v2.1
+# PRD — Skyvidya Observatory EWS v2.2
 **Produto:** Skyvidya Observatory: Early Warning System (EWS)
-**Versão:** 2.1
-**Última atualização:** 2026-03-18
+**Versão:** 2.2
+**Última atualização:** 2026-03-20
 **Status:** Em desenvolvimento ativo
 
 ---
@@ -41,7 +41,7 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 - Design dark-theme Command Center
 
 ### F3 — Mapa Coroplético 2D ✅
-- Polígonos municipais (5.572 municípios, GeoJSON 10MB)
+- Polígonos municipais (5.573 municípios, GeoJSON 10MB)
 - 4 modos de cor: `riskCategory`, `trend`, `principalThreat`, `lisaCluster`
 - Zoom/pan com d3-zoom, click para seleção, tooltip
 - Toggle Globe ↔ Mapa via ViewToggle
@@ -92,56 +92,73 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 
 ---
 
-## Funcionalidades Planejadas (Roadmap)
-
-### FASE A — Reporting Assets (Notebook 03)
-**Prioridade:** Alta
-**Descrição:** Pipeline gera assets visuais estáticos (PNG) e tabelas (CSV) para relatórios
+### FASE A — Reporting Assets (Notebook 03) ✅
+**Status:** Implementado (commit `e38988b`)
 
 - `analytics/pipeline/reporting_charts.py` com matplotlib/seaborn
-- 7 mapas PNG: risco MCDA, tendência, ameaça principal, 4 mapas LISA
-- 3 gráficos de distribuição (bar chart, pie, top-5 ameaças)
-- 1 tabela CSV: top-N municípios por score
+- 7 mapas PNG + 3 gráficos de distribuição + 1 tabela CSV
 - Endpoints Express: `GET /api/analytics/report-assets` e `GET /api/analytics/report-assets/:file`
-- Frontend: seção "Relatório Visual" no AnalyticsPanel com thumbnails clicáveis
-
-**Entregável:** Pipeline gera 7 PNGs + 1 CSV. Frontend exibe thumbnails com modal fullscreen.
+- Bronze data integration + ImportModal fix
 
 ---
 
-### FASE B — AI Content Framework (Notebook 04)
-**Prioridade:** Alta
-**Descrição:** Narrativas textuais profissionais por município/estado via Gemini
+### FASE B — AI Content Framework (Notebook 04) ✅
+**Status:** Implementado (commit `b95fcaa`)
 
 - `analytics/llm_generation.py` — classe `LLMContentGenerator`
 - Funções: `extract_kpis()`, `generate_executive_summary()`, `generate_risk_narrative()`, `generate_recommendations()`, `generate_impact_projection()`
 - Endpoints FastAPI: `POST /llm/generate-report`, `GET /llm/report/{uf}`
 - Proxy Express: `POST /api/analytics/llm/generate`, `GET /api/analytics/llm/report/:scope`
-- Frontend: botão "Gerar Relatório IA" por UF, seção expandível com markdown renderizado
-
-**Entregável:** Click "Gerar Relatório IA para RS" → narrativa profissional com KPIs reais.
 
 ---
 
-### FASE C1 — GeoRAG Semântico (Notebook 05)
-**Prioridade:** Média
-**Descrição:** Busca vetorial com embeddings para complementar o rule-based atual
+### FASE C — GeoRAG Enhanced (Notebook 05) ✅
+**Status:** Implementado (commit `c343d8e`)
 
 - ChromaDB persistido em `analytics/data/chroma/`
 - Modelo: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
 - `semantic_search()` + `hybrid_query()` (rule-based + semântico com re-ranking)
-
-**Entregável:** GeoRAG com busca semântica + resultados notavelmente melhores.
+- Kepler.gl config: `GET /api/analytics/georag/kepler-config`
+- Exportação CSV/GeoJSON: `POST /api/analytics/georag/export`
 
 ---
 
-### FASE C2+C3 — Kepler.gl + Exportação
-**Prioridade:** Baixa
-**Descrição:** Config Kepler.gl para resultados GeoRAG + exportação CSV/GeoJSON
+### FASE 11 — Data Quality & Bugfixes ✅
+**Status:** Implementado (commits `982c683`, `10c9137`, `51267f5`, `2536a42`)
 
-- `prepare_kepler_config()` no engine GeoRAG
-- Endpoints: `/api/analytics/georag/kepler-config`, `/api/analytics/georag/export`
-- Frontend: botões "Exportar CSV" e "Exportar GeoJSON" após cada resposta GeoRAG
+- Atlas dedup: `Protocolo_S2iD` como ID único — 28.643 colisões resolvidas
+- UF normalization: uppercase enforced — 1 registro inválido removido
+- Server-side stats: aggregation no Express — eliminação do limite de 2k eventos
+- UTF-8 mojibake fix: `fix_mojibake()` em `report_data.py` — corrige dupla codificação UTF-8 → Latin-1
+
+---
+
+## Funcionalidades Planejadas (Roadmap)
+
+### FASE 12 — Monitoramento Produção
+**Prioridade:** Alta
+**Descrição:** Resiliência operacional para coleta contínua
+
+- Retry logic para scrapes com falha (exponential backoff)
+- Alertas email/Slack para falhas de coleta
+- Logs persistentes com rotação
+- Métricas de taxa de sucesso ao longo do tempo
+
+---
+
+### FASE 13 — AI Assistant Unificado
+**Prioridade:** Alta
+**Descrição:** Merge Oracle + GeoRAG em chatbot flutuante único
+
+- Botão FAB (Floating Action Button) substitui painéis Oracle/GeoRAG separados
+- Router de intent unificado que direciona para contexto MCDA ou busca semântica
+- Libera 2 slots na sidebar direita
+
+---
+
+### FASE 14 — Módulo Financeiro
+**Prioridade:** Baixa
+**Descrição:** Tracking de impacto econômico associado a eventos críticos
 
 ---
 
@@ -167,7 +184,7 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 | Métrica | Baseline | Target |
 |---|---|---|
 | Tempo de carregamento inicial | 45k registros client-side | < 2k registros com filtro server-side |
-| Cobertura de municípios MCDA | 0 | 5.572 (100% Brasil) |
+| Cobertura de municípios MCDA | 0 | 5.573 (100% Brasil) |
 | Pipeline runtime | — | < 120s para Brasil todo |
 | Precisão GeoRAG | Apenas rule-based | Hybrid (rule + semântico) |
 | Cliques para ver dados do evento | 1 clique obrigatório | 0 cliques (auto-select) |

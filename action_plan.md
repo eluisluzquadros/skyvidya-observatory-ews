@@ -1,5 +1,5 @@
 # Action Plan — Skyvidya Observatory EWS
-**Última atualização:** 2026-03-18
+**Última atualização:** 2026-03-20
 
 ---
 
@@ -75,6 +75,29 @@
 
 ---
 
+## Fase A — Reporting Assets ✅
+- [x] `reporting_charts.py` com matplotlib — 7 PNGs + 1 CSV
+- [x] Endpoints Express: `GET /api/analytics/report-assets`, `GET /api/analytics/report-assets/:file`
+- [x] Bronze data integration + ImportModal fix
+
+## Fase B — AI Content Framework ✅
+- [x] `LLMContentGenerator` com Gemini
+- [x] Endpoints FastAPI: `POST /llm/generate-report`, `GET /llm/report/{scope}`
+- [x] Proxy Express: `POST /api/analytics/llm/generate`, `GET /api/analytics/llm/report/:scope`
+
+## Fase C — GeoRAG Enhanced ✅
+- [x] ChromaDB + `sentence-transformers` multilíngue para busca vetorial
+- [x] Kepler.gl config: `GET /api/analytics/georag/kepler-config`
+- [x] Exportação: `POST /api/analytics/georag/export` (CSV/GeoJSON)
+
+## Fase 11 — Data Quality & Bugfixes ✅
+- [x] Atlas dedup: `Protocolo_S2iD` como ID único — resolveu 28.643 colisões de registros
+- [x] UF normalization: uppercase enforced — corrigiu 1 registro inválido
+- [x] Server-side aggregation: stat cards calculados no backend — eliminava distorção do limite de 2k eventos
+- [x] UTF-8 mojibake fix: `fix_mojibake()` em `report_data.py` — corrigiu 'MÃ©dio' → 'Médio', 'EstÃ¡vel' → 'Estável'
+
+---
+
 ## Estatísticas do Dataset
 
 | Métrica | Valor |
@@ -82,7 +105,7 @@
 | Total de registros | 45.942 |
 | Registros Atlas | 42.734 |
 | Registros S2ID | 3.207 |
-| Municípios com MCDA | 5.572 |
+| Municípios com MCDA | 5.573 |
 | Estado mais afetado | MG (5.716) |
 | Tipo mais frequente | Estiagem (19.741) |
 | Período | 1991 – 2025 |
@@ -92,14 +115,14 @@
 ## Próximas Ações Prioritárias
 
 ### Alta Prioridade
-1. **[FASE A]** Reporting Assets — `reporting_charts.py` com matplotlib; 7 PNGs + 1 CSV; endpoint Express + thumbnails no AnalyticsPanel
-2. **[FASE B]** AI Content Framework — `LLMContentGenerator` com Gemini; narrativas por UF via FastAPI; botão "Gerar Relatório IA" no frontend
+1. **[FASE 12]** Monitoramento Produção — retry logic para scrapes com falha, alertas email/Slack, logs persistentes com rotação
+2. **[FASE 13]** AI Assistant Unificado — merge Oracle + GeoRAG em chatbot flutuante único (botão FAB)
 
 ### Média Prioridade
-3. **[FASE C1]** GeoRAG Semântico — ChromaDB + `sentence-transformers` multilíngue; `hybrid_query()` re-ranking
-4. **[FASE 5]** Monitoramento — retry logic, alertas de falha, logs persistentes
+3. **Exportação geral** — CSV/Excel de dados filtrados para qualquer período
+4. **Sidebar Filtro** — aprimorar tab Filtro (escopo, ambiente/ecossistema unificados, select-all)
 
 ### Baixa Prioridade
-5. **[FASE C2+C3]** Kepler.gl config + exportação CSV/GeoJSON dos resultados GeoRAG
-6. **Exportação geral** — CSV/Excel de dados filtrados para qualquer período
-7. **Módulo financeiro** — tracking de mercado associado a eventos críticos
+5. **[FASE 14]** Módulo financeiro — tracking de mercado associado a eventos críticos
+6. **Landing page** — página pública com visão geral do observatório
+7. **Hurst Analysis** — integração do expoente de Hurst para detecção de farmland via imagens satélite
