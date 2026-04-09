@@ -13,12 +13,20 @@ dist-ssr
 *.local
 
 # Large data files (download separately via npm run pipeline:download)
-analytics/data/ibge/*.geoparquet
-analytics/data/ibge/*.parquet
-analytics/__pycache__/
-analytics/**/__pycache__/
-analytics/**/*.pyc
+analytics/data/
 server/data/analytics/
+server/data/s2id/
+server/data/duckdb/
+!server/data/database.json
+
+# Tooling and metadata
+.agent/
+.claude/
+.kombai/
+*.pid
+__pycache__/
+**/__pycache__/
+*.pyc
 
 # Editor directories and files
 .vscode/*
