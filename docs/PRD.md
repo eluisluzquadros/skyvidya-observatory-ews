@@ -1,14 +1,14 @@
-# PRD — Skyvidya Observatory EWS v2.2
+# PRD — Skyvidya Observatory EWS v3.0
 **Produto:** Skyvidya Observatory: Early Warning System (EWS)
-**Versão:** 2.2
-**Última atualização:** 2026-03-20
+**Versão:** 3.0
+**Última atualização:** 2026-04-10
 **Status:** Em desenvolvimento ativo
 
 ---
 
 ## Visão do Produto
 
-Plataforma de comando e análise geoespacial de desastres naturais no Brasil. Combina dados históricos reais do Atlas Digital (45.942 eventos, 1994–presente) com análise espacial avançada (LISA/MCDA), visualização interativa 3D/2D, inteligência artificial generativa e design system 2026 para suporte à tomada de decisão em defesa civil e gestão de riscos.
+Plataforma de comando e análise geoespacial de desastres naturais no Brasil. Combina dados históricos reais do Atlas Digital (45.942 eventos, 1994–presente) com análise espacial avançada (LISA/MCDA), visualização interativa 3D/2D, inteligência artificial generativa, **Modern Geospatial Data Stack** (Kestra + dbt + DuckDB medallion) e design system 2026 para suporte à tomada de decisão em defesa civil e gestão de riscos.
 
 **Nome oficial:** Skyvidya Observatory: Early Warning System — EWS
 _(anterior: S2ID Command / Centro Integrado de Comando)_
@@ -24,7 +24,7 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 
 ---
 
-## Funcionalidades Implementadas (v2.1)
+## Funcionalidades Implementadas (v3.0)
 
 ### F1 — Dados Reais e Filtros de Período ✅
 - **45.942 eventos** do Atlas Digital servidos via Express.js (`/api/disasters`)
@@ -74,8 +74,9 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 ### F8 — Automação e Infraestrutura ✅
 - `npm run dev:all` com `concurrently` (frontend + backend + Python)
 - Scheduler node-cron trigger opcional pós-coleta Atlas
-- Indicador pipeline status na TopBar (MCDA ON/OFF)
+- Indicador pipeline status na TopBar (MCDA ON/OFF, link para Kestra UI)
 - Botão Refresh Analytics manual
+- Socket.IO: frontend escuta `pipeline-started/completed/failed` em tempo real
 
 ### F9 — Design System 2026 & Rebrand ✅
 - **Nome:** Skyvidya Observatory: Early Warning System — EWS
@@ -133,6 +134,40 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 
 ---
 
+### FASE MDS — Modern Geospatial Data Stack ✅
+**Status:** Implementado (entregue 2026-04-02)
+
+**Orquestração — Kestra CE**
+- DAG `ews.disaster/s2id-ingestion-pipeline` com 9 tasks (agendamento semanal seg 06:00 BRT)
+- Task 0: notifica frontend via `POST /api/pipeline/started` → Socket.IO `pipeline-started`
+- Tasks 1–2: health check Express + scraping S2ID (Puppeteer)
+- Task 3: Express spawna `bronze_ingest.py` via `runScript()`
+- Tasks 4–5: `dbt run silver` + `dbt run gold` (containers com `docker.volumes` bind-mount)
+- Tasks 6–7: Express spawna `lisa_analysis.py` + `export_gold_geojson.py`
+- Task 8: notifica frontend via `POST /api/pipeline/done` → Socket.IO `pipeline-completed`
+- Stack free-tier, local, via `npm run stack:up` (Docker Compose)
+
+**Transformações — dbt Core + DuckDB**
+- Adapter: `dbt-duckdb`; arquivo: `ews.duckdb` (spatial extension habilitada)
+- **Bronze** (`bronze.stg_s2id_raw`): `read_parquet(latest.parquet)` + audit cols
+- **Silver** (`silver.stg_s2id_clean`): incremental, dedup por `Protocolo_S2iD`, UF válida, join IBGE
+- **Gold** (`gold.mart_disasters`): risk S1–S5, rankings por município/UF
+- **Gold** (`gold.mart_analytics`): série temporal por UF
+- **Gold** (`gold.mart_disasters_geo`): spatial join disasters × polígonos IBGE
+- Testes de qualidade: `npm run dbt:test`
+
+**DuckDB-first no Express**
+- `/api/disasters` → `duckdbService.getSilverDisasters()` se DuckDB pronto; fallback `storage.ts`
+- `/api/stats` → `duckdbService.getGoldStats()` se DuckDB pronto; fallback `storage.ts`
+- Conexão lazy: DuckDB inicializa sob demanda; sem impacto em startup
+
+**Bug fixes incluídos**
+- `fetchWithRetry` em `geminiService.ts` — 3 tentativas com backoff exponencial
+- Default `preset: 'all'` no `App.tsx` (não `'24h'`) — corrige "0 eventos" no startup
+- `handleRefresh()` tenta Kestra REST API; fallback gracioso para reload local
+
+---
+
 ## Funcionalidades Planejadas (Roadmap)
 
 ### FASE 12 — Monitoramento Produção
@@ -176,6 +211,12 @@ _(anterior: S2ID Command / Centro Integrado de Comando)_
 | Fontes 2026 | Syne + Plus Jakarta Sans + JetBrains Mono | Syne: brand bold moderno; PJS: corpo geométrico legível; JBM: dados |
 | LLM | Gemini 2.5 Flash | Já integrado; sem custo adicional |
 | Sidebar auto-select | `useRef` one-shot + `handleEventSelect(filteredData[0])` | UX imediata; evita re-seleção em cada mudança de filtro |
+| Orquestrador | Kestra CE (Docker, free) | Airflow: pesado; GitHub Actions: sem UI visual de DAG |
+| Storage analítico | DuckDB embedded (`ews.duckdb`) | PostGIS exige servidor externo; DuckDB roda no processo Express |
+| Transformações | dbt Core + dbt-duckdb | Scripts Python ad-hoc não têm lineage, testes ou contratos de schema |
+| Script execution no Kestra | Express como proxy (`runScript()`) | Containers efêmeros no Kestra não herdam filesystem do host |
+| dbt em Kestra | `docker.volumes` bind-mount | Sem volumes dbt não consegue escrever no `ews.duckdb` do host |
+| DuckDB-first no Express | Silver → /api/disasters; Gold → /api/stats | Fallback para `storage.ts` garante zero downtime se pipeline não rodou |
 
 ---
 

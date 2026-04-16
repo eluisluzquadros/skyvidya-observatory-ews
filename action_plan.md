@@ -1,5 +1,5 @@
 # Action Plan — Skyvidya Observatory EWS
-**Última atualização:** 2026-03-20
+**Última atualização:** 2026-04-10
 
 ---
 
@@ -96,6 +96,47 @@
 - [x] Server-side aggregation: stat cards calculados no backend — eliminava distorção do limite de 2k eventos
 - [x] UTF-8 mojibake fix: `fix_mojibake()` em `report_data.py` — corrigiu 'MÃ©dio' → 'Médio', 'EstÃ¡vel' → 'Estável'
 
+## Modern Data Stack — Kestra + dbt + DuckDB Medallion ✅
+**Entregue:** 2026-04-02 (audit completo com 9 bug fixes)
+
+### Bug Fixes de Startup
+- [x] `fetchWithRetry` (3 tentativas, backoff exponencial) em `geminiService.ts`
+- [x] Default `preset: 'all'` no `App.tsx` — corrigiu "0 eventos" no startup
+- [x] `handleRefresh()` tenta Kestra; fallback gracioso para reload local
+- [x] `RealtimeConnection` real via `socket.io-client` em `apiService.ts`
+- [x] Indicador de pipeline na `TopBar.tsx` com link para Kestra UI
+
+### Pipeline / Infraestrutura
+- [x] `pipeline/docker-compose.yml` — Kestra CE com `volume-enabled: true`
+- [x] `pipeline/.env.example` — template `HOST_EWS_DATA` / `HOST_EWS_DBT`
+- [x] `pipeline/kestra/flows/s2id-ingestion.yml` — DAG 9 tasks (seg 06:00 BRT)
+- [x] `pipeline/scripts/bronze_ingest.py` — `database.json` → `bronze/latest.parquet`
+- [x] `pipeline/scripts/export_gold_geojson.py` — Gold DuckDB → `municipality_geometries.geojson`
+
+### dbt Models (Bronze → Silver → Gold)
+- [x] `pipeline/dbt/dbt_project.yml` — schemas bronze/silver/gold; adapter `dbt-duckdb`
+- [x] `pipeline/dbt/profiles.yml` — target dev (local) + docker (Kestra, path absoluto)
+- [x] `pipeline/dbt/packages.yml` — `dbt-utils >= 1.1.0`
+- [x] `bronze/stg_s2id_raw.sql` — `read_parquet(latest.parquet)` + audit cols
+- [x] `bronze/sources.yml` — freshness + schema contracts
+- [x] `silver/stg_s2id_clean.sql` — incremental, dedup, UF válida, join IBGE
+- [x] `silver/stg_ibge_municipalities.sql` — `cod_ibge` de `risk_analysis.json`
+- [x] `gold/mart_disasters.sql` — risk S1–S5, rankings (alimenta `/api/disasters`)
+- [x] `gold/mart_analytics.sql` — série temporal por UF (alimenta `/api/stats`)
+- [x] `gold/mart_disasters_geo.sql` — spatial join: disasters × polígonos IBGE
+
+### Express / Backend
+- [x] `server/src/services/duckdbService.ts` — conexão lazy, `getSilverDisasters()`, `getGoldStats()`
+- [x] `server/src/routes/pipeline.ts` — webhooks Kestra + `runScript()` + `/bronze`, `/lisa`, `/geo-export`
+- [x] `server/src/routes/api.ts` — DuckDB-first: Silver→`/disasters`, Gold→`/stats`; fallback `storage.ts`
+- [x] `server/src/services/analyticsData.ts` — `reload()` público chamado pós-pipeline
+- [x] Socket.IO broadcast: `pipeline-started` / `pipeline-completed` / `pipeline-failed`
+
+### Scripts npm adicionados
+- [x] `bronze:ingest`, `dbt:run`, `dbt:test`, `dbt:silver`, `dbt:gold`, `dbt:spatial`
+- [x] `geo:export`, `pipeline:full`, `pipeline:dbt`
+- [x] `stack:up`, `stack:down`, `stack:logs`
+
 ---
 
 ## Estatísticas do Dataset
@@ -126,3 +167,9 @@
 5. **[FASE 14]** Módulo financeiro — tracking de mercado associado a eventos críticos
 6. **Landing page** — página pública com visão geral do observatório
 7. **Hurst Analysis** — integração do expoente de Hurst para detecção de farmland via imagens satélite
+
+### Backlog Modern Data Stack (Fase 2)
+8. **Data Vault 2.0** — Hub/Link/Satellite sobre Silver (modelo evolutivo para histórico)
+9. **dbt exposures** — documentar quais endpoints Express consomem quais modelos Gold
+10. **`dbt source freshness`** — integrar health check de frescor dos dados na TopBar
+11. **Testes de integração** — `bronze:ingest` + `dbt:run` + assertions no DuckDB
